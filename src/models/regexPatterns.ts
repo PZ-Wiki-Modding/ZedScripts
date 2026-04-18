@@ -24,7 +24,7 @@ export const SCRIPT_FILE_REGEX = /\/media\/scripts\/[\/\w\s]*\.txt/;
  * {
  * ```
  */
-export const scriptBlockRegex = /^\s*(?<type>\w+)[^\r\n]?(?<id>[^\r\n]*?)\s+{/gm;
+export const scriptBlockRegex = /^\s*(?<type>\w+)[^\r\n]?(?<id>[^\r\n]*?)\s*{/gm;
 
 
 // NOTE(aoqia): I am not sure if the game ignores whitespace at the end of values.
