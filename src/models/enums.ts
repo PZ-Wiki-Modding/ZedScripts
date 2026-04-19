@@ -72,7 +72,7 @@ export enum DiagnosticType {
     ID_CANNOT_CONTAIN_SPACES = "ID '{id}' of '{scriptBlock}' block cannot contain spaces.",
 
     // parameter related diagnostics
-    UNKNOWN_PARAMETER = "'{parameter}' is an unknown parameter for '{scriptBlock}' block. [WIP: not every parameters are documented yet]",
+    UNKNOWN_PARAMETER = "'{parameter}' is an unknown parameter for '{scriptBlock}' block.",
     MISSING_PARAMETER = "'{scriptBlock}' block is missing required parameter(s): {parameters}.",
     DUPLICATE_PARAMETER = "'{parameter}' is defined multiple times in '{scriptBlock}' block.",
     MISSING_VALUE = "Missing a value.",
