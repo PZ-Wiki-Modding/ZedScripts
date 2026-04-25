@@ -6,7 +6,7 @@ import {
     SnippetString,
 } from "vscode";
 import * as vscode from "vscode";
-import { ScriptBlockParameter, BLOCK_NAMES } from "../scriptsBlocks/scriptsBlocksData";
+import { VALUE_TYPES, ScriptBlockParameter, BLOCK_NAMES } from "../scriptsBlocks/scriptsBlocksData";
 import {
     getScriptBlockData, 
     canHaveParent, 
@@ -114,8 +114,9 @@ export class PZCompletionItemProvider implements vscode.CompletionItemProvider {
     private formatParameter(param: ScriptBlockParameter): string {
         const name = param.name;
         let defaultValue = param.default || 'id';
-        if (param.type === 'array') {
-            defaultValue = (param.default as string[] || ['list']).join(';');
+        if (param.type?.main === VALUE_TYPES.ARRAY) {
+            const separator = param.type.array?.separator || ";";
+            defaultValue = (param.default as string[] || ['list']).join(separator);
         }
         return formatText(
             CompletionText.PARAMETER,

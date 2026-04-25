@@ -12,7 +12,8 @@ import { diagnostic } from '../providers/diagnostic';
 import { registerActionTextReplace } from '../providers/actions';
 import { 
     DeprecatedInfo,
-    ScriptBlockObject,
+    ObjectType,
+    ArrayType,
     ScriptBlockParameter, 
     VALUE_TYPES
 } from './scriptsBlocksData';
@@ -104,32 +105,34 @@ export class ScriptParameter {
             // type information
             const type = parameterData.type
             if (type) {
+                const typeMain = type.main;
                 const operator = `${color(":", ThemeColorType.OPERATOR)}`;
-                const typeColored = `${color(type, ThemeColorType.TYPE)}`;
+                const typeColored = `${color(typeMain, ThemeColorType.TYPE)}`;
                 parameter += ` ${operator} ${typeColored}`;
 
                 // an array should 'type[]'
-                if (type === VALUE_TYPES.ARRAY) {
-                    const arrayType = parameterData.arrayType || "string";
+                if (typeMain === VALUE_TYPES.ARRAY) {
+                    const arrayTypeData = this.getArrayTypeData()!;
+                    const arrayType = type.array?.type || "string";
                     const arrayTypeColored = `${color(arrayType, ThemeColorType.TYPE)}`;
                     parameter += `[${arrayTypeColored}]`;
 
-                    const separator = parameterData.separator || ";";
+                    const separator = arrayTypeData.separator || ";";
                     parameter += ` (separator '${color(separator, ThemeColorType.TYPE)}')`;
 
                 // an object should show 'type[keyType separator valueType]'
-                } else if (type === VALUE_TYPES.OBJECT) {
-                    const objectData = this.getObjectData();
-                    const keyValueSeparator = objectData.keyValueSeparator || ":";
-                    const keyType = objectData.keyType || "string";
-                    const valueType = objectData.valueType || "string";
+                } else if (typeMain === VALUE_TYPES.OBJECT) {
+                    const objectData = this.getObjectTypeData()!;
+                    const keyValueSeparator = objectData.keyValueSeparator;
+                    const keyType = objectData.keyType;
+                    const valueType = objectData.valueType;
                     
                     const keyTypeColored = `${color(keyType, ThemeColorType.TYPE)}`;
                     const valueTypeColored = `${color(valueType, ThemeColorType.TYPE)}`;
                     parameter += `[${keyTypeColored}${color(keyValueSeparator, ThemeColorType.OPERATOR)}${valueTypeColored}]`;
 
                     // this is the object key-values separator
-                    const separator = parameterData.separator || ";";
+                    const separator = objectData.pairsSeparator;
                     parameter += ` (separator '${color(separator, ThemeColorType.TYPE)}')`;
                 }
             }
@@ -140,9 +143,10 @@ export class ScriptParameter {
                 const operator = `${color("=", ThemeColorType.OPERATOR)}`;
                 let text;
                 if (type) {
+                    const typeMain = type.main;
                     let colorType = ThemeColorType.STRING;
                     // determine color based on type
-                    switch (type) {
+                    switch (typeMain) {
                         case "integer":
                         case "float":
                             text = color(String(defaultValue), ThemeColorType.NUMBER);
@@ -151,10 +155,11 @@ export class ScriptParameter {
                             text = color(String(defaultValue), ThemeColorType.BOOLEAN);
                             break;
                         case "array":
-                        case "object":
+                        // case "object":
                             // color array elements first
                             if (Array.isArray(defaultValue) && defaultValue.length > 1) {
-                                const separator = parameterData.separator || ";";
+                                const arrayTypeData = this.getArrayTypeData()!;
+                                const separator = arrayTypeData.separator || ";";
                                 const coloredElements = (defaultValue as string[]).map(elem => color(elem, ThemeColorType.STRING));
                                 text = formatList(coloredElements, separator + " ");
                             }
@@ -233,17 +238,17 @@ export class ScriptParameter {
         return null;
     }
 
-    public getObjectData(): ScriptBlockObject {
+    public getObjectTypeData(): ObjectType | undefined {
         const parameterData = this.getParameterData();
-        if (parameterData && parameterData.object) {
-            return parameterData.object;
-        }
-        return {
-            "keyValueSeparator": ":",
-            "keyType": "string",
-            "valueType": "string"
-        };
+        return parameterData?.type?.object;
     }
+
+    public getArrayTypeData(): ArrayType | undefined {
+        const parameterData = this.getParameterData();
+        return parameterData?.type?.array;
+    }
+
+
 
     public getDescription(): string {
         const parameterData = this.getParameterData();
@@ -251,7 +256,7 @@ export class ScriptParameter {
     }
 
     public getTypeOfValue(expectedType: string | undefined = undefined): string {
-        expectedType = expectedType || this.getParameterData()?.type;
+        expectedType = expectedType || this.getParameterData()?.type?.main;
 
         // I don't know how I feel about that lol 
         // but that's kind of the problem with scripts
@@ -380,7 +385,8 @@ export class ScriptParameter {
 
         // handle array case
         if (type === VALUE_TYPES.ARRAY || type === VALUE_TYPES.OBJECT) {
-            const separator = parameterData?.separator || ";";
+            const arrayTypeData = this.getArrayTypeData()!;
+            const separator = arrayTypeData.separator || ";";
             const values = this.value.split(separator).map(v => v.trim());
             return values;
 
@@ -518,7 +524,7 @@ export class ScriptParameter {
         // make sure the values if it's an object type properly use the correct separator and types
         if (this.getTypeOfValue() === VALUE_TYPES.OBJECT) {
             const values = this.getValues();
-            const objectData = this.getObjectData();
+            const objectData = this.getObjectTypeData()!;
             const keyValueSeparator = objectData.keyValueSeparator || ":";
             const invalidFormatValues = values.filter(value => !value.includes(keyValueSeparator));
             if (invalidFormatValues.length > 0) {
@@ -610,7 +616,7 @@ export class ScriptParameter {
         // verify the type
         const parameterData = this.getParameterData();
         if (parameterData && parameterData.type) {
-            const expectedType = parameterData.type;
+            const expectedType = parameterData.type.main;
             const actualType = this.getTypeOfValue();
             const isValidType = actualType === expectedType;
             if (!isValidType) {
@@ -640,7 +646,7 @@ export class ScriptParameter {
 
         // verify the block reference if any
         // this needs to be ran after all blocks from libs have been
-        if (parameterData && parameterData.blockType) {
+        if (parameterData && parameterData.type && parameterData.type.block) {
             // try to access to the module and block from the value
             const blockTypeOfValue = this.getBlockTypeOfValue();
             if (!blockTypeOfValue) {
@@ -649,11 +655,11 @@ export class ScriptParameter {
                     { value: this.value, parameter: this.parameter },
                     this.valueRange.start,
                     this.valueRange.end,
-                    vscode.DiagnosticSeverity.Error
+                    vscode.DiagnosticSeverity.Warning
                 );
                 return false;
             }
-            const blockType = parameterData.blockType;
+            const blockType = parameterData.type.block;
             const canFullType = blockType.fullType;
             
             let [module, block] = blockTypeOfValue;
@@ -692,7 +698,7 @@ export class ScriptParameter {
                 var searchableModules = [module];
             }
 
-            const expectedBlock = blockType.block;
+            const expectedBlock = blockType.name;
             const refBlocks = DocumentBlock.findBlockFromFullType(expectedBlock, searchableModules, block);
             if (refBlocks.length === 0) {
                 this.diagnostic(

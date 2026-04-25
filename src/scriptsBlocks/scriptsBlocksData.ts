@@ -37,25 +37,56 @@ export interface IndexRange {
     end: number;
 }
 
-export type ScriptBlockValue = string | number | boolean;
 
+
+// PARAMETER DATA
+export type ScriptBlockValue = string | number | boolean;
 export interface ScriptBlockParameter {
     name: string;
     description?: string;
     allowedDuplicate?: boolean;
     canBeEmpty?: boolean;
     default?: ScriptBlockValue[];
-    type?: "string" | "integer" | "float" | "boolean" | "array" | "object";
-    blockType?: ScriptBlockType;
-    arrayType?: "string" | "integer" | "float" | "boolean"; // if type is array, the type of the values in the array
-    separator?: string; // if type is array, the separator used to split values (default is ;)
-    object?: ScriptBlockObject; // if type is object, the expected structure of the object
+    type?: ParameterType;
     required?: boolean;
     deprecated?: DeprecatedInfo;
     values?: ScriptBlockValue[];
     needs?: ScriptBlockNeeds[];
 }
 
+
+// TYPINGS
+export interface BlockType {
+    name: string; // the block type (e.g. "sound", "item", "model"...)
+    fullType: boolean; // if true, this should use the module to reference the block
+}
+
+export interface ArrayType {
+    separator: string;
+    type: "string" | "integer" | "float" | "boolean";
+}
+
+export interface ObjectType {
+    keyValueSeparator: string; // the separator used to split key and value
+    keyType: "string" | "integer" | "float" | "boolean";
+    valueType: "string" | "integer" | "float" | "boolean";
+    pairsSeparator: string; // the separator used to split different key-value pairs
+}
+
+export interface ScriptBlockType {
+    block: string;
+    fullType: boolean; // if true, this can use the module to reference the block
+}
+
+export interface ParameterType {
+    main: "string" | "integer" | "float" | "boolean" | "array" | "object";
+    array?: ArrayType;
+    object?: ObjectType;
+    block?: BlockType;
+}
+
+
+// NEEDS AND DEPRECATED
 export interface ScriptBlockNeeds {
     name?: string; // the dependent parameter
     values?: ScriptBlockValue[]; // list of possible values for the dependent parameter
@@ -68,6 +99,8 @@ export interface DeprecatedInfo {
     version?: string;
 }
 
+
+// ID
 export interface ScriptBlockID {
     parentsWithout?: string[];
     values?: string[];
@@ -76,18 +109,8 @@ export interface ScriptBlockID {
     canHaveSpace?: boolean;
 }
 
-export interface ScriptBlockType {
-    block: string;
-    fullType: boolean; // if true, this can use the module to reference the block
-}
 
-export interface ScriptBlockObject {
-    keyValueSeparator?: string; // the separator used to split key and value (default is :)
-    keyType?: "string" | "integer" | "float" | "boolean"; // the expected type of the keys in the object
-    valueType?: "string" | "integer" | "float" | "boolean"; // the expected type of the values in the object
-}
-
-
+// INPUT FOR CRAFTRECIPE
 export interface InputAnalysisProperty {
     source: string,
     value: any,
@@ -109,6 +132,8 @@ export interface InputParameterData {
     description: string;
 }
 
+
+// FUNCTIONS AND FORMATTED DATA
 function mapScriptTypes(data: ScriptData): { [key: string]: ScriptBlockData } {
     return Object.fromEntries(
         Object.entries(data).map(([key, value]) => [key.toLowerCase(), value])
