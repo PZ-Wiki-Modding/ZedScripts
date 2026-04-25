@@ -107,169 +107,416 @@
     "ID": {},
     "parameters": {
       "animaltrailersize": {
-        "name": "animalTrailerSize"
-      },
-      "area": {
-        "name": "area"
-      },
-      "attachment": {
-        "name": "attachment"
+        "name": "animalTrailerSize",
+        "type": {
+          "main": "float"
+        },
+        "description": "Sets the maximum total encumbrance from animals in the animal trailer. The horsebox and livestock trailers both use 500."
       },
       "brakingforce": {
         "name": "brakingForce"
       },
       "carmechanicsoverlay": {
-        "name": "carMechanicsOverlay"
+        "name": "carMechanicsOverlay",
+        "type": {
+          "main": "string"
+        }
       },
       "carmodelname": {
-        "name": "carModelName"
+        "name": "carModelName",
+        "type": {
+          "main": "string"
+        },
+        "description": "Set the [translation](https://pzwiki.net/wiki/Translation) key for the car name. The translation entry needs to be stored inside the IG_UI translation file and have `IGUI_VehicleName` as a prefix. \n\nFor example:\n```cpp\ncarModelName = YourCar,\n```\n\nWith the translation entry inside `IG_UI.json`:\n```json\n{\n  \"IGUI_VehicleNameYourCar\": \"Your car model\"\n}\n```"
       },
       "centerofmassoffset": {
         "name": "centerOfMassOffset"
       },
       "engineforce": {
-        "name": "engineForce"
+        "name": "engineForce",
+        "type": {
+          "main": "float"
+        },
+        "default": 3000,
+        "description": "engineForce is 10x what is displayed in the mechanics menu for horsepower."
+      },
+      "engineidlespeed": {
+        "name": "engineIdleSpeed",
+        "type": {
+          "main": "float"
+        },
+        "default": 750.0
       },
       "engineloudness": {
-        "name": "engineLoudness"
+        "name": "engineLoudness",
+        "type": {
+          "main": "integer"
+        },
+        "default": 100
       },
       "enginequality": {
-        "name": "engineQuality"
+        "name": "engineQuality",
+        "type": {
+          "main": "integer"
+        },
+        "default": 100
       },
       "enginerepairlevel": {
-        "name": "engineRepairLevel"
+        "name": "engineRepairLevel",
+        "type": {
+          "main": "integer"
+        },
+        "description": "Required [mechanics skill](https://pzwiki.net/wiki/Mechanics) level for repearing the vehicle's engine."
       },
       "enginerpmtype": {
-        "name": "engineRPMType"
+        "name": "engineRPMType",
+        "type": {
+          "main": "string"
+        },
+        "default": "jeep",
+        "description": "Sets the engine to a RPM type ([See vehicleEngineRPM block](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/vehicleenginerpm.html))."
       },
       "extents": {
-        "name": "extents"
+        "name": "extents",
+        "type": {
+          "main": "array",
+          "array": {
+            "type": "float",
+            "separator": " "
+          }
+        }
       },
       "extentsoffset": {
-        "name": "extentsOffset"
+        "name": "extentsOffset",
+        "type": {
+          "main": "array",
+          "array": {
+            "type": "float",
+            "separator": " "
+          }
+        }
+      },
+      "forcedcolor": {
+        "name": "forcedColor",
+        "type": {
+          "main": "array",
+          "array": {
+            "type": "float",
+            "separator": " "
+          }
+        },
+        "description": "Sets a forced HSV color on the vehicle. The value needs to be of format `hue sat val`.",
+        "default": "-1 -1 -1"
+      },
+      "frontenddurability": {
+        "name": "frontEndDurability",
+        "type": {
+          "main": "integer"
+        },
+        "default": 100,
+        "description": "It is unclear what that parameter does but as of 42.16.3, the game uses `frontEndHealth` which is a mistake."
       },
       "frontendhealth": {
-        "name": "frontEndHealth"
-      },
-      "gearratio1": {
-        "name": "gearRatio1"
-      },
-      "gearratio2": {
-        "name": "gearRatio2"
-      },
-      "gearratio3": {
-        "name": "gearRatio3"
-      },
-      "gearratio4": {
-        "name": "gearRatio4"
-      },
-      "gearratio5": {
-        "name": "gearRatio5"
-      },
-      "gearratiocount": {
-        "name": "gearRatioCount"
+        "name": "frontEndHealth",
+        "deprecated": {
+          "description": "While that parameter is present in vanilla scripts as of 42.16.3, it actually does nothing because it is not parsed as `frontEndHealth` but as `frontEndDurability`.",
+          "replacedBy": "frontEndDurability"
+        }
       },
       "gearratior": {
-        "name": "gearRatioR"
+        "name": "gearRatioR",
+        "#desc": "vehicle/gearRatioCount",
+        "type": {
+          "main": "float"
+        },
+        "default": 7.09,
+        "description": "[gearRatioCount](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/vehicle.html#vehicle-gearratiocount) will set the number of gear ratios the car can have. The vanilla cars use 4, while sport cars use 5. \n\nA maximum of 9 ratios can be set with the parameters:\n- [gearRatioR](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/vehicle.html#vehicle-gearratiocount) (the reverse gear ratio)\n- [gearRatio1](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/vehicle.html#vehicle-gearratio1)\n- [gearRatio2](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/vehicle.html#vehicle-gearratio2)\n- [gearRatio3](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/vehicle.html#vehicle-gearratio3)\n- [gearRatio4](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/vehicle.html#vehicle-gearratio4)\n- [gearRatio5](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/vehicle.html#vehicle-gearratio5)\n- [gearRatio6](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/vehicle.html#vehicle-gearratio6)\n- [gearRatio7](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/vehicle.html#vehicle-gearratio7)\n- [gearRatio8](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/vehicle.html#vehicle-gearratio8)\n\nThose ratios take floats"
+      },
+      "gearratio1": {
+        "name": "gearRatio1",
+        "#desc": "vehicle/gearRatioCount",
+        "type": {
+          "main": "float"
+        },
+        "default": 6.44,
+        "description": "[gearRatioCount](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/vehicle.html#vehicle-gearratiocount) will set the number of gear ratios the car can have. The vanilla cars use 4, while sport cars use 5. \n\nA maximum of 9 ratios can be set with the parameters:\n- [gearRatioR](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/vehicle.html#vehicle-gearratiocount) (the reverse gear ratio)\n- [gearRatio1](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/vehicle.html#vehicle-gearratio1)\n- [gearRatio2](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/vehicle.html#vehicle-gearratio2)\n- [gearRatio3](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/vehicle.html#vehicle-gearratio3)\n- [gearRatio4](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/vehicle.html#vehicle-gearratio4)\n- [gearRatio5](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/vehicle.html#vehicle-gearratio5)\n- [gearRatio6](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/vehicle.html#vehicle-gearratio6)\n- [gearRatio7](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/vehicle.html#vehicle-gearratio7)\n- [gearRatio8](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/vehicle.html#vehicle-gearratio8)\n\nThose ratios take floats"
+      },
+      "gearratio2": {
+        "name": "gearRatio2",
+        "#desc": "vehicle/gearRatioCount",
+        "default": 4.1,
+        "description": "[gearRatioCount](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/vehicle.html#vehicle-gearratiocount) will set the number of gear ratios the car can have. The vanilla cars use 4, while sport cars use 5. \n\nA maximum of 9 ratios can be set with the parameters:\n- [gearRatioR](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/vehicle.html#vehicle-gearratiocount) (the reverse gear ratio)\n- [gearRatio1](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/vehicle.html#vehicle-gearratio1)\n- [gearRatio2](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/vehicle.html#vehicle-gearratio2)\n- [gearRatio3](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/vehicle.html#vehicle-gearratio3)\n- [gearRatio4](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/vehicle.html#vehicle-gearratio4)\n- [gearRatio5](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/vehicle.html#vehicle-gearratio5)\n- [gearRatio6](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/vehicle.html#vehicle-gearratio6)\n- [gearRatio7](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/vehicle.html#vehicle-gearratio7)\n- [gearRatio8](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/vehicle.html#vehicle-gearratio8)\n\nThose ratios take floats"
+      },
+      "gearratio3": {
+        "name": "gearRatio3",
+        "#desc": "vehicle/gearRatioCount",
+        "default": 2.29,
+        "description": "[gearRatioCount](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/vehicle.html#vehicle-gearratiocount) will set the number of gear ratios the car can have. The vanilla cars use 4, while sport cars use 5. \n\nA maximum of 9 ratios can be set with the parameters:\n- [gearRatioR](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/vehicle.html#vehicle-gearratiocount) (the reverse gear ratio)\n- [gearRatio1](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/vehicle.html#vehicle-gearratio1)\n- [gearRatio2](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/vehicle.html#vehicle-gearratio2)\n- [gearRatio3](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/vehicle.html#vehicle-gearratio3)\n- [gearRatio4](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/vehicle.html#vehicle-gearratio4)\n- [gearRatio5](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/vehicle.html#vehicle-gearratio5)\n- [gearRatio6](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/vehicle.html#vehicle-gearratio6)\n- [gearRatio7](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/vehicle.html#vehicle-gearratio7)\n- [gearRatio8](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/vehicle.html#vehicle-gearratio8)\n\nThose ratios take floats"
+      },
+      "gearratio4": {
+        "name": "gearRatio4",
+        "#desc": "vehicle/gearRatioCount",
+        "default": 1.47,
+        "description": "[gearRatioCount](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/vehicle.html#vehicle-gearratiocount) will set the number of gear ratios the car can have. The vanilla cars use 4, while sport cars use 5. \n\nA maximum of 9 ratios can be set with the parameters:\n- [gearRatioR](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/vehicle.html#vehicle-gearratiocount) (the reverse gear ratio)\n- [gearRatio1](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/vehicle.html#vehicle-gearratio1)\n- [gearRatio2](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/vehicle.html#vehicle-gearratio2)\n- [gearRatio3](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/vehicle.html#vehicle-gearratio3)\n- [gearRatio4](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/vehicle.html#vehicle-gearratio4)\n- [gearRatio5](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/vehicle.html#vehicle-gearratio5)\n- [gearRatio6](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/vehicle.html#vehicle-gearratio6)\n- [gearRatio7](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/vehicle.html#vehicle-gearratio7)\n- [gearRatio8](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/vehicle.html#vehicle-gearratio8)\n\nThose ratios take floats"
+      },
+      "gearratio5": {
+        "name": "gearRatio5",
+        "#desc": "vehicle/gearRatioCount",
+        "default": 1.0,
+        "description": "[gearRatioCount](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/vehicle.html#vehicle-gearratiocount) will set the number of gear ratios the car can have. The vanilla cars use 4, while sport cars use 5. \n\nA maximum of 9 ratios can be set with the parameters:\n- [gearRatioR](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/vehicle.html#vehicle-gearratiocount) (the reverse gear ratio)\n- [gearRatio1](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/vehicle.html#vehicle-gearratio1)\n- [gearRatio2](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/vehicle.html#vehicle-gearratio2)\n- [gearRatio3](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/vehicle.html#vehicle-gearratio3)\n- [gearRatio4](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/vehicle.html#vehicle-gearratio4)\n- [gearRatio5](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/vehicle.html#vehicle-gearratio5)\n- [gearRatio6](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/vehicle.html#vehicle-gearratio6)\n- [gearRatio7](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/vehicle.html#vehicle-gearratio7)\n- [gearRatio8](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/vehicle.html#vehicle-gearratio8)\n\nThose ratios take floats"
+      },
+      "gearratio6": {
+        "name": "gearRatio6",
+        "#desc": "vehicle/gearRatioCount",
+        "description": "[gearRatioCount](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/vehicle.html#vehicle-gearratiocount) will set the number of gear ratios the car can have. The vanilla cars use 4, while sport cars use 5. \n\nA maximum of 9 ratios can be set with the parameters:\n- [gearRatioR](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/vehicle.html#vehicle-gearratiocount) (the reverse gear ratio)\n- [gearRatio1](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/vehicle.html#vehicle-gearratio1)\n- [gearRatio2](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/vehicle.html#vehicle-gearratio2)\n- [gearRatio3](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/vehicle.html#vehicle-gearratio3)\n- [gearRatio4](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/vehicle.html#vehicle-gearratio4)\n- [gearRatio5](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/vehicle.html#vehicle-gearratio5)\n- [gearRatio6](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/vehicle.html#vehicle-gearratio6)\n- [gearRatio7](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/vehicle.html#vehicle-gearratio7)\n- [gearRatio8](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/vehicle.html#vehicle-gearratio8)\n\nThose ratios take floats"
+      },
+      "gearratio7": {
+        "name": "gearRatio7",
+        "#desc": "vehicle/gearRatioCount",
+        "description": "[gearRatioCount](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/vehicle.html#vehicle-gearratiocount) will set the number of gear ratios the car can have. The vanilla cars use 4, while sport cars use 5. \n\nA maximum of 9 ratios can be set with the parameters:\n- [gearRatioR](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/vehicle.html#vehicle-gearratiocount) (the reverse gear ratio)\n- [gearRatio1](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/vehicle.html#vehicle-gearratio1)\n- [gearRatio2](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/vehicle.html#vehicle-gearratio2)\n- [gearRatio3](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/vehicle.html#vehicle-gearratio3)\n- [gearRatio4](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/vehicle.html#vehicle-gearratio4)\n- [gearRatio5](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/vehicle.html#vehicle-gearratio5)\n- [gearRatio6](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/vehicle.html#vehicle-gearratio6)\n- [gearRatio7](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/vehicle.html#vehicle-gearratio7)\n- [gearRatio8](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/vehicle.html#vehicle-gearratio8)\n\nThose ratios take floats"
+      },
+      "gearratio8": {
+        "name": "gearRatio8",
+        "#desc": "vehicle/gearRatioCount",
+        "description": "[gearRatioCount](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/vehicle.html#vehicle-gearratiocount) will set the number of gear ratios the car can have. The vanilla cars use 4, while sport cars use 5. \n\nA maximum of 9 ratios can be set with the parameters:\n- [gearRatioR](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/vehicle.html#vehicle-gearratiocount) (the reverse gear ratio)\n- [gearRatio1](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/vehicle.html#vehicle-gearratio1)\n- [gearRatio2](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/vehicle.html#vehicle-gearratio2)\n- [gearRatio3](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/vehicle.html#vehicle-gearratio3)\n- [gearRatio4](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/vehicle.html#vehicle-gearratio4)\n- [gearRatio5](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/vehicle.html#vehicle-gearratio5)\n- [gearRatio6](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/vehicle.html#vehicle-gearratio6)\n- [gearRatio7](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/vehicle.html#vehicle-gearratio7)\n- [gearRatio8](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/vehicle.html#vehicle-gearratio8)\n\nThose ratios take floats"
+      },
+      "gearratiocount": {
+        "name": "gearRatioCount",
+        "default": 4,
+        "type": {
+          "main": "integer"
+        },
+        "description": "[gearRatioCount](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/vehicle.html#vehicle-gearratiocount) will set the number of gear ratios the car can have. The vanilla cars use 4, while sport cars use 5. \n\nA maximum of 9 ratios can be set with the parameters:\n- [gearRatioR](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/vehicle.html#vehicle-gearratiocount) (the reverse gear ratio)\n- [gearRatio1](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/vehicle.html#vehicle-gearratio1)\n- [gearRatio2](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/vehicle.html#vehicle-gearratio2)\n- [gearRatio3](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/vehicle.html#vehicle-gearratio3)\n- [gearRatio4](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/vehicle.html#vehicle-gearratio4)\n- [gearRatio5](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/vehicle.html#vehicle-gearratio5)\n- [gearRatio6](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/vehicle.html#vehicle-gearratio6)\n- [gearRatio7](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/vehicle.html#vehicle-gearratio7)\n- [gearRatio8](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/vehicle.html#vehicle-gearratio8)\n\nThose ratios take floats"
+      },
+      "haslighter": {
+        "name": "hasLighter",
+        "type": {
+          "main": "boolean"
+        },
+        "default": true,
+        "description": "Sets whenever this car has a lighter to light a cigarette."
+      },
+      "hassiren": {
+        "name": "hasSiren",
+        "type": {
+          "main": "boolean"
+        },
+        "isUseless": true
       },
       "issmallvehicle": {
-        "name": "isSmallVehicle"
-      },
-      "lightbar": {
-        "name": "lightbar"
+        "name": "isSmallVehicle",
+        "type": {
+          "main": "boolean"
+        },
+        "default": true
       },
       "mass": {
-        "name": "mass"
+        "name": "mass",
+        "type": {
+          "main": "float"
+        },
+        "default": 800,
+        "description": "Sets the mass of the vehicle which will notably be used for various physic calculations. \n\nBy default is equal to 800. As a reference, a car has a mass of around 800, pickup trucks have around 1100, a simple trailer around 200, a burnt vehicle 400 or 500. See the game scripts for more examples. Values in excess of 1400 can cause vehicle wheels to start sinking into the ground and be unable to move."
       },
       "maxspeed": {
-        "name": "maxSpeed"
+        "name": "maxSpeed",
+        "type": {
+          "main": "float"
+        },
+        "default": 20.0
+      },
+      "maxspeedreverse": {
+        "name": "maxSpeedReverse",
+        "type": {
+          "main": "float"
+        },
+        "default": 40.0
       },
       "maxsuspensiontravelcm": {
-        "name": "maxSuspensionTravelCm"
+        "name": "maxSuspensionTravelCm",
+        "type": {
+          "main": "float"
+        },
+        "default": 500.0
       },
       "mechanictype": {
-        "name": "mechanicType"
-      },
-      "model": {
-        "name": "model"
+        "name": "mechanicType",
+        "type": {
+          "main": "integer"
+        },
+        "description": "Defines what class the vehicle is, that is 1 for standard, 2 for heavy-duty and 3 for performance.",
+        "values": [
+          1,
+          2,
+          3
+        ]
       },
       "neverspawnkey": {
-        "name": "neverSpawnKey"
+        "name": "neverSpawnKey",
+        "type": {
+          "main": "boolean"
+        },
+        "description": "Sets whenever this vehicle will never have a key spawning in buildings or on zombies spawning around the vehicle."
+      },
+      "notkillcrops": {
+        "name": "notKillCrops",
+        "type": {
+          "main": "boolean"
+        },
+        "description": "Sets whenever the vehicle will destroy crops it is driving on."
       },
       "offroadefficiency": {
-        "name": "offRoadEfficiency"
-      },
-      "part": {
-        "name": "part"
-      },
-      "passenger": {
-        "name": "passenger"
-      },
-      "physics": {
-        "name": "physics"
+        "name": "offRoadEfficiency",
+        "type": {
+          "main": "float"
+        },
+        "default": 1.0,
+        "description": "Affects horsepower reduction when offroad (Higher = less horsepower reduction when offroad.)"
       },
       "physicschassisshape": {
-        "name": "physicsChassisShape"
+        "name": "physicsChassisShape",
+        "type": {
+          "main": "array"
+        },
+        "description": "Defines the hitbox of the vehicle. The value should be three numbers defining the dimensions of a box:\n```\nphysicsChassisShape = height width length,\n```\n\nFor example:\n```\nphysicsChassisShape = height width length,\n```\n\nWhen setting [useChassisPhysicsCollision](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/vehicle.html#vehicle-usechassisphysicscollision) to `false`, it will instead use [physics](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/physics.html) for the hitbox of the vehicle."
       },
       "playerdamageprotection": {
-        "name": "playerDamageProtection"
+        "name": "playerDamageProtection",
+        "type": {
+          "main": "float"
+        },
+        "description": "Multiplier applied to the amount of damage the player takes when crashing in the car. A value of 1 doesn't change the damage, but a lower value reduces it and a higher value increases it."
+      },
+      "rearenddurability": {
+        "name": "rearEndDurability",
+        "type": {
+          "main": "integer"
+        },
+        "default": 100,
+        "description": "It is unclear what that parameter does but as of 42.16.3, the game uses `rearEndHealth` which is a mistake."
       },
       "rearendhealth": {
-        "name": "rearEndHealth"
+        "name": "rearEndHealth",
+        "deprecated": {
+          "description": "While that parameter is present in vanilla scripts as of 42.16.3, it actually does nothing because it is not parsed as `rearEndHealth` but as `rearEndDurability`.",
+          "replacedBy": "rearEndDurability"
+        }
       },
       "rollinfluence": {
-        "name": "rollInfluence"
-      },
-      "seatnumber": {
-        "name": "seatNumber"
+        "name": "rollInfluence",
+        "type": {
+          "main": "float"
+        },
+        "default": 0.1
       },
       "seats": {
-        "name": "seats"
+        "name": "seats",
+        "type": {
+          "main": "integer"
+        },
+        "default": 2,
+        "description": "Sets the number of seats this vehicle can have. A seat [part](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/part.html) needs to be created which will hold a [container](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/container.html#container) block with a parameter [seat](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/container.html#container-seat)"
       },
       "shadowextents": {
-        "name": "shadowExtents"
+        "name": "shadowExtents",
+        "type": {
+          "main": "array",
+          "array": {
+            "type": "float",
+            "separator": " "
+          }
+        }
       },
       "shadowoffset": {
-        "name": "shadowOffset"
-      },
-      "skin": {
-        "name": "skin"
-      },
-      "sound": {
-        "name": "sound"
-      },
-      "spawnoffsety": {
-        "name": "spawnOffsetY"
+        "name": "shadowOffset",
+        "type": {
+          "main": "array",
+          "array": {
+            "type": "float",
+            "separator": " "
+          }
+        }
       },
       "specialkeyring": {
-        "name": "specialKeyRing"
+        "name": "specialKeyRing",
+        "type": {
+          "main": "array"
+        },
+        "description": "`specialKeyRing` needs to reference a keyring item to spawn. `specialKeyRingChance` is used to set the chance to spawn this keyring."
       },
       "specialkeyringchance": {
-        "name": "specialKeyRingChance"
+        "name": "specialKeyRingChance",
+        "#desc": "vehicle/specialKeyRing",
+        "type": {
+          "main": "integer"
+        },
+        "description": "`specialKeyRing` needs to reference a keyring item to spawn. `specialKeyRingChance` is used to set the chance to spawn this keyring."
       },
       "speciallootchance": {
-        "name": "specialLootChance"
+        "name": "specialLootChance",
+        "type": {
+          "main": "integer"
+        },
+        "default": 8
       },
       "steeringclamp": {
-        "name": "steeringClamp"
+        "name": "steeringClamp",
+        "type": {
+          "main": "float"
+        },
+        "default": 0.4,
+        "description": "Maximum angle you can turn the front wheels left/right"
       },
       "steeringincrement": {
-        "name": "steeringIncrement"
+        "name": "steeringIncrement",
+        "type": {
+          "main": "float"
+        },
+        "default": 0.04
       },
       "stoppingmovementforce": {
-        "name": "stoppingMovementForce"
+        "name": "stoppingMovementForce",
+        "type": {
+          "main": "float"
+        },
+        "default": 1.0,
+        "description": "A drag factor applied to the vehicle at all times"
+      },
+      "storagecapacity": {
+        "name": "storageCapacity",
+        "isUseless": true,
+        "type": {
+          "main": "integer"
+        },
+        "default": 100
       },
       "suspensioncompression": {
-        "name": "suspensionCompression"
+        "name": "suspensionCompression",
+        "type": {
+          "main": "float"
+        },
+        "default": 4.4
       },
       "suspensiondamping": {
-        "name": "suspensionDamping"
+        "name": "suspensionDamping",
+        "type": {
+          "main": "float"
+        },
+        "default": 2.3
       },
       "suspensionrestlength": {
-        "name": "suspensionRestLength"
+        "name": "suspensionRestLength",
+        "type": {
+          "main": "float"
+        },
+        "default": 0.6
       },
       "suspensionstiffness": {
-        "name": "suspensionStiffness"
+        "name": "suspensionStiffness",
+        "type": {
+          "main": "float"
+        },
+        "default": 20.0
       },
       "template": {
         "name": "template",
@@ -281,37 +528,86 @@
         "allowedDuplicate": true
       },
       "texturedamage1overlay": {
-        "name": "textureDamage1Overlay"
+        "name": "textureDamage1Overlay",
+        "type": {
+          "main": "string"
+        }
       },
       "texturedamage1shell": {
-        "name": "textureDamage1Shell"
+        "name": "textureDamage1Shell",
+        "type": {
+          "main": "string"
+        }
       },
       "texturedamage2overlay": {
-        "name": "textureDamage2Overlay"
+        "name": "textureDamage2Overlay",
+        "type": {
+          "main": "string"
+        }
       },
       "texturedamage2shell": {
-        "name": "textureDamage2Shell"
+        "name": "textureDamage2Shell",
+        "type": {
+          "main": "string"
+        }
       },
       "texturelights": {
-        "name": "textureLights"
+        "name": "textureLights",
+        "type": {
+          "main": "string"
+        }
       },
       "texturemask": {
-        "name": "textureMask"
+        "name": "textureMask",
+        "type": {
+          "main": "string"
+        }
+      },
+      "texturemaskenable": {
+        "name": "textureMaskEnable",
+        "type": {
+          "main": "boolean"
+        },
+        "isUseless": true
       },
       "texturerust": {
-        "name": "textureRust"
+        "name": "textureRust",
+        "type": {
+          "main": "string"
+        }
+      },
+      "textureshadow": {
+        "name": "textureShadow",
+        "type": {
+          "main": "string"
+        }
       },
       "usechassisphysicscollision": {
-        "name": "useChassisPhysicsCollision"
-      },
-      "wheel": {
-        "name": "wheel"
+        "name": "useChassisPhysicsCollision",
+        "default": true,
+        "type": {
+          "main": "boolean"
+        },
+        "description": "By default `true` which makes the vehicle use the [physicsChassisShape](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/vehicle.html#vehicle-physicschassisshape) for its hitbox. If set to false, it will instead use the [physics](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/physics.html) blocks as the hitbox of the vehicle."
       },
       "wheelfriction": {
-        "name": "wheelFriction"
+        "name": "wheelFriction",
+        "type": {
+          "main": "float"
+        },
+        "default": 800.0,
+        "description": "It is 1.2 to 1.9 for all vanilla vehicles and controls turning and stopping (but not acceleration) tire friction limits, with 1.4 being the most common. Values over 1.8 can cause vehicles to flip in sharp turns. (Likely depends somewhat on center of mass) "
       },
       "zombietype": {
-        "name": "zombieType"
+        "name": "zombieType",
+        "type": {
+          "main": "array",
+          "array": {
+            "type": "string",
+            "separator": ";"
+          }
+        },
+        "description": "Used to chose what zombie may spawn around the vehicle and is likely to have the key of the vehicle."
       }
     }
   },
@@ -367,19 +663,23 @@
     "parameters": {
       "version": {
         "name": "version",
-        "type": "integer",
+        "type": {
+          "main": "integer"
+        },
         "description": "Version of the TMXconfig file. Should be 1 for now."
       },
       "revision": {
         "name": "revision",
-        "type": "integer",
+        "type": {
+          "main": "integer"
+        },
         "description": "Revision of the TMXconfig file. Keep it to 11 for now."
       }
     }
   },
   "attachment": {
     "name": "attachment",
-    "description": "Defines an attachment point on a model or vehicle block. The ID is the attachment name, it can be a custom ID or an existing one often used to define specific attachments. While manually modifying the attachment block is definitely possible, it is recommended to use the [attachment editor](https://pzwiki.net/wiki/Attachment_Editor) to create and edit those attachments.",
+    "description": "Defines an attachment point on a [model](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/model.html) or [vehicle](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/vehicle.html) block. The ID is the attachment name, it can be a custom ID or an existing one often used to define specific attachments. While manually modifying the attachment block is definitely possible, it is recommended to use the [attachment editor](https://pzwiki.net/wiki/Attachment_Editor) to create and edit those attachments.\n\nThe syntax of this block should be as follows:\n```cpp\nmodel upperScriptDefinition\n{\n    ...\n    attachment attachmentPointName\n    {\n        ...\n    }\n    ...\n}\n```\n\nFor example:\n```cpp\nmodel Burger\n{\n    mesh = Burger,\n\n    attachment Bip01_Prop2\n    {\n        offset = 0.0142 0.0401 0.0000,\n        rotate = -23.3606 21.2788 37.5386,\n        scale = 0.8280,\n    }\n}\n```\n\nHere is a list of attachment points provided by the game:\n- 1schoolbaglefthand\n- 1schoolbagrighthand\n- AnkleHolster\n- Bip01_Prop1\n- Bip01_Prop2\n- ShoulderHolster\n- axe_back\n- back\n- back_guitar\n- back_guitar_acoustic\n- backpack_left\n- bedroll_bottom\n- bedroll_bottom_alice\n- bedroll_bottom_big\n- belt_left\n- belt_left_screwdriver\n- belt_left_upside\n- belt_right\n- belt_right_screwdriver\n- belt_right_upside\n- belt_rotated_left\n- belt_rotated_right\n- big_blade_back_bag\n- big_w_back\n- big_w_back_bag\n- bighikingbaglefthand\n- bighikingbagrighthand\n- blade_back\n- crowbar_back\n- duffelbaglefthand\n- duffelbagrighthand\n- fryingpan_back\n- fryingpan_back_bag\n- hikingbaglefthand\n- hikingbagrighthand\n- holster_left\n- holster_right\n- knife_belt_back\n- knife_belt_front\n- knife_head\n- knife_in_back\n- knife_left_leg\n- knife_right_leg\n- knife_shoulder\n- knife_stomach\n- meatcleaver_in_back\n- meatcleaver_left\n- meatcleaver_right\n- nightstick_left\n- nightstick_right\n- racket_back\n- racket_back_bag\n- rifle_back\n- rifle_back_bag\n- saucepan_back\n- saucepan_back_bag\n- shovel_back\n- shovel_back_bag\n- stomach\n- walkie_belt_left\n- walkie_belt_right\n- webbing_left_knife\n- webbing_left_walkie\n- webbing_left_knife\n- webbing_left_walkie\n- wrench_left\n- wrench_right",
     "shouldHaveParent": true,
     "parents": [
       "vehicle",
@@ -389,19 +689,40 @@
     "ID": {},
     "parameters": {
       "offset": {
-        "name": "offset"
+        "name": "offset",
+        "type": {
+          "main": "array",
+          "array": {
+            "type": "float",
+            "separator": " "
+          }
+        },
+        "description": "The position offset of the model relative to the bone. This is a vector in the format `x y z`. \n\n```cpp\noffset = -0.0300 -0.1020 0.1210,\n```"
       },
       "rotate": {
-        "name": "rotate"
+        "name": "rotate",
+        "type": {
+          "main": "array",
+          "array": {
+            "type": "float",
+            "separator": " "
+          }
+        },
+        "description": "The rotation of the model relative to the bone. This is a vector in the format `x y z`. The values are degrees.\n\n```cpp\nrotate = -60.0000 -49.0000 -3.0000,\n```"
       },
       "zoffset": {
         "name": "zoffset"
       },
       "scale": {
-        "name": "scale"
+        "name": "scale",
+        "type": {
+          "main": "float"
+        },
+        "description": "The scale multiplier applied to the model attached to this attachment point.\n\n```cpp\nscale = 0.5,\n```"
       },
       "bone": {
-        "name": "bone"
+        "name": "bone",
+        "description": "\tThe name of the bone to which the model is attached to. \n\n ```cpp\n bone = Bip01_L_Hand,\n ```"
       }
     }
   },
@@ -437,7 +758,9 @@
     "parameters": {
       "version": {
         "name": "version",
-        "type": "integer",
+        "type": {
+          "main": "integer"
+        },
         "description": "Version of the rules file. Should be 1 for now."
       }
     }
@@ -627,7 +950,9 @@
       "allowbatchcraft": {
         "name": "AllowBatchCraft",
         "description": "The AllowBatchCraft parameter is used to allow the recipe to be crafted in batches. This will make a slider appear on the crafting to craft multiple ones at once. Needs to be a boolean and default is true, set to false to disable batch craft.",
-        "type": "boolean",
+        "type": {
+          "main": "boolean"
+        },
         "default": true
       },
       "autolearnall": {
@@ -682,7 +1007,9 @@
         "name": "tags",
         "description": "Specifies specific conditions which need to be respected to craft this item. At least one crafting bench tag is necessary for the craft to be recognized, such as `AnySurfaceCraft`. The syntax is as follows:\n```cpp\n/* single tag */\nTags = tag1,\n\n/* multiple tags */\nTags = tag1;tag2;...,\n```\n\nFor example:\n```cpp\nTags = InHandCraft;CanAlwaysBeResearched,\n```",
         "required": true,
-        "type": "array"
+        "type": {
+          "main": "array"
+        }
       },
       "time": {
         "name": "time",
@@ -728,53 +1055,71 @@
       "isprofessiontrait": {
         "name": "IsProfessionTrait",
         "description": "Defines whenever the trait is a profession trait or not, meaning it will only be available when selecting a profession.",
-        "type": "boolean",
+        "type": {
+          "main": "boolean"
+        },
         "required": true
       },
       "disabledinmultiplayer": {
         "name": "DisabledInMultiplayer",
         "description": "If true, this trait will be disabled in multiplayer games.",
-        "type": "boolean",
+        "type": {
+          "main": "boolean"
+        },
         "required": true
       },
       "cost": {
         "name": "Cost",
         "description": "The cost of the trait when selecting a character. Negative values give points, positive values take points.",
-        "type": "integer",
+        "type": {
+          "main": "integer"
+        },
         "required": true
       },
       "charactertrait": {
         "name": "CharacterTrait",
         "description": "The registries trait definition ID to link to. see the wiki page about [registries](https://pzwiki.net/wiki/Registries) for more information.",
-        "type": "string",
+        "type": {
+          "main": "string"
+        },
         "required": true
       },
       "uiname": {
         "name": "UIName",
         "description": "The translation key for the trait's name. The translation key needs to be in the UI translation file. See the wiki page about [translations](https://pzwiki.net/wiki/Translations) for more information.",
-        "type": "string",
+        "type": {
+          "main": "string"
+        },
         "required": true
       },
       "uidescription": {
         "name": "UIDescription",
         "description": "The translation key for the trait's description. The translation key needs to be in the UI translation file. See the wiki page about [translations](https://pzwiki.net/wiki/Translations) for more information.",
-        "type": "string",
+        "type": {
+          "main": "string"
+        },
         "required": true
       },
       "mutuallyexclusivetraits": {
         "name": "MutuallyExclusiveTraits",
         "description": "A list of trait IDs that are mutually exclusive with this trait. If one is selected, the others cannot be selected.",
-        "type": "array"
+        "type": {
+          "main": "array"
+        }
       },
       "xpboosts": {
         "name": "XPBoosts",
         "description": "A list of experience boosts granted by this trait. Each entry should contain a skill name and the corresponding boost amount.\n\nFor example:\n```cpp\nXPBoosts = Axe=1;Blunt=1,\n```",
-        "type": "array"
+        "type": {
+          "main": "array"
+        }
       },
       "grantedrecipes": {
         "name": "GrantedRecipes",
         "description": "A list of [craftRecipe](https://pzwiki.net/wiki/CraftRecipe) IDs that are granted to the character when this trait is selected.",
-        "type": "array"
+        "type": {
+          "main": "array"
+        }
       }
     }
   },
@@ -801,16 +1146,6 @@
     "ID": {},
     "parameters": {}
   },
-  "_DOCUMENT": {
-    "name": "_DOCUMENT",
-    "description": "Not a script block, but serves as the root of the document. Blocks than need to be in the root of the document should have this as parent.",
-    "shouldHaveParent": false,
-    "parents": [],
-    "deprecated": {
-      "replacedBy": "ROOT-Scripts"
-    },
-    "parameters": {}
-  },
   "BlendWhiteList": {
     "name": "BlendWhiteList",
     "description": "Seems to define blend properties with other fluids.",
@@ -821,7 +1156,9 @@
     "parameters": {
       "whitelist": {
         "name": "whitelist",
-        "type": "boolean"
+        "type": {
+          "main": "boolean"
+        }
       }
     }
   },
@@ -839,7 +1176,9 @@
     "parameters": {
       "type": {
         "name": "type",
-        "type": "string",
+        "type": {
+          "main": "string"
+        },
         "description": "The type of the option.",
         "values": [
           "boolean",
@@ -852,7 +1191,9 @@
       },
       "min": {
         "name": "min",
-        "type": "float",
+        "type": {
+          "main": "float"
+        },
         "description": "The minimum value the option can have. Only for integer and double types.",
         "needs": [
           {
@@ -866,7 +1207,9 @@
       },
       "max": {
         "name": "max",
-        "type": "float",
+        "type": {
+          "main": "float"
+        },
         "description": "The maximum value the option can have. Only for integer and double types.",
         "needs": [
           {
@@ -894,12 +1237,16 @@
       },
       "page": {
         "name": "page",
-        "type": "string",
+        "type": {
+          "main": "string"
+        },
         "description": "The sandbox option to add the option to. Can be a custom page."
       },
       "translation": {
         "name": "translation",
-        "type": "string",
+        "type": {
+          "main": "string"
+        },
         "description": "The translation key for the option's name."
       }
     }
@@ -981,35 +1328,51 @@
     "parameters": {
       "event": {
         "name": "event",
-        "type": "string"
+        "type": {
+          "main": "string"
+        }
       },
       "distancemax": {
         "name": "distanceMax",
-        "type": "integer"
+        "type": {
+          "main": "integer"
+        }
       },
       "file": {
         "name": "file",
-        "type": "string"
+        "type": {
+          "main": "string"
+        }
       },
       "distancemin": {
         "name": "distanceMin",
-        "type": "integer"
+        "type": {
+          "main": "integer"
+        }
       },
       "volume": {
         "name": "volume",
-        "type": "float"
+        "type": {
+          "main": "float"
+        }
       },
       "reverbfactor": {
         "name": "reverbFactor",
-        "type": "float"
+        "type": {
+          "main": "float"
+        }
       },
       "pitch": {
         "name": "pitch",
-        "type": "float"
+        "type": {
+          "main": "float"
+        }
       },
       "reverbmaxrange": {
         "name": "reverbMaxRange",
-        "type": "float"
+        "type": {
+          "main": "float"
+        }
       },
       "stopimmediate": {
         "name": "stopImmediate"
@@ -1065,7 +1428,9 @@
         "itemTypes": [
           "radio"
         ],
-        "type": "integer",
+        "type": {
+          "main": "integer"
+        },
         "default": -1
       },
       "activateditem": {
@@ -1084,9 +1449,14 @@
       },
       "aimingperkcritmodifier": {
         "name": "AimingPerkCritModifier",
+        "type": {
+          "main": "integer"
+        },
         "itemTypes": [
           "weapon"
-        ]
+        ],
+        "#desc": "item/CriticalChance",
+        "description": "[CriticalChance](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/item.html#item-criticalchance) sets the base critical hit chance of the weapon. The final `CriticalChance` value after all applied bonuses and penalties have been applied is compared on a 0-100 roll.\n\nBelow is a table listing the different elements which can influence the critical hit chance of a weapon:\n\n| Element | Type | Description | Formula |\n|---|---|---|---|\n| [AimingPerkCritModifier](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/item.html#item-aimingperkcritmodifier) and [aiming skill](https://pzwiki.net/wiki/Aiming) of the character | Weapon parameter | The aiming level of the character impacts the player's critical hit chance by adding the following to the `CriticalChance` value. | `CriticalChance += AimingPerkCritModifier * Aiming level` |\n| Sight bonus / penalty | Weapon parameter | In the formula, `sightWindowBonus` refers to the bonus from [MinSightRange](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/item.html#item-minsightrange) and [MaxSightRange](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/item.html#item-maxsightrange). `sightlessBonus` on the other hand is a simpler parameter which uses a distance falloff when there is not active sight. The best path is used for the better result. | `CriticalChance += max(sightlessBonus - sightlessAimDelayPenalty, sightWindowBonus - sightWindowAimDelayPenalty)` |\n| Moodles penalty | Player condition | Being panicked, stressed, tired, drunk or lacking endurance will all negatively impact the `CriticalChance`. | `CriticalChance -= moodlesPenalty` |\n| Weather penalty | Environment | Wind, rain, fog, low-light will all negatively impact the `CriticalChance`. | `CriticalChance -= weatherPenalty` |\n| Movement penalty | Player condition | The shooter speed and the distance will negatively impact the `CriticalChance`. | `CriticalChance -= movementPenalty` |\n| [Marksman trait](https://pzwiki.net/wiki/Marksman) | Player condition |  | `CriticalChance += 10` |\n\nFor PvP targets, the entire formula is bypassed and [StopPower](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/item.html#item-stoppower) is used instead.\n\n`CriticalChance` sets the floor for unskilled players while `AimingPerkCritModifier` rewards more or less the character ability to aim. High modified and low base chance means the weapon is a skill-gated crit machine, making the weapon a sort of \"experts\" weapon."
       },
       "aimingperkhitchancemodifier": {
         "name": "AimingPerkHitChanceModifier",
@@ -1228,7 +1598,9 @@
         "itemTypes": [
           "weapon"
         ],
-        "type": "float",
+        "type": {
+          "main": "float"
+        },
         "default": 1.0
       },
       "basevolumerange": {
@@ -1251,9 +1623,13 @@
           "normal",
           "radio"
         ],
-        "type": "array",
-        "arrayType": "string",
-        "separator": ";",
+        "type": {
+          "main": "array",
+          "array": {
+            "type": "string",
+            "separator": ";"
+          }
+        },
         "values": [
           "Apron",
           "ShirtNoSleeves",
@@ -1418,7 +1794,9 @@
           "container",
           "normal"
         ],
-        "type": "boolean",
+        "type": {
+          "main": "boolean"
+        },
         "default": true,
         "description": "Used to define whenever this item can get holes in it."
       },
@@ -1473,7 +1851,9 @@
         "itemTypes": [
           "container"
         ],
-        "type": "integer",
+        "type": {
+          "main": "integer"
+        },
         "default": -1
       },
       "carbohydrates": {
@@ -1509,7 +1889,9 @@
         "itemTypes": [
           "weapon"
         ],
-        "type": "string",
+        "type": {
+          "main": "string"
+        },
         "default": "Stormy9mmClick"
       },
       "clipsize": {
@@ -1590,7 +1972,9 @@
           "normal",
           "weapon"
         ],
-        "type": "integer",
+        "type": {
+          "main": "integer"
+        },
         "default": 255
       },
       "colorgreen": {
@@ -1602,7 +1986,9 @@
           "normal",
           "weapon"
         ],
-        "type": "integer",
+        "type": {
+          "main": "integer"
+        },
         "default": 255
       },
       "colorred": {
@@ -1614,7 +2000,9 @@
           "normal",
           "weapon"
         ],
-        "type": "integer",
+        "type": {
+          "main": "integer"
+        },
         "default": 255
       },
       "combatspeedmodifier": {
@@ -1623,7 +2011,9 @@
           "clothing",
           "container"
         ],
-        "type": "float",
+        "type": {
+          "main": "float"
+        },
         "default": 1.0
       },
       "conditionaffectscapacity": {
@@ -1640,7 +2030,9 @@
           "normal",
           "weapon"
         ],
-        "type": "integer",
+        "type": {
+          "main": "integer"
+        },
         "default": 10,
         "description": "The chance impact to reduce the durability of the item, the value is used to calculate the chance by doing $chance = 1/ConditionLowerChanceOneIn$, which means increasing this parameter value will reduce the chance to damage the item."
       },
@@ -1668,7 +2060,9 @@
           "radio",
           "weapon"
         ],
-        "type": "integer",
+        "type": {
+          "main": "integer"
+        },
         "default": 10
       },
       "consolidateoption": {
@@ -1703,7 +2097,9 @@
         "itemTypes": [
           "normal"
         ],
-        "type": "integer",
+        "type": {
+          "main": "integer"
+        },
         "default": 1
       },
       "critdmgmultiplier": {
@@ -1717,8 +2113,19 @@
         "itemTypes": [
           "weapon"
         ],
-        "type": "float",
-        "default": 20.0
+        "type": {
+          "main": "float"
+        },
+        "default": 20.0,
+        "needs": [
+          {
+            "name": "ItemType",
+            "values": [
+              "base:weapon"
+            ]
+          }
+        ],
+        "description": "[CriticalChance](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/item.html#item-criticalchance) sets the base critical hit chance of the weapon. The final `CriticalChance` value after all applied bonuses and penalties have been applied is compared on a 0-100 roll.\n\nBelow is a table listing the different elements which can influence the critical hit chance of a weapon:\n\n| Element | Type | Description | Formula |\n|---|---|---|---|\n| [AimingPerkCritModifier](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/item.html#item-aimingperkcritmodifier) and [aiming skill](https://pzwiki.net/wiki/Aiming) of the character | Weapon parameter | The aiming level of the character impacts the player's critical hit chance by adding the following to the `CriticalChance` value. | `CriticalChance += AimingPerkCritModifier * Aiming level` |\n| Sight bonus / penalty | Weapon parameter | In the formula, `sightWindowBonus` refers to the bonus from [MinSightRange](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/item.html#item-minsightrange) and [MaxSightRange](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/item.html#item-maxsightrange). `sightlessBonus` on the other hand is a simpler parameter which uses a distance falloff when there is not active sight. The best path is used for the better result. | `CriticalChance += max(sightlessBonus - sightlessAimDelayPenalty, sightWindowBonus - sightWindowAimDelayPenalty)` |\n| Moodles penalty | Player condition | Being panicked, stressed, tired, drunk or lacking endurance will all negatively impact the `CriticalChance`. | `CriticalChance -= moodlesPenalty` |\n| Weather penalty | Environment | Wind, rain, fog, low-light will all negatively impact the `CriticalChance`. | `CriticalChance -= weatherPenalty` |\n| Movement penalty | Player condition | The shooter speed and the distance will negatively impact the `CriticalChance`. | `CriticalChance -= movementPenalty` |\n| [Marksman trait](https://pzwiki.net/wiki/Marksman) | Player condition |  | `CriticalChance += 10` |\n\nFor PvP targets, the entire formula is bypassed and [StopPower](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/item.html#item-stoppower) is used instead.\n\n`CriticalChance` sets the floor for unskilled players while `AimingPerkCritModifier` rewards more or less the character ability to aim. High modified and low base chance means the weapon is a skill-gated crit machine, making the weapon a sort of \"experts\" weapon."
       },
       "customcontextmenu": {
         "name": "CustomContextMenu",
@@ -1796,7 +2203,9 @@
           "radio",
           "weaponpart"
         ],
-        "type": "boolean",
+        "type": {
+          "main": "boolean"
+        },
         "default": true
       },
       "discomfortmodifier": {
@@ -1814,15 +2223,20 @@
         "itemTypes": [
           "weapon"
         ],
-        "type": "integer",
-        "default": 1
+        "type": {
+          "main": "integer"
+        },
+        "default": 1,
+        "description": "Damage dealt to doors, windows, barricades and some vehicle/object hits."
       },
       "doorhitsound": {
         "name": "DoorHitSound",
         "itemTypes": [
           "weapon"
         ],
-        "type": "string",
+        "type": {
+          "main": "string"
+        },
         "default": "BaseballBatHit"
       },
       "doubleclickrecipe": {
@@ -1888,7 +2302,9 @@
         "itemTypes": [
           "weapon"
         ],
-        "type": "float",
+        "type": {
+          "main": "float"
+        },
         "default": 1.0
       },
       "engineloudness": {
@@ -2079,7 +2495,9 @@
         "itemTypes": [
           "weapon"
         ],
-        "type": "boolean",
+        "type": {
+          "main": "boolean"
+        },
         "default": true,
         "description": "Whether the weapon has a chamber that can hold a round in addition to its magazine."
       },
@@ -2096,7 +2514,9 @@
           "normal",
           "weapon"
         ],
-        "type": "float",
+        "type": {
+          "main": "float"
+        },
         "default": 1.0
       },
       "headconditionmax": {
@@ -2110,7 +2530,9 @@
         "itemTypes": [
           "clothing"
         ],
-        "type": "float",
+        "type": {
+          "main": "float"
+        },
         "default": 1.0
       },
       "herbalisttype": {
@@ -2145,7 +2567,9 @@
         "itemTypes": [
           "weapon"
         ],
-        "type": "string",
+        "type": {
+          "main": "string"
+        },
         "default": "BatOnFloor"
       },
       "hitsound": {
@@ -2153,7 +2577,9 @@
         "itemTypes": [
           "weapon"
         ],
-        "type": "string",
+        "type": {
+          "main": "string"
+        },
         "default": "BaseballBatHit"
       },
       "hungerchange": {
@@ -2165,7 +2591,9 @@
       },
       "icon": {
         "name": "Icon",
-        "type": "string",
+        "type": {
+          "main": "string"
+        },
         "default": "None"
       },
       "iconcolormask": {
@@ -2186,9 +2614,13 @@
       },
       "iconsfortexture": {
         "name": "IconsForTexture",
-        "type": "array",
-        "arrayType": "string",
-        "separator": ";",
+        "type": {
+          "main": "array",
+          "array": {
+            "type": "string",
+            "separator": ";"
+          }
+        },
         "itemTypes": [
           "clothing",
           "container",
@@ -2204,7 +2636,9 @@
         "itemTypes": [
           "weapon"
         ],
-        "type": "string",
+        "type": {
+          "main": "string"
+        },
         "default": "Idle"
       },
       "impactsound": {
@@ -2212,7 +2646,9 @@
         "itemTypes": [
           "weapon"
         ],
-        "type": "string",
+        "type": {
+          "main": "string"
+        },
         "default": "BaseballBatHit"
       },
       "insertallbulletsreload": {
@@ -2337,7 +2773,9 @@
           "base:weaponpart"
         ],
         "required": true,
-        "type": "string",
+        "type": {
+          "main": "string"
+        },
         "description": "Defines the class of the item which will impact which parameters the item can take and its properties as well as how it is used by the player. Clothing for instance will handle differently their texture and model in comparison to the other type of items, containers can hold items and weapons can be used by the player to attack and deal damage. You cannot use a custom class of item and only the ones accepted by the game."
       },
       "type": {
@@ -2367,7 +2805,9 @@
         "itemTypes": [
           "weapon"
         ],
-        "type": "float",
+        "type": {
+          "main": "float"
+        },
         "default": 1.0
       },
       "keepondeplete": {
@@ -2388,7 +2828,9 @@
         "itemTypes": [
           "weapon"
         ],
-        "type": "float",
+        "type": {
+          "main": "float"
+        },
         "default": 1.0
       },
       "learnedrecipes": {
@@ -2430,7 +2872,9 @@
         "itemTypes": [
           "literature"
         ],
-        "type": "integer",
+        "type": {
+          "main": "integer"
+        },
         "default": -1
       },
       "magazine_subject": {
@@ -2475,7 +2919,9 @@
         "itemTypes": [
           "normal"
         ],
-        "type": "integer",
+        "type": {
+          "main": "integer"
+        },
         "default": -1
       },
       "maxchannel": {
@@ -2483,7 +2929,9 @@
         "itemTypes": [
           "radio"
         ],
-        "type": "integer",
+        "type": {
+          "main": "integer"
+        },
         "default": 108000
       },
       "maxdamage": {
@@ -2491,15 +2939,20 @@
         "itemTypes": [
           "weapon"
         ],
-        "type": "float",
-        "default": 1.5
+        "type": {
+          "main": "float"
+        },
+        "default": 1.5,
+        "description": "Rolls the hit damage of the weapon between `MinDamage` and `MaxDamage`."
       },
       "maxhitcount": {
         "name": "MaxHitcount",
         "itemTypes": [
           "weapon"
         ],
-        "type": "integer",
+        "type": {
+          "main": "integer"
+        },
         "default": 1000
       },
       "maxitemsize": {
@@ -2513,7 +2966,9 @@
         "itemTypes": [
           "weapon"
         ],
-        "type": "float",
+        "type": {
+          "main": "float"
+        },
         "default": 1.0
       },
       "maxrangemodifier": {
@@ -2527,7 +2982,20 @@
         "itemTypes": [
           "weapon",
           "weaponpart"
-        ]
+        ],
+        "type": {
+          "main": "float"
+        },
+        "needs": [
+          {
+            "name": "ItemType",
+            "values": [
+              "base:weapon",
+              "base:weaponpart"
+            ]
+          }
+        ],
+        "description": "[MinSightRange](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/item.html#item-minsightrange) and [MaxSightRange](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/item.html#item-maxsightrange) define the optimal sight window, to be more specific, the distance band where hits and critical hits bonuses peak.\n\nThe [aiming skill](https://pzwiki.net/wiki/Aiming) and [eagle eyed](https://pzwiki.net/wiki/Eagle_Eyed) will impact these values:\n```\neffectiveMin = MinSightRange x (1 - AimingLevel / 30)\neffectiveMax = MaxSightRange x (1 + AimingLevel / 30) x (EagleEyed ? 1.2 : 1.0)\n```\n\nAt aiming 10, the minimum shrinks by 33% and the max grows by 33%, which widens the window significantly. When the trait [Short Sighted](https://pzwiki.net/wiki/Short_Sighted) is present and the character doesn't wear glasses, the `effectiveMax` equals `effectiveMin`, making the entire bonus window disappear.\n\nInside the the `effectiveMin` and `effectiveMax` window, the bonus follows a [Gaussian](https://en.wikipedia.org/wiki/Bell-shaped_function) with the bonus peaking at the midpoint. Aim-delay penalty is also reduced inside the window.\n\nBelow `effectiveMin`, a small linear penalty is applied as the gun is not suited for point-blank. Above `effectiveMax`, a growing quadratic penalty is applied, the bonus degrades rapidly past the edge.\n\nA CQC gun should have a low [MaxSightRange](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/item.html#item-maxsightrange) while a marksman riffle should have a high [MinSightRange](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/item.html#item-minsightrange) with a wide window."
       },
       "mechanicsitem": {
         "name": "MechanicsItem",
@@ -2576,7 +3044,9 @@
         "itemTypes": [
           "weapon"
         ],
-        "type": "float",
+        "type": {
+          "main": "float"
+        },
         "default": 1.0
       },
       "minchannel": {
@@ -2584,14 +3054,21 @@
         "itemTypes": [
           "radio"
         ],
-        "type": "integer",
+        "type": {
+          "main": "integer"
+        },
         "default": 88000
       },
       "mindamage": {
         "name": "MinDamage",
         "itemTypes": [
           "weapon"
-        ]
+        ],
+        "#desc": "item/MaxDamage",
+        "type": {
+          "main": "float"
+        },
+        "description": "Rolls the hit damage of the weapon between `MinDamage` and `MaxDamage`."
       },
       "minimumswingtime": {
         "name": "MinimumSwingtime",
@@ -2603,21 +3080,32 @@
         "name": "MinRange",
         "itemTypes": [
           "weapon"
-        ]
+        ],
+        "type": {
+          "main": "float"
+        },
+        "description": "Hard minimum attack distance. If the target is closer than `MinRange`, the ballistics controller does not register the shot and the game may force a melee swap. This is a binary threshold, not a penalty band. Separate from [MinSightRange](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/item.html#item-minsightrange).\n\nLong rifles should be hard to use in tight spaces. `0.2` to `0.35` is a small gap but `0.61` is noticeably limiting indoors."
       },
       "minsightrange": {
         "name": "MinSightRange",
+        "type": {
+          "main": "float"
+        },
         "itemTypes": [
           "weapon",
           "weaponpart"
-        ]
+        ],
+        "#desc": "item/MaxSightRange",
+        "description": "[MinSightRange](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/item.html#item-minsightrange) and [MaxSightRange](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/item.html#item-maxsightrange) define the optimal sight window, to be more specific, the distance band where hits and critical hits bonuses peak.\n\nThe [aiming skill](https://pzwiki.net/wiki/Aiming) and [eagle eyed](https://pzwiki.net/wiki/Eagle_Eyed) will impact these values:\n```\neffectiveMin = MinSightRange x (1 - AimingLevel / 30)\neffectiveMax = MaxSightRange x (1 + AimingLevel / 30) x (EagleEyed ? 1.2 : 1.0)\n```\n\nAt aiming 10, the minimum shrinks by 33% and the max grows by 33%, which widens the window significantly. When the trait [Short Sighted](https://pzwiki.net/wiki/Short_Sighted) is present and the character doesn't wear glasses, the `effectiveMax` equals `effectiveMin`, making the entire bonus window disappear.\n\nInside the the `effectiveMin` and `effectiveMax` window, the bonus follows a [Gaussian](https://en.wikipedia.org/wiki/Bell-shaped_function) with the bonus peaking at the midpoint. Aim-delay penalty is also reduced inside the window.\n\nBelow `effectiveMin`, a small linear penalty is applied as the gun is not suited for point-blank. Above `effectiveMax`, a growing quadratic penalty is applied, the bonus degrades rapidly past the edge.\n\nA CQC gun should have a low [MaxSightRange](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/item.html#item-maxsightrange) while a marksman riffle should have a high [MinSightRange](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/item.html#item-minsightrange) with a wide window."
       },
       "minutestoburn": {
         "name": "MinutesToBurn",
         "itemTypes": [
           "food"
         ],
-        "type": "float",
+        "type": {
+          "main": "float"
+        },
         "default": 120.0,
         "description": "How many in-game minutes it takes to burn the food. This value must be higher than `MinutesToCook`."
       },
@@ -2626,7 +3114,9 @@
         "itemTypes": [
           "food"
         ],
-        "type": "float",
+        "type": {
+          "main": "float"
+        },
         "default": 60.0,
         "description": "How many in-game minutes it takes to cook the food. This value must be smaller than `MinutesToBurn`."
       },
@@ -2648,7 +3138,9 @@
         "itemTypes": [
           "weapon"
         ],
-        "type": "boolean",
+        "type": {
+          "main": "boolean"
+        },
         "default": true
       },
       "muzzleflashmodelkey": {
@@ -2662,7 +3154,9 @@
         "itemTypes": [
           "clothing"
         ],
-        "type": "float",
+        "type": {
+          "main": "float"
+        },
         "default": 1.0
       },
       "needtobeclosedoncereload": {
@@ -2694,7 +3188,9 @@
         "itemTypes": [
           "weapon"
         ],
-        "type": "float",
+        "type": {
+          "main": "float"
+        },
         "default": 1.0
       },
       "numberofpages": {
@@ -2702,7 +3198,9 @@
         "itemTypes": [
           "literature"
         ],
-        "type": "integer",
+        "type": {
+          "main": "integer"
+        },
         "default": -1
       },
       "numlevelstrained": {
@@ -2710,7 +3208,9 @@
         "itemTypes": [
           "literature"
         ],
-        "type": "integer",
+        "type": {
+          "main": "integer"
+        },
         "default": 1
       },
       "onbreak": {
@@ -2895,7 +3395,9 @@
         "itemTypes": [
           "weapon"
         ],
-        "type": "float",
+        "type": {
+          "main": "float"
+        },
         "default": 1.0
       },
       "protectfromrainwhenequipped": {
@@ -2917,7 +3419,9 @@
         "itemTypes": [
           "weapon"
         ],
-        "type": "float",
+        "type": {
+          "main": "float"
+        },
         "default": 1.0
       },
       "putinsound": {
@@ -3017,7 +3521,9 @@
         "itemTypes": [
           "clothing"
         ],
-        "type": "boolean",
+        "type": {
+          "main": "boolean"
+        },
         "default": true
       },
       "removeunhappinesswhencooked": {
@@ -3094,9 +3600,13 @@
       },
       "researchablerecipes": {
         "name": "Researchablerecipes",
-        "type": "array",
-        "arrayType": "string",
-        "separator": ";",
+        "type": {
+          "main": "array",
+          "array": {
+            "type": "string",
+            "separator": ";"
+          }
+        },
         "itemTypes": [
           "clothing",
           "container",
@@ -3113,7 +3623,9 @@
         "itemTypes": [
           "weapon"
         ],
-        "type": "string",
+        "type": {
+          "main": "string"
+        },
         "default": "Run"
       },
       "runspeedmodifier": {
@@ -3123,7 +3635,9 @@
           "container",
           "radio"
         ],
-        "type": "float",
+        "type": {
+          "main": "float"
+        },
         "default": 1.0
       },
       "scaleworldicon": {
@@ -3131,7 +3645,9 @@
         "itemTypes": [
           "drainable"
         ],
-        "type": "float",
+        "type": {
+          "main": "float"
+        },
         "default": 1.0
       },
       "scratchdefense": {
@@ -3173,7 +3689,9 @@
           "clothing",
           "normal"
         ],
-        "type": "float",
+        "type": {
+          "main": "float"
+        },
         "default": 1.0
       },
       "shouttype": {
@@ -3188,7 +3706,9 @@
         "itemTypes": [
           "literature"
         ],
-        "type": "string",
+        "type": {
+          "main": "string"
+        },
         "default": ""
       },
       "smokerange": {
@@ -3202,7 +3722,9 @@
         "itemTypes": [
           "weapon"
         ],
-        "type": "float",
+        "type": {
+          "main": "float"
+        },
         "default": 1.0
       },
       "soundmap": {
@@ -3261,7 +3783,9 @@
         "itemTypes": [
           "weapon"
         ],
-        "type": "integer",
+        "type": {
+          "main": "integer"
+        },
         "default": 2
       },
       "splatsize": {
@@ -3269,11 +3793,20 @@
         "itemTypes": [
           "weapon"
         ],
-        "type": "float",
+        "type": {
+          "main": "float"
+        },
         "default": 1.0
       },
       "staticmodel": {
         "name": "StaticModel",
+        "type": {
+          "main": "string",
+          "block": {
+            "name": "model",
+            "fullType": true
+          }
+        },
         "itemTypes": [
           "clothing",
           "container",
@@ -3289,9 +3822,13 @@
       },
       "staticmodelsbyindex": {
         "name": "StaticModelsByIndex",
-        "type": "array",
-        "arrayType": "string",
-        "separator": ";",
+        "type": {
+          "main": "array",
+          "array": {
+            "type": "string",
+            "separator": ";"
+          }
+        },
         "itemTypes": [
           "food",
           "literature",
@@ -3303,7 +3840,9 @@
         "itemTypes": [
           "clothing"
         ],
-        "type": "float",
+        "type": {
+          "main": "float"
+        },
         "default": 1.0
       },
       "stoppower": {
@@ -3311,7 +3850,9 @@
         "itemTypes": [
           "weapon"
         ],
-        "type": "float",
+        "type": {
+          "main": "float"
+        },
         "default": 5.0
       },
       "stresschange": {
@@ -3327,7 +3868,9 @@
         "itemTypes": [
           "weapon"
         ],
-        "type": "string",
+        "type": {
+          "main": "string"
+        },
         "default": ""
       },
       "survivalgear": {
@@ -3364,7 +3907,9 @@
         "itemTypes": [
           "weapon"
         ],
-        "type": "string",
+        "type": {
+          "main": "string"
+        },
         "default": "Rifle"
       },
       "swingsound": {
@@ -3378,14 +3923,20 @@
         "itemTypes": [
           "weapon"
         ],
-        "type": "float",
+        "type": {
+          "main": "float"
+        },
         "default": 1.0
       },
       "tags": {
         "name": "Tags",
-        "type": "array",
-        "arrayType": "string",
-        "separator": ";",
+        "type": {
+          "main": "array",
+          "array": {
+            "type": "string",
+            "separator": ";"
+          }
+        },
         "itemTypes": [
           "alarmclock",
           "alarmclockclothing",
@@ -3414,7 +3965,9 @@
         "itemTypes": [
           "drainable"
         ],
-        "type": "integer",
+        "type": {
+          "main": "integer"
+        },
         "default": 30
       },
       "tohitmodifier": {
@@ -3422,7 +3975,9 @@
         "itemTypes": [
           "weapon"
         ],
-        "type": "float",
+        "type": {
+          "main": "float"
+        },
         "default": 1.0
       },
       "tooltip": {
@@ -3454,7 +4009,9 @@
           "drainable",
           "weaponpart"
         ],
-        "type": "float",
+        "type": {
+          "main": "float"
+        },
         "default": 0.96
       },
       "transmitrange": {
@@ -3468,7 +4025,9 @@
         "itemTypes": [
           "normal"
         ],
-        "type": "boolean",
+        "type": {
+          "main": "boolean"
+        },
         "default": false
       },
       "treedamage": {
@@ -3519,7 +4078,9 @@
           "radio",
           "weaponpart"
         ],
-        "type": "float",
+        "type": {
+          "main": "float"
+        },
         "default": 0.03125
       },
       "useendurance": {
@@ -3527,7 +4088,9 @@
         "itemTypes": [
           "weapon"
         ],
-        "type": "boolean",
+        "type": {
+          "main": "boolean"
+        },
         "default": true
       },
       "usesbattery": {
@@ -3550,7 +4113,9 @@
           "normal",
           "radio"
         ],
-        "type": "boolean",
+        "type": {
+          "main": "boolean"
+        },
         "default": true
       },
       "usewhileunequipped": {
@@ -3583,7 +4148,9 @@
         "itemTypes": [
           "clothing"
         ],
-        "type": "float",
+        "type": {
+          "main": "float"
+        },
         "default": 1.0
       },
       "visualaid": {
@@ -3609,7 +4176,9 @@
         "itemTypes": [
           "weapon"
         ],
-        "type": "float",
+        "type": {
+          "main": "float"
+        },
         "default": 0.4
       },
       "weaponreloadtype": {
@@ -3635,12 +4204,16 @@
         "itemTypes": [
           "weapon"
         ],
-        "type": "float",
+        "type": {
+          "main": "float"
+        },
         "default": 1.0
       },
       "weight": {
         "name": "Weight",
-        "type": "float",
+        "type": {
+          "main": "float"
+        },
         "default": 1.0
       },
       "weightempty": {
@@ -3713,16 +4286,23 @@
       },
       "worldstaticmodel": {
         "name": "WorldStaticModel",
-        "blockType": {
-          "fullType": true,
-          "block": "model"
+        "type": {
+          "main": "string",
+          "block": {
+            "name": "model",
+            "fullType": true
+          }
         }
       },
       "worldstaticmodelsbyindex": {
         "name": "WorldStaticModelsByIndex",
-        "type": "array",
-        "arrayType": "string",
-        "separator": ";",
+        "type": {
+          "main": "array",
+          "array": {
+            "type": "string",
+            "separator": ";"
+          }
+        },
         "itemTypes": [
           "container",
           "food",
@@ -3736,7 +4316,7 @@
   },
   "physicsShape": {
     "name": "physicsShape",
-    "description": "Defines a 3D object's physical shape to be used as a world object.",
+    "description": "Defines a 3D object's physical shape to be used as a world object.\n\nFor example:\n```cpp\nmodule YourModule {\n  physicsShape ramp20segment5w {\n      mesh = physics/ramp20|Segment5,\n      translate = 4.0 0.0 0.0,\n      rotate = 0.0 270.0 0.0,\n  }\n}\n```",
     "shouldHaveParent": true,
     "parents": [
       "module"
@@ -3745,19 +4325,23 @@
     "parameters": {
       "mesh": {
         "name": "mesh",
-        "type": "string",
+        "type": {
+          "main": "string"
+        },
         "description": "The path to the model's mesh file, relative to the folder `media/models_X`."
       },
       "translate": {
         "name": "translate",
-        "type": "array",
-        "separator": " ",
+        "type": {
+          "main": "array"
+        },
         "description": "The position offset of the model, in the format `x y z`."
       },
       "rotate": {
         "name": "rotate",
-        "type": "array",
-        "separator": " ",
+        "type": {
+          "main": "array"
+        },
         "description": "The rotation of the model, in the format `x y z`."
       }
     }
@@ -3809,6 +4393,9 @@
       },
       "specificitem": {
         "name": "specificItem"
+      },
+      "wheel": {
+        "name": "wheel"
       }
     }
   },
@@ -3859,7 +4446,9 @@
     "parameters": {
       "maxeffect": {
         "name": "maxEffect",
-        "type": "string",
+        "type": {
+          "main": "string"
+        },
         "description": "Defines the strength of the poison.",
         "values": [
           "Deadly",
@@ -3868,12 +4457,16 @@
       },
       "minamount": {
         "name": "minAmount",
-        "type": "float",
+        "type": {
+          "main": "float"
+        },
         "description": "The minimum amount required to consume to poison the player."
       },
       "diluteratio": {
         "name": "diluteRatio",
-        "type": "float",
+        "type": {
+          "main": "float"
+        },
         "description": "The ratio at which the poison is diluted when mixed with other fluids."
       }
     }
@@ -3890,14 +4483,18 @@
       "tile": {
         "name": "tile",
         "allowedDuplicate": true,
-        "type": "string"
+        "type": {
+          "main": "string"
+        }
       },
       "object": {
         "name": "object",
         "parentsOnly": [
           "ROOT-MapBaseXML"
         ],
-        "type": "string"
+        "type": {
+          "main": "string"
+        }
       }
     }
   },
@@ -3957,7 +4554,9 @@
         "name": "tags",
         "description": "Specifies specific conditions which need to be respected to craft this item. At least one crafting bench tag is necessary for the craft to be recognized, such as `AnySurfaceCraft`. The syntax is as follows:\n```cpp\n/* single tag */\nTags = tag1,\n\n/* multiple tags */\nTags = tag1;tag2;...,\n```\n\nFor example:\n```cpp\nTags = InHandCraft;CanAlwaysBeResearched,\n```",
         "required": true,
-        "type": "array",
+        "type": {
+          "main": "array"
+        },
         "#ref": "craftRecipe/tags"
       },
       "time": {
@@ -4001,6 +4600,22 @@
     ],
     "parameters": {}
   },
+  "ROOT-TileGeometry": {
+    "name": "ROOT-TileGeometry",
+    "description": "The `tileGeometry.txt` file is used to register the tile depth of tiles. The file needs to be located inside the [common/media](https://pzwiki.net/wiki/Mod_structure#Common_and_versioning_folders) folder.",
+    "shouldHaveParent": false,
+    "parents": [],
+    "isRoot": true,
+    "pattern": [
+      "common\\/media\\/tileGeometry\\.txt$"
+    ],
+    "parameters": {
+      "version": {
+        "name": "VERSION",
+        "description": "The version of the tile geometry file format. Keep it at 2 for now."
+      }
+    }
+  },
   "face": {
     "name": "face",
     "description": "",
@@ -4036,7 +4651,9 @@
     "parameters": {
       "name": {
         "name": "name",
-        "type": "string"
+        "type": {
+          "main": "string"
+        }
       },
       "tiles": {
         "name": "tiles"
@@ -4098,11 +4715,17 @@
     "parameters": {
       "aftergearchange": {
         "name": "afterGearChange",
-        "type": "float"
+        "type": {
+          "main": "float"
+        },
+        "default": 0.0
       },
       "gearchange": {
         "name": "gearChange",
-        "type": "float"
+        "type": {
+          "main": "float"
+        },
+        "default": 0.0
       }
     }
   },
@@ -4117,49 +4740,63 @@
     "parameters": {
       "characterprofession": {
         "name": "CharacterProfession",
-        "type": "string",
+        "type": {
+          "main": "string"
+        },
         "description": "The [registries](https://pzwiki.net/wiki/Registries) profession ID to link to."
       },
       "cost": {
         "name": "Cost",
-        "type": "integer",
+        "type": {
+          "main": "integer"
+        },
         "description": "The cost of the profession when selecting a character. Negative values remove points, positive values add points."
       },
       "uiname": {
         "name": "UIName",
-        "type": "string",
+        "type": {
+          "main": "string"
+        },
         "description": "The translation key for the profession's name. The translation key needs to be in the UI translation file. See the wiki page about [translations](https://pzwiki.net/wiki/Translations) for more information."
       },
       "uidescription": {
         "name": "UIDescription",
-        "type": "string",
+        "type": {
+          "main": "string"
+        },
         "description": "The translation key for the profession's description. The translation key needs to be in the UI translation file. See the wiki page about [translations](https://pzwiki.net/wiki/Translations) for more information."
       },
       "iconpathname": {
         "name": "IconPathName",
-        "type": "string"
+        "type": {
+          "main": "string"
+        }
       },
       "grantedtraits": {
         "name": "GrantedTraits",
-        "type": "array",
-        "separator": ";",
+        "type": {
+          "main": "array"
+        },
         "description": "A list of character trait IDs that are granted to the character when this profession is selected."
       },
       "xpboosts": {
         "name": "XPBoosts",
         "description": "A list of experience boosts granted by this profession. Each entry should contain a skill name and the corresponding boost amount.\n\nFor example:\n```cpp\nXPBoosts = Axe=1;Blunt=1,\n```",
-        "type": "object",
-        "separator": ";",
-        "object": {
-          "keyValueSeparator": "=",
-          "keyType": "string",
-          "valueType": "integer"
+        "type": {
+          "main": "object",
+          "object": {
+            "keyValueSeparator": ";",
+            "keyType": "string",
+            "valueType": "integer",
+            "pairsSeparator": ";"
+          }
         }
       },
       "grantedrecipes": {
         "name": "GrantedRecipes",
-        "type": "array",
-        "separator": ";",
+        "type": {
+          "main": "array"
+        },
         "description": "A list of [craftRecipe](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/craftrecipe.html) IDs that are granted to the character when this profession is selected."
       }
     }
@@ -4226,13 +4863,38 @@
     ],
     "parameters": {
       "capacity": {
-        "name": "capacity"
+        "name": "capacity",
+        "type": {
+          "main": "integer"
+        }
       },
       "conditionaffectscapacity": {
-        "name": "conditionAffectsCapacity"
+        "name": "conditionAffectsCapacity",
+        "type": {
+          "main": "boolean"
+        },
+        "description": "Sets whenever the condition of the part will impact the [capacity](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/container.html#container-capacity). A lower condition will negatively impact the container's capacity."
+      },
+      "contenttype": {
+        "name": "contentType",
+        "type": {
+          "main": "string"
+        },
+        "description": "Unclear how this parameter works exactly. The game uses it to define the \"content\" of tires and gas tanks by providing the string keys `Gasoline` or `Air`. It seems to simply remove any item container being used as the container for this part."
+      },
+      "seat": {
+        "name": "seat",
+        "type": {
+          "main": "string"
+        },
+        "description": "The seat ID of this container. When present, this container can be used as a seat for a vehicle."
       },
       "test": {
-        "name": "test"
+        "name": "test",
+        "type": {
+          "main": "string"
+        },
+        "description": "Refers to a Lua global function returning a boolean which is used to determine whether an item can be put in this container when trying to transfer items.\n\nHere's an example from the vanilla game, with the parmeter being set to:\n```cpp\ntest = Vehicles.ContainerAccess.GloveBox\n```\n\nWith the Lua function being defined as:\n```lua\nfunction Vehicles.ContainerAccess.GloveBox(vehicle, part, chr)\n  if chr:getVehicle() == vehicle then\n    local seat = vehicle:getSeat(chr)\n    -- Can the seated player reach the passenger seat?\n    -- Only character in front seat can access it\n    return seat == 1 or seat == 0;\n  elseif chr:getVehicle() then\n    -- Can't reach from inside a different vehicle.\n    return false\n  else\n    -- Standing outside the vehicle.\n    if not vehicle:isInArea(part:getArea(), chr) then return false end\n    local doorPart = vehicle:getPartById(\"DoorFrontRight\")\n    if doorPart and doorPart:getDoor() and not doorPart:getDoor():isOpen() then\n      return false\n    end\n    return true\n  end\nend\n```\n\nThe parameters are:\n- `vehicle` is a [BaseVehicle](https://demiurgequantified.github.io/ProjectZomboidJavaDocs/zombie/vehicles/BaseVehicle.html) class\n- `part` is a [VehiclePart](https://demiurgequantified.github.io/ProjectZomboidJavaDocs/zombie/vehicles/VehiclePart.html)\n- `chr` is an [IsoGameCharacter](https://demiurgequantified.github.io/ProjectZomboidJavaDocs/zombie/characters/IsoGameCharacter.html)"
       }
     }
   },
@@ -4293,95 +4955,129 @@
     "parameters": {
       "name": {
         "name": "name",
-        "type": "string",
+        "type": {
+          "main": "string"
+        },
         "description": "The displayed name for your mod in the game's mod manager. A translation can be provided in the [Mod.json translation file](https://pzwiki.net/wiki/Translation)."
       },
       "id": {
         "name": "id",
-        "type": "string",
+        "type": {
+          "main": "string"
+        },
         "description": "The unique identifier of the mod, used in a mod list of the user or servers to activate the mod. Make sure to use something unique which isn't shared between mods. **Note:** This is not the same as the [Workshop ID](https://pzwiki.net/wiki/Workshop_ID)."
       },
       "author": {
         "name": "author",
-        "type": "string",
+        "type": {
+          "main": "string"
+        },
         "description": "Name of the author(s) of the mod. Multiple authors are often separated by commas but no convention exists."
       },
       "description": {
         "name": "description",
-        "type": "string",
+        "type": {
+          "main": "string"
+        },
         "description": "Description of your mod, which shows up in the mod manager. The description supports [ISRichTextPanel](https://pzwiki.net/wiki/ISRichTextPanel) tags. A translation can be provided in the [Mod.json translation file](https://pzwiki.net/wiki/Translation)."
       },
       "url": {
         "name": "url",
-        "type": "string",
+        "type": {
+          "main": "string"
+        },
         "description": "Shows a URL link in the mod manager on the page of your mod for users to click on to open in their internet browser. The parameter appears as \"Homepage\" in the mod manager. For a list of valid links, see [URL](https://pzwiki.net/wiki/URL)."
       },
       "poster": {
         "name": "poster",
-        "type": "string",
+        "type": {
+          "main": "string"
+        },
         "allowedDuplicate": true,
         "description": "Image which will show up in the mod manager as the mod image. Multiple posters can be used to show multiple images, but the first one will be used as the main poster in the mod manager. The rest will be in a list of images of the mod that users can click on to view.\n\nExample:\n```\nposter=poster.png\nposter=showcase.png\nposter=flying_chickens.png\nposter=credits.png\n```\n\nIf you have multiple versions of your mod (e.g., 42.12 and 42.13) and don't want to copy your images, you can leave them in the common folder and use the following (but use unique names for these images since it will use the pool of all mods and their images in the common folder):\n```\nposter=../common/mymodname_poster.png\nposter=../common/mymodname_showcase.png\nposter=../common/mymodname_flying_chickens.png\nposter=../common/mymodname_credits.png\n```\n"
       },
       "icon": {
         "name": "icon",
-        "type": "string",
+        "type": {
+          "main": "string"
+        },
         "description": "Image which will be used in the mod manager to put next to the name of the mod in the list of available mods. This image will be small and while you can use a full image size, you do not need it. You can set your poster as the icon too to not ship two images if desired."
       },
       "modversion": {
         "name": "modversion",
-        "type": "string",
+        "type": {
+          "main": "string"
+        },
         "description": "Version of the mod."
       },
       "require": {
         "name": "require",
-        "type": "string",
+        "type": {
+          "main": "string"
+        },
         "description": "Mods required to run this mod. Multiple mods can be specified separated by commas.\n\nExample:\n```\nrequire=theNeededMod,theOtherOne\n```\n"
       },
       "incompatible": {
         "name": "incompatible",
-        "type": "string",
+        "type": {
+          "main": "string"
+        },
         "description": "Mods that cannot be enabled at the same time as this mod. When enabled, the other mods will be unselectable. This mod will also become unselectable if any of the other mods are enabled.\n\nExample:\n```\nincompatible=theUnwantedMod,theOtherOne\n```\n"
       },
       "loadmodafter": {
         "name": "loadModAfter",
-        "type": "string",
+        "type": {
+          "main": "string"
+        },
         "description": "Loads the mod only after the set of mods listed.\n\nExample:\n```\nloadModAfter=someMod,anotherMod\n```\n"
       },
       "loadmodbefore": {
         "name": "loadModBefore",
-        "type": "string",
+        "type": {
+          "main": "string"
+        },
         "description": "Loads the mod before the set of mods listed.\n\nExample:\n```\nloadModBefore=someMod,anotherMod\n```\n"
       },
       "category": {
         "name": "category",
-        "type": "string",
+        "type": {
+          "main": "string"
+        },
         "description": "Category is used for filtering mods in the in-game ModManager. Known categories are \"map\", \"vehicle\", \"features\", \"modpack\". Using other terms will not generate a new filter category."
       },
       "pack": {
         "name": "pack",
-        "type": "string",
+        "type": {
+          "main": "string"
+        },
         "description": "Name of pack files that need to be loaded by the game. Notably used for [Texture pack](https://pzwiki.net/wiki/Texture_pack) and [Tile pack](https://pzwiki.net/wiki/Mapping)."
       },
       "tiledef": {
         "name": "tiledef",
-        "type": "string",
+        "type": {
+          "main": "string"
+        },
         "description": "Name of the tiledef with its ID that are added by the mod. You can find a community managed list of already used tiledef IDs in [Tiledefs used by mods](https://pzwiki.net/wiki/Tiledefs_used_by_mods).\n\nExample:\n```\ntiledef=Excavation 2112\n```\n\nIf you upload your mod with a new tiledef ID, you can update the list to reduce the chance of incompatibility with other mods adding tile packs.\n"
       },
       "versionmin": {
         "name": "versionMin",
-        "type": "string",
+        "type": {
+          "main": "string"
+        },
         "description": "The minimum version of the game the mod can be used on. This number needs to be in the format `build.major` at the very least, and not just `build` or it won't work. Example `42.0`."
       },
       "versionmax": {
         "name": "versionMax",
-        "type": "string",
+        "type": {
+          "main": "string"
+        },
         "description": "The maximum version of the game the mod can be used on. This number needs to be in the format `build.major` at the very least, and not just `build` or it won't work. Example `42.12`."
       }
     }
   },
   "vehicleEngineRPM": {
     "name": "vehicleEngineRPM",
-    "description": "",
+    "description": "Unclear how the definition of this block works.\n\nHere's the jeep example from the base game:\n```cpp\nmodule Base \n{\n  vehicleEngineRPM jeep\n  {\n      VERSION = 1,\n      data\n      {\n          gearChange = 3000,\n          afterGearChange = 2000,\n      }\n      data\n      {\n          gearChange = 3500,\n          afterGearChange = 2000,\n      }\n      data\n      {\n          gearChange = 4000,\n          afterGearChange = 2500,\n      }\n      data\n      {\n          gearChange = 4500,\n          afterGearChange = 2800,\n      }\n      data\n      {\n          gearChange = 6000,\n          afterGearChange = 4500,\n      }\n  }\n}\n```",
     "shouldHaveParent": true,
     "parents": [
       "module"
@@ -4390,7 +5086,9 @@
     "parameters": {
       "version": {
         "name": "VERSION",
-        "type": "integer",
+        "type": {
+          "main": "integer"
+        },
         "description": "Unclear what this does, preferably keep it at 1."
       }
     }
@@ -4406,7 +5104,9 @@
     "parameters": {
       "version": {
         "name": "VERSION",
-        "type": "integer"
+        "type": {
+          "main": "integer"
+        }
       }
     }
   },
@@ -4434,7 +5134,9 @@
     "parameters": {
       "fluid": {
         "name": "fluid",
-        "type": "string",
+        "type": {
+          "main": "string"
+        },
         "allowedDuplicate": true,
         "description": "A fluid which is allowed to be put inside this fluid container."
       }
@@ -4637,70 +5339,98 @@
     "parameters": {
       "thirstchange": {
         "name": "ThirstChange",
-        "type": "float",
+        "type": {
+          "main": "float"
+        },
         "description": "The amount of thirst this fluid changes when consumed. Positive values increase thirst, negative values decrease it."
       },
       "alcohol": {
         "name": "alcohol",
-        "type": "float"
+        "type": {
+          "main": "float"
+        }
       },
       "hungerchange": {
         "name": "HungerChange",
-        "type": "float",
+        "type": {
+          "main": "float"
+        },
         "description": "The amount of hunger this fluid changes when consumed. Positive values increase hunger, negative values decrease it."
       },
       "calories": {
         "name": "Calories",
-        "type": "float",
+        "type": {
+          "main": "float"
+        },
         "description": "The number of calories this fluid provides when consumed."
       },
       "carbohydrates": {
         "name": "Carbohydrates",
-        "type": "float",
+        "type": {
+          "main": "float"
+        },
         "description": "The amount of carbohydrates this fluid provides when consumed."
       },
       "lipids": {
         "name": "Lipids",
-        "type": "float",
+        "type": {
+          "main": "float"
+        },
         "description": "The amount of lipids (fats) this fluid provides when consumed."
       },
       "proteins": {
         "name": "Proteins",
-        "type": "float",
+        "type": {
+          "main": "float"
+        },
         "description": "The amount of proteins this fluid provides when consumed."
       },
       "flureduction": {
         "name": "fluReduction",
-        "type": "float"
+        "type": {
+          "main": "float"
+        }
       },
       "painreduction": {
         "name": "painReduction",
-        "type": "float",
+        "type": {
+          "main": "float"
+        },
         "description": "The amount of pain this fluid reduces when consumed."
       },
       "endurancechange": {
         "name": "enduranceChange",
-        "type": "float",
+        "type": {
+          "main": "float"
+        },
         "description": "The amount of endurance given back."
       },
       "foodsicknesschange": {
         "name": "foodSicknessChange",
-        "type": "float",
+        "type": {
+          "main": "float"
+        },
         "description": "The amount of food sickness provides."
       },
       "fatiguechange": {
         "name": "fatigueChange",
-        "type": "float",
+        "type": {
+          "main": "float"
+        },
         "description": "The amount of fatigue this fluid changes when consumed. Positive values increase fatigue, negative values decrease it."
       },
       "stresschange": {
         "name": "StressChange",
-        "type": "float",
+        "type": {
+          "main": "float"
+        },
         "description": "The amount of stress this fluid changes when consumed. Positive values increase stress, negative values decrease it."
       },
       "unhappychange": {
         "name": "UnhappyChange",
-        "type": "float",
+        "type": {
+          "main": "float"
+        },
         "description": "The amount of unhappiness this fluid changes when consumed. Positive values increase unhappiness, negative values decrease it."
       }
     }
@@ -4716,11 +5446,15 @@
     "parameters": {
       "label": {
         "name": "label",
-        "type": "string"
+        "type": {
+          "main": "string"
+        }
       },
       "bitmap": {
         "name": "bitmap",
-        "type": "integer",
+        "type": {
+          "main": "integer"
+        },
         "description": "A value of `1` will have this rule used for the vegetation image, while a value of `0` will have it used for the main tiles image. Trees will for example use `1` while ground tiles will use `0`."
       },
       "tiles": {
@@ -4730,12 +5464,16 @@
       "color": {
         "name": "color",
         "description": "The RGB color to replace with the tiles in the `tiles` parameter. This is the color you painted in your image file to associate to this rule.",
-        "type": "array"
+        "type": {
+          "main": "array"
+        }
       },
       "layer": {
         "name": "layer",
         "description": "The layer to apply the tiles on.",
-        "type": "string"
+        "type": {
+          "main": "string"
+        }
       }
     }
   },
@@ -4782,14 +5520,20 @@
     }
   },
   "physics": {
-    "name": "part",
+    "name": "physics",
     "description": "",
     "shouldHaveParent": true,
     "parents": [
       "template",
       "vehicle"
     ],
-    "ID": {},
+    "ID": {
+      "values": [
+        "box",
+        "sphere",
+        "mesh"
+      ]
+    },
     "parameters": {
       "offset": {
         "name": "offset"
@@ -4799,6 +5543,16 @@
       },
       "rotate": {
         "name": "rotate"
+      },
+      "physicsshapescript": {
+        "name": "physicsShapeScript",
+        "type": {
+          "main": "string",
+          "block": {
+            "name": "physicsShape",
+            "fullType": true
+          }
+        }
       }
     }
   },
@@ -4834,13 +5588,17 @@
     "parameters": {
       "capacity": {
         "name": "Capacity",
-        "type": "float",
+        "type": {
+          "main": "float"
+        },
         "default": 1.0,
         "description": "The fluid capacity of the container, the minimum value is `0.05`."
       },
       "containername": {
         "name": "ContainerName",
-        "type": "string",
+        "type": {
+          "main": "string"
+        },
         "default": "FluidContainer",
         "description": "The name of the fluid container, seems to be unused. The name cannot have whitespaces, the game will sanitize it to remove them and show an error in the console about it.",
         "isUseless": true
@@ -4848,18 +5606,24 @@
       "customdrinksound": {
         "name": "CustomDrinkSound",
         "description": "Refers to a [sound block](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/sound.html) to trigger when drinking.",
-        "type": "string",
+        "type": {
+          "main": "string"
+        },
         "default": "DrinkingFromGeneric"
       },
       "hiddenamount": {
         "name": "HiddenAmount",
-        "type": "boolean",
+        "type": {
+          "main": "boolean"
+        },
         "default": false,
         "description": "When true, will hide the fluid quantity from the UI."
       },
       "initialpercent": {
         "name": "InitialPercent",
-        "type": "float",
+        "type": {
+          "main": "float"
+        },
         "incompatibleWith": [
           "InitialPercentMin",
           "InitialPercentMax"
@@ -4867,7 +5631,9 @@
       },
       "initialpercentmax": {
         "name": "InitialPercentMax",
-        "type": "float",
+        "type": {
+          "main": "float"
+        },
         "default": 1.0,
         "description": "The minimum amount of fluid which will appear in this container.",
         "incompatibleWith": [
@@ -4876,7 +5642,9 @@
       },
       "initialpercentmin": {
         "name": "InitialPercentMin",
-        "type": "float",
+        "type": {
+          "main": "float"
+        },
         "default": 0.0,
         "description": "The maximum amount of fluid which will appear in this container.",
         "incompatibleWith": [
@@ -4885,19 +5653,25 @@
       },
       "inputlocked": {
         "name": "InputLocked",
-        "type": "boolean",
+        "type": {
+          "main": "boolean"
+        },
         "default": false,
         "description": "Unused."
       },
       "opened": {
         "name": "Opened",
-        "type": "boolean",
+        "type": {
+          "main": "boolean"
+        },
         "default": true,
         "description": "Unused."
       },
       "pickrandomfluid": {
         "name": "PickRandomFluid",
-        "type": "boolean",
+        "type": {
+          "main": "boolean"
+        },
         "default": false,
         "description": "When set to true, the container will pick one of the available fluids in the [Fluids](https://sirdoggyjvla.github.io/pz-scripts-data/blocks/fluids.html) child block at random when filling. If set to false, it will make every fluids appear.",
         "needs": [
@@ -4910,13 +5684,17 @@
       },
       "rainfactor": {
         "name": "RainFactor",
-        "type": "float",
+        "type": {
+          "main": "float"
+        },
         "default": 0.0,
         "description": "Defines how much rain contributes to filling the container. A high value increases the rate of filling. A value of `0.0` means that rain will not fill the container, which is the default value of the parameter.\n\nIf the item is a weapon and `RainFactor` is set to a value above the default, when the player aims with the weapon it will empty it."
       },
       "fillswithcleanwater": {
         "name": "FillsWithCleanWater",
-        "type": "boolean",
+        "type": {
+          "main": "boolean"
+        },
         "default": false,
         "description": "When set to true, the container will fill with clean water instead of tainted water when left outside in the rain."
       }
@@ -5074,7 +5852,7 @@
     }
   },
   "window": {
-    "name": "door",
+    "name": "window",
     "description": "",
     "shouldHaveParent": true,
     "parents": [
@@ -5083,7 +5861,9 @@
     "parameters": {
       "openable": {
         "name": "openable",
-        "type": "boolean"
+        "type": {
+          "main": "boolean"
+        }
       }
     }
   },
@@ -5163,7 +5943,9 @@
       "scale": {
         "name": "scale",
         "description": "Used to scale the model up or down.",
-        "type": "float"
+        "type": {
+          "main": "float"
+        }
       },
       "shader": {
         "name": "shader"
@@ -5279,7 +6061,9 @@
             ]
           }
         ],
-        "type": "array"
+        "type": {
+          "main": "array"
+        }
       },
       "alarmloop": {
         "name": "alarmLoop",
@@ -5302,11 +6086,15 @@
             ]
           }
         ],
-        "type": "string"
+        "type": {
+          "main": "string"
+        }
       },
       "category": {
         "name": "category",
-        "type": "string"
+        "type": {
+          "main": "string"
+        }
       },
       "engine": {
         "name": "engine",
@@ -5318,7 +6106,9 @@
             ]
           }
         ],
-        "type": "string"
+        "type": {
+          "main": "string"
+        }
       },
       "enginestart": {
         "name": "engineStart",
@@ -5330,7 +6120,9 @@
             ]
           }
         ],
-        "type": "string"
+        "type": {
+          "main": "string"
+        }
       },
       "engineturnoff": {
         "name": "engineTurnOff",
@@ -5342,7 +6134,9 @@
             ]
           }
         ],
-        "type": "string"
+        "type": {
+          "main": "string"
+        }
       },
       "handbrake": {
         "name": "handBrake",
@@ -5354,7 +6148,9 @@
             ]
           }
         ],
-        "type": "string"
+        "type": {
+          "main": "string"
+        }
       },
       "horn": {
         "name": "horn",
@@ -5366,7 +6162,9 @@
             ]
           }
         ],
-        "type": "string"
+        "type": {
+          "main": "string"
+        }
       },
       "ignitionfail": {
         "name": "ignitionFail",
@@ -5389,22 +6187,30 @@
             ]
           }
         ],
-        "type": "string"
+        "type": {
+          "main": "string"
+        }
       },
       "is3d": {
         "name": "is3D",
-        "type": "boolean",
+        "type": {
+          "main": "boolean"
+        },
         "description": "This parameter looks unused.",
         "isUseless": true
       },
       "loop": {
         "name": "loop",
         "description": "Whether the sound should loop or not. The sound plays until turned off or the emitter is destroyed.",
-        "type": "boolean"
+        "type": {
+          "main": "boolean"
+        }
       },
       "master": {
         "name": "master",
-        "type": "string",
+        "type": {
+          "main": "string"
+        },
         "description": "Links the sound to a master sound category, which controls the volume of all sounds linked to it.",
         "values": [
           "Primary",
@@ -5415,7 +6221,9 @@
       },
       "maxinstancesperemitter": {
         "name": "maxInstancesPerEmitter",
-        "type": "integer"
+        "type": {
+          "main": "integer"
+        }
       }
     }
   },
@@ -5430,7 +6238,9 @@
     "parameters": {
       "recipes": {
         "name": "Recipes",
-        "type": "array"
+        "type": {
+          "main": "array"
+        }
       }
     }
   },
@@ -5480,11 +6290,15 @@
       },
       "health": {
         "name": "health",
-        "type": "integer"
+        "type": {
+          "main": "integer"
+        }
       },
       "skillbasehealth": {
         "name": "skillBaseHealth",
-        "type": "integer"
+        "type": {
+          "main": "integer"
+        }
       }
     }
   }

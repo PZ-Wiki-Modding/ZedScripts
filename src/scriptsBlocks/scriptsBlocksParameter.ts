@@ -398,8 +398,11 @@ export class ScriptParameter {
         const values = this.getValues();
         const parameterData = this.getParameterData();
         if (parameterData && parameterData.values) {
-            const acceptedValues = parameterData.values;
-            const forbiddenValues = values.filter(value => !acceptedValues.includes(value));
+            const acceptedValues = parameterData.values.map(v => String(v));
+
+            const forbiddenValues = values.filter(
+                value => !acceptedValues.includes(value)
+            );
             return forbiddenValues;
         }
         return values;
@@ -411,7 +414,7 @@ export class ScriptParameter {
     public isAcceptedValue(value: string): boolean {
         const parameterData = this.getParameterData();
         if (parameterData && parameterData.values) {
-            const acceptedValues = parameterData.values;
+            const acceptedValues = parameterData.values.map(v => String(v));
             return acceptedValues.includes(value);
         }
         return false;
