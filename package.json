@@ -11,11 +11,11 @@
   "editor.semanticHighlighting.enabled": true,
   "repository": {
     "type": "git",
-    "url": "https://github.com/SirDoggyJvla/ZedScripts"
+    "url": "https://github.com/pz-wiki-modding/ZedScripts"
   },
   "bugs": {
     "type": "git",
-    "url": "https://github.com/SirDoggyJvla/ZedScripts/issues"
+    "url": "https://github.com/pz-wiki-modding/ZedScripts/issues"
   },
   "categories": [
     "Programming Languages"
