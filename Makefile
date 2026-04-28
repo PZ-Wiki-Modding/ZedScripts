@@ -2,7 +2,7 @@
 .PHONY: help build test package release
 
 SHELL := /bin/bash
-UPDATE_TYPE ?= patch
+UPDATE_TYPE ?= patch # can be "patch", "minor" or "major"
 
 help:
 	@echo "ZedScripts"
