@@ -1,5 +1,5 @@
 .ONESHELL:
-.PHONY: help build test package publish
+.PHONY: help build test package release
 
 SHELL := /bin/bash
 UPDATE_TYPE ?= patch
@@ -10,7 +10,7 @@ help:
 	@echo "  build:   Build the extension"
 	@echo "  test:    Run tests"
 	@echo "  package: Package the extension"
-	@echo "  publish: Publish to VS Code Marketplace and Open VSX"
+	@echo "  release: Publish to VS Code Marketplace and Open VSX"
 
 build:
 	npm run build
@@ -22,7 +22,7 @@ test:
 	npx @vscode/test-cli
 	npm run test:jest
 
-publish: test
+release: test
 	set -euo pipefail
 
 # publish to registries (VS Code Marketplace and Open VSX)
