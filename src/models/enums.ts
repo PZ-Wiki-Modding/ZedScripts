@@ -5,7 +5,7 @@ export const EXTENSION_ID = "ZedScripts";
 export const LANG_ZEDSCRIPTS = "ZedScripts";
 export const DOCUMENT_IDENTIFIER = "_DOCUMENT";
 
-export const SCRIPT_DATA_LINK = "https://raw.githubusercontent.com/SirDoggyJvla/pz-scripts-data/refs/heads/main/out/scriptBlocks.json";
+export const SCRIPT_DATA_LINK = "https://raw.githubusercontent.com/pz-wiki-modding/pz-scripts-data/refs/heads/main/out/scriptBlocks.json";
 
 export const DEFAULT_DIR = path.normalize(
     "C:/Program Files (x86)/Steam/steamapps/common/ProjectZomboid/media/scripts/"
@@ -14,7 +14,7 @@ export const DEFAULT_DIR = path.normalize(
 const CACHE_DURATION_HOURS = 12;
 export const CACHE_DURATION_MS = CACHE_DURATION_HOURS * 60 * 60 * 1000; // in milliseconds
 export const WIKI_LINK = "https://pzwiki.net/wiki/";
-export const DOCS_LINK = "https://sirdoggyjvla.github.io/pz-scripts-data/";
+export const DOCS_LINK = "https://pz-wiki-modding.github.io/pz-scripts-data/";
 
 export enum ThemeColorType {
     ID = "entity.name.class",

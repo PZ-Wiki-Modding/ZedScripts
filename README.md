@@ -18,7 +18,7 @@ This VS Code extension provides comprehensive support for Project Zomboid's [scr
 - Auto-completion for script elements based on the Project Zomboid data (automatic mandatory parameters and subblocks).
 - Detection for script blocks used in wrong parent blocks.
 - Missing IDs detection.
-- Last updated Scripts data via the [pz-scripts-data](https://github.com/SirDoggyJvla/pz-scripts-data) repository, which is automatically fetched every 12 hours and cached. Currently needs to be manually actived in the extension settings.
+- Last updated Scripts data via the [pz-scripts-data](https://github.com/pz-wiki-modding/pz-scripts-data) repository, which is automatically fetched every 12 hours and cached. Currently needs to be manually actived in the extension settings.
 
 ![ZedScripts syntax highlighting preview in VS Code](images/ZedScripts_preview1.png)
 ![ZedScripts parameter hovering preview in VS Code](images/ZedScripts_preview2.png)
@@ -32,9 +32,9 @@ This VS Code extension provides comprehensive support for Project Zomboid's [scr
   - "ZedScripts" for scripts files
   - "TranslationScripts" for translation files
 
-You can set the extension to automatically downloads the latest script data from the [pz-scripts-data](https://github.com/SirDoggyJvla/pz-scripts-data) repository via the extension settings, it will cache the data for 12 hours, which it will fetch once more after this time. If it doesn't manage to fetch this data, it will fall back to the bundled data with the extension, which may get outdated until the next update.
+You can set the extension to automatically downloads the latest script data from the [pz-scripts-data](https://github.com/pz-wiki-modding/pz-scripts-data) repository via the extension settings, it will cache the data for 12 hours, which it will fetch once more after this time. If it doesn't manage to fetch this data, it will fall back to the bundled data with the extension, which may get outdated until the next update.
 
-You can fetch data manually by running the command "ZedScripts: Force fetch Scripts Data" from the Command Palette (Ctrl + Shift + P). This won't directly update the diagnostics (due to a bug to fix, see [issue #2](https://github.com/SirDoggyJvla/ZedScripts/issues/2)) so you will have to restart VSCode.
+You can fetch data manually by running the command "ZedScripts: Force fetch Scripts Data" from the Command Palette (Ctrl + Shift + P). This won't directly update the diagnostics (due to a bug to fix, see [issue #2](https://github.com/pz-wiki-modding/ZedScripts/issues/2)) so you will have to restart VSCode.
 
 ## Configuration
 By default the Project Zomboid directory is `C:\Program Files (x86)\Steam\steamapps\common\ProjectZomboid\media\scripts`, but you can change this in the settings of the extension. The extension automatically retrieves the vanilla item scripts. However this is a part of the old code I've yet to touch, so I do not know how well it works.
@@ -107,6 +107,15 @@ This project is licensed under the MIT License. See the LICENSE file for details
 
 ## Changelog
 With each update, the extension fetches the latest data from the pz-scripts-data repository and make a local copy of it. If you're having issues, it might be because of outdated data, so make sure to fetch the latest data.
+
+1.10.3:
+- adjust type handling to new format from pz-scripts-data
+- removed wip notice on unknown parameters since most parameters are properly documented now
+- fixed forbidden values not being properly detected due to them not being purely handled as strings for comparison with parser output
+- fixed link to pz-scripts-data and ScriptsDocs to new repository link
+
+1.10.2:
+- adjusted syntax highlight to accept `block id{` as a valid block declaration
 
 1.10.1:
 - fix documentation link for parameters
