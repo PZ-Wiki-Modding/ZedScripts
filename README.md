@@ -108,6 +108,10 @@ This project is licensed under the MIT License. See the LICENSE file for details
 ## Changelog
 With each update, the extension fetches the latest data from the pz-scripts-data repository and make a local copy of it. If you're having issues, it might be because of outdated data, so make sure to fetch the latest data.
 
+1.10.4:
+- fixed some diagnostics regarding dependent parameters
+- large dataset update from pz-scripts-data
+
 1.10.3:
 - adjust type handling to new format from pz-scripts-data
 - removed wip notice on unknown parameters since most parameters are properly documented now
