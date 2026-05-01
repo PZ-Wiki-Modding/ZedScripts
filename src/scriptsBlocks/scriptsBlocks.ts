@@ -117,8 +117,8 @@ export class ScriptBlock {
         const paramsToSearch = parameters || this.parameters;
         
         // search by the parameter name
-        const lowerCase = name.toLowerCase();
-        const searchByName = paramsToSearch.find(param => param.parameter.toLowerCase() === lowerCase) || null;
+        const nameLower = name.toLowerCase();
+        const searchByName = paramsToSearch.find(param => param.parameter.toLowerCase() === nameLower) || null;
         if (searchByName) { return searchByName; }
 
         return null;

@@ -4,7 +4,7 @@ import { TextDocument, DiagnosticSeverity, Diagnostic, Range } from "vscode";
 import { DocumentBlock } from "../scriptsBlocks/scriptsBlocks";
 import { testForScriptRootFile, DEFAULT_ROOT_FILE } from "../scriptsBlocks/scriptsBlocksData";
 
-import { LANG_ZEDSCRIPTS, EXTENSION_ID, DiagnosticType } from "../models/enums";
+import { LANG_ZEDSCRIPTS, EXTENSION_ID, DiagnosticType, formatText } from "../models/enums";
 import { handleOpenTextDocument } from "./libraries";
 
 
@@ -80,10 +80,6 @@ export function updateDiagnostics(
 
 
 // Diagnostic helpers
-export function formatText(message: string, params: Record<string, string>): string {
-    return message.replace(/{(\w+)}/g, (_, key) => params[key] ?? "");
-}
-
 export function diagnostic(
     document: TextDocument,
     diagnostics: Diagnostic[] | undefined,

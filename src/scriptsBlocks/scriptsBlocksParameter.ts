@@ -646,7 +646,10 @@ export class ScriptParameter {
 
         // verify the block reference if any
         // this needs to be ran after all blocks from libs have been
-        if (parameterData && parameterData.type && parameterData.type.block) {
+        if (parameterData 
+                && parameterData.type && parameterData.type.block 
+                && this.value.toLowerCase() !== "null" // bypass value == "null" case for sound block
+            ) {
             // try to access to the module and block from the value
             const blockTypeOfValue = this.getBlockTypeOfValue();
             if (!blockTypeOfValue) {
@@ -728,18 +731,18 @@ export class ScriptParameter {
         if (parameterData && parameterData.needs) {
             const needs = parameterData.needs;
             for (const need of needs) {
-                const name = need.name;
-                if (!name) { continue; }
+                const needsName = need.name;
+                if (!needsName) { continue; }
 
                 // verify the block has the dependent parameter
-                const dependentParameter = this.parent.getParameter(name);
+                const dependentParameter = this.parent.getParameter(needsName);
                 if (!dependentParameter) {
                     this.diagnostic(
                         DiagnosticType.MISSING_DEPENDENT_PARAMETER,
                         { 
-                            parameter: name, 
+                            parameter: this.parameter, 
                             scriptBlock: this.parent.scriptBlock,
-                            dependentParameter: name
+                            dependentParameter: needsName
                         },
                         this.parameterRange.start,
                         this.valueRange.end,
@@ -751,16 +754,18 @@ export class ScriptParameter {
 
                     // check if the dependent parameter needs a specific value
                     if (values) {
+                        const testValues = values.map(v => String(v).toLowerCase());
                         // make sure the value of the dependent parameter is among the accepted values
-                        if (!values.includes(dependentParameter.value)) {
+                        if (!testValues.includes(dependentParameter.value.toLowerCase())) {
+                            const val = formatList(testValues);
                             this.diagnostic(
                                 DiagnosticType.DEPENDENT_PARAMETER_WRONG_VALUE,
                                 { 
-                                    parameter: name, 
+                                    parameter: this.parameter, 
                                     dependentParameter: dependentParameter.parameter,
                                     scriptBlock: this.parent.scriptBlock, 
                                     value: dependentParameter.value, 
-                                    validValues: formatList(values)
+                                    dependentValues: val
                                 },
                                 this.parameterRange.start,
                                 this.valueRange.end,
