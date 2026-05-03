@@ -160,7 +160,7 @@ export class ScriptBlock {
 
     public getScriptsDocPage(): string {
         const tree = getVariantTree(this.scriptBlock);
-        return (DOCS_LINK + 'blocks/' + (tree.join('/')).replace(' ', '-')).toLowerCase() + '.html';
+        return (DOCS_LINK + (tree.join('/')).replace(' ', '-').toLowerCase()) + '.html';
     }
 
     public getTree(children: boolean = false): string {

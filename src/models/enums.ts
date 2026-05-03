@@ -14,7 +14,7 @@ export const DEFAULT_DIR = path.normalize(
 const CACHE_DURATION_HOURS = 12;
 export const CACHE_DURATION_MS = CACHE_DURATION_HOURS * 60 * 60 * 1000; // in milliseconds
 export const WIKI_LINK = "https://pzwiki.net/wiki/";
-export const DOCS_LINK = "https://pz-wiki-modding.github.io/pz-scripts-data/";
+export const DOCS_LINK = "https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/";
 
 export enum ThemeColorType {
     ID = "entity.name.class",
