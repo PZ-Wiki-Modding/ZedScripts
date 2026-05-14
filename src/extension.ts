@@ -38,6 +38,7 @@ export async function activate(context: vscode.ExtensionContext) {
         itemCache.clearForFile(uri.fsPath);
         console.debug(`Invalidated cache for : ${uri.fsPath}`);
     });
+    
     if (vscode.window.activeTextEditor) {
         diagnosticNonLibrary(
             vscode.window.activeTextEditor.document,

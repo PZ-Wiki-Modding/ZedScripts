@@ -661,6 +661,35 @@ export class ScriptBlock {
 }
 
 
+export class ItemBlock extends ScriptBlock {
+// CONSTRUCTOR
+    constructor(
+        document: vscode.TextDocument,
+        diagnostics: vscode.Diagnostic[] | undefined,
+        parent: ScriptBlock | null,
+        type: string,
+        id: string | null,
+        start: number,
+        end: number,
+        headerStart: number
+    ) {
+        super(document, diagnostics, parent, type, id, start, end, headerStart);
+    }
+
+    protected validateID(): boolean {
+        if (!super.validateID()) {
+            return false;
+        }
+
+        // check that the item has a translation entry in 
+        // TODO: to implement, needs a way to access the translation files
+
+        return true;
+    }
+}
+
+
+
 /**
  * A ScriptBlock that represents a 'component' block specifically.
  */
@@ -1044,6 +1073,7 @@ export class DocumentBlock extends ScriptBlock {
 
 // ASSIGNED CLASSES FOR SCRIPT BLOCK TYPES
 const assignedClasses = new Map<string, typeof ScriptBlock>();
+assignedClasses.set("item", ItemBlock);
 assignedClasses.set("component", ComponentBlock);
 assignedClasses.set("template", TemplateBlock);
 assignedClasses.set("itemMapper", ItemMapperBlock);
