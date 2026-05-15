@@ -104,6 +104,10 @@
       {
         "command": "ZedScripts.resetScriptCache",
         "title": "ZedScripts: Force fetch Scripts Data"
+      },
+      {
+        "command": "ZedScripts.exportScriptBlocks",
+        "title": "ZedScripts: Export to JSON"
       }
     ]
   },

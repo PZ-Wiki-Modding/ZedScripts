@@ -115,7 +115,7 @@ export class PZCompletionItemProvider implements vscode.CompletionItemProvider {
         const name = param.name;
         let defaultValue = param.default || 'id';
         if (param.type?.main === VALUE_TYPES.ARRAY) {
-            const separator = param.type.array?.separator || ";";
+            const separator = param.type.array?.separator;
             defaultValue = (param.default as string[] || ['list']).join(separator);
         }
         return formatText(

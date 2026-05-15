@@ -278,6 +278,22 @@ export class InputsParameter {
         }
         return matches;
     }
+
+// EXPORT
+    public export(): Record<string, unknown> {
+        const exportedProperties: Record<string, unknown> = {};
+        for (const key in this.properties) {
+            const property = this.properties[key];
+            exportedProperties[key] = property.value;
+        }
+
+        return {
+            parameter: this.parameter,
+            values: this.values,
+            amount: this.amount,
+            properties: exportedProperties
+        };
+    }
 }
 
 

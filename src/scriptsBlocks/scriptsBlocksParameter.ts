@@ -117,7 +117,7 @@ export class ScriptParameter {
                     const arrayTypeColored = `${color(arrayType, ThemeColorType.TYPE)}`;
                     parameter += `[${arrayTypeColored}]`;
 
-                    const separator = arrayTypeData.separator || ";";
+                    const separator = arrayTypeData.separator;
                     parameter += ` (separator '${color(separator, ThemeColorType.TYPE)}')`;
 
                 // an object should show 'type[keyType separator valueType]'
@@ -159,7 +159,7 @@ export class ScriptParameter {
                             // color array elements first
                             if (Array.isArray(defaultValue) && defaultValue.length > 1) {
                                 const arrayTypeData = this.getArrayTypeData()!;
-                                const separator = arrayTypeData.separator || ";";
+                                const separator = arrayTypeData.separator;
                                 const coloredElements = (defaultValue as string[]).map(elem => color(elem, ThemeColorType.STRING));
                                 text = formatList(coloredElements, separator + " ");
                             }
@@ -380,17 +380,27 @@ export class ScriptParameter {
      * This is used in combination with the accepted values list to verify if the provided value/values are correct.
      */
     public getValues(): string[] {
-        const parameterData = this.getParameterData();
         const type = this.getTypeOfValue();
 
         // handle array case
-        if (type === VALUE_TYPES.ARRAY || type === VALUE_TYPES.OBJECT) {
-            const arrayTypeData = this.getArrayTypeData()!;
-            const separator = arrayTypeData.separator || ";";
+        if (type === VALUE_TYPES.ARRAY) {
+            const arrayTypeData = this.getArrayTypeData();
+            if (!arrayTypeData) {
+                throw new Error("Array type data is missing for parameter " + this.parameter);
+            }
+            const separator = arrayTypeData.separator;
             const values = this.value.split(separator).map(v => v.trim());
             return values;
 
         // simple value case
+        } else if (type === VALUE_TYPES.OBJECT) {
+            const objectTypeData = this.getObjectTypeData();
+            if (!objectTypeData) {
+                throw new Error("Object type data is missing for parameter " + this.parameter);
+            }
+            const pairsSeparator = objectTypeData.pairsSeparator;
+            const values = this.value.split(pairsSeparator).map(v => v.trim());
+            return values;
         } else if (this.value !== "") {
             return [this.value];
         }
@@ -525,7 +535,7 @@ export class ScriptParameter {
         if (this.getTypeOfValue() === VALUE_TYPES.OBJECT) {
             const values = this.getValues();
             const objectData = this.getObjectTypeData()!;
-            const keyValueSeparator = objectData.keyValueSeparator || ":";
+            const keyValueSeparator = objectData.keyValueSeparator;
             const invalidFormatValues = values.filter(value => !value.includes(keyValueSeparator));
             if (invalidFormatValues.length > 0) {
                 if (this.diagnostic(
@@ -538,8 +548,8 @@ export class ScriptParameter {
                 }
             }
 
-            const keyType = objectData.keyType || "string";
-            const valueType = objectData.valueType || "string";
+            const keyType = objectData.keyType;
+            const valueType = objectData.valueType;
             const invalidTypeValues = values.filter(value => {
                 const [key, val] = value.split(keyValueSeparator).map(v => v.trim());
                 const kType = this.tryTypeOfValue(key, keyType);
@@ -845,5 +855,22 @@ export class ScriptParameter {
     ): void {
         const documentBlock = this.getRoot();
         documentBlock.addAction(range, diagnostic, fix);
+    }
+
+// EXPORTS
+
+    public export(): Record<string, unknown> {
+        return {
+            parameter: this.parameter,
+            value: this.value,
+            comma: this.comma,
+            isDuplicate: this.isDuplicate,
+            positions: {
+                parameterStart: this.parameterRange.start,
+                parameterEnd: this.parameterRange.end,
+                valueStart: this.valueRange.start,
+                valueEnd: this.valueRange.end
+            }
+        };
     }
 }

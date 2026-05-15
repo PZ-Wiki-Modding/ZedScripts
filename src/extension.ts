@@ -66,6 +66,33 @@ export async function activate(context: vscode.ExtensionContext) {
             }
         ),
 
+        // add an export function
+        vscode.commands.registerCommand(
+            "ZedScripts.exportScriptBlocks",
+            () => {
+                const documentBlocks = DocumentBlock.getAllDocumentBlocks();
+                const exportData = documentBlocks.map(block => block.export());
+                const exportJson = JSON.stringify(exportData, null, 2);
+                const exportPath = path.join(
+                    vscode.workspace.workspaceFolders?.[0].uri.fsPath || "",
+                    "scripts_export.json"
+                );
+                vscode.workspace.fs.writeFile(
+                    vscode.Uri.file(exportPath),
+                    Buffer.from(exportJson, "utf-8")
+                ).then(() => {
+                    vscode.window.showInformationMessage(
+                        `Exported script blocks to ${exportPath}`
+                    );
+                }, (error) => {
+                    vscode.window.showErrorMessage(
+                        `Failed to export script blocks: ${error.message}`
+                    );
+                });
+            }
+        ),
+
+
         vscode.window.onDidChangeActiveTextEditor((editor) => {
             // console.debug(`Active editor changed: ${editor?.document.fileName}`);
             if (!editor) { return; }

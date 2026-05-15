@@ -15,7 +15,7 @@ import { ScriptBlockData } from './scriptsBlocksData';
 import { getScriptBlockData, getVariantTree, getMainVariant, isScriptBlock } from './scriptsBlocksUtility';
 import { IndexRange, createIndexRange, replaceCommentsWithWhitespace } from '../utils/positions';
 import { ScriptParameter } from './scriptsBlocksParameter';
-import { InputsItemParameter, InputsFluidParameter } from './scriptsBlocksProperties';
+import { InputsItemParameter, InputsFluidParameter, InputsParameter } from './scriptsBlocksProperties';
 import Module from 'node:module';
 
 /**
@@ -658,6 +658,27 @@ export class ScriptBlock {
             severity
         );
     }
+
+// EXPORTS
+
+    public export(): Record<string, unknown> {
+        return {
+            scriptBlock: this.scriptBlock,
+            id: this.id,
+            isTemplate: this.isTemplate,
+            isValid: this.isValid,
+            originalScriptBlock: this.originalScriptBlock,
+            positions: {
+                start: this.start,
+                end: this.end,
+                lineStart: this.lineStart,
+                lineEnd: this.lineEnd,
+                headerStart: this.headerStart
+            },
+            parameters: this.parameters.map(param => param.export()),
+            children: this.children.map(child => child.export())
+        };
+    }
 }
 
 
@@ -812,7 +833,7 @@ export class InputsBlock extends ScriptBlock {
         const document = this.document;
         const text = document.getText().slice(this.start, this.end);
 
-        const parameters: any[] = [];
+        const parameters: InputsParameter[] = [];
 
         // identify the different inputs/outputs parameters
         const matches = Array.from(text.matchAll(inputsOutputsRegex.main));
@@ -959,6 +980,10 @@ export class DocumentBlock extends ScriptBlock {
 
 // ACCESS
 
+    public static getAllDocumentBlocks(): DocumentBlock[] {
+        return Array.from(DocumentBlock.documentBlockCache.values());
+    }
+
     public getBlock(index: number): ScriptBlock | null {
         // check if index is within this document
         if (index < this.headerStart || index >= this.end) {
@@ -1067,6 +1092,32 @@ export class DocumentBlock extends ScriptBlock {
     // protected validateChildren(): boolean { return true; } // some documents might need children
     protected validateID(): boolean { return true; }
     // protected findParameters(): ScriptParameter[] { return []; }
+
+
+// EXPORTS
+    public gather_exports(): Record<string, unknown> {
+        const exports: Record<string, unknown> = {};
+        for (const child of this.children) {
+            if (child.id) {
+                exports[child.id] = child.export();
+            }
+        }
+        return exports;
+    }
+
+    public static exportAll(): Record<string, unknown> {
+        const allExports: Record<string, unknown> = {};
+        for (const documentBlock of DocumentBlock.documentBlockCache.values()) {
+            allExports[documentBlock.document.uri.toString()] = documentBlock.gather_exports();
+        }
+        return allExports;
+    }
+
+    public export(): Record<string, unknown> {
+        const baseExport = super.export();
+        baseExport["filePath"] = this.document.uri.fsPath;
+        return baseExport;
+    }
 }
 
 
