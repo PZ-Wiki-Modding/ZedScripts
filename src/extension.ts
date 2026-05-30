@@ -11,6 +11,8 @@ import { fetchData } from "./utils/fetchData";
 import { DefaultText, LANG_ZEDSCRIPTS } from "./models/enums";
 import { DocumentBlock } from "./scriptsBlocks/scriptsBlocks";
 
+let debounceTimer: NodeJS.Timeout | undefined;
+
 export async function activate(context: vscode.ExtensionContext) {
     console.debug('Activating extension "pz-syntax-extension"...');
 
@@ -105,7 +107,13 @@ export async function activate(context: vscode.ExtensionContext) {
             diagnosticNonLibrary(document, DIAGNOSTIC_PROVIDER);
         }),
         vscode.workspace.onDidChangeTextDocument((event) => {
-            diagnosticNonLibrary(event.document, DIAGNOSTIC_PROVIDER);
+            // debounce to avoid too many diagnostics on fast typing
+            if (debounceTimer) {
+                clearTimeout(debounceTimer);
+            }
+            debounceTimer = setTimeout(() => {
+                diagnosticNonLibrary(event.document, DIAGNOSTIC_PROVIDER);
+            }, 500);
         }),
 
 
