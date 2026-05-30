@@ -69,8 +69,13 @@ export class ScriptBlock {
         this.lineStart = document.positionAt(this.start).line;
         this.lineEnd = document.positionAt(this.end).line;
 
+        try {
         if (!this.validateBlock()) {
-            this.isValid = false;
+                this.isValid = false;
+            }
+        } catch (error) {
+            console.error(`Error validating block: ${error}`);
+            this.isValid = false; // mark as not valid
         }
     }
 
@@ -632,7 +637,11 @@ export class ScriptBlock {
         // recursively run validate later on children parameters
         for (const child of this.children) {
             for (const parameter of child.parameters) {
-                parameter.validateLater();
+                try {
+                    parameter.validateLater();
+                } catch (error) {
+                    console.error(`Error validating parameter: ${error}`);
+                }
             }
 
             child.validateRecursiveLater();
@@ -1142,3 +1151,4 @@ assignedClasses.set("lua", IgnoreAll);
 // the items they refer to should be verified for existence and validity
 assignedClasses.set("itemMapper", IgnoreAll);
 assignedClasses.set("overlayMapper", IgnoreAll);
+assignedClasses.set("components", IgnoreAll);

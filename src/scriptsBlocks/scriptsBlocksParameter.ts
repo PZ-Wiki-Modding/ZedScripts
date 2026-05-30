@@ -66,7 +66,11 @@ export class ScriptParameter {
         this.parameterRange = parameterRange;
         this.valueRange = valueRange;
     
-        this.validateParameter();
+        try {
+            this.validateParameter();
+        } catch (error) {
+            console.error(`Error validating parameter later: ${error}`);
+        }
 
         // this.highlightPositions();
     }

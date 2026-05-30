@@ -208,7 +208,7 @@
         "type": {
           "main": "object",
           "object": {
-            "keyValueSeparator": ";",
+            "keyValueSeparator": "=",
             "keyType": "string",
             "valueType": "integer",
             "pairsSeparator": ";"
@@ -6648,7 +6648,8 @@
         "type": {
           "main": "string",
           "block": {
-            "name": "item"
+            "name": "item",
+            "fullType": true
           }
         }
       },
@@ -6657,7 +6658,8 @@
         "type": {
           "main": "string",
           "block": {
-            "name": "item"
+            "name": "item",
+            "fullType": true
           }
         }
       },
