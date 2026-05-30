@@ -1,4 +1,471 @@
 {
+  "mods": {
+    "name": "mods",
+    "description": "A list of mods in the [default.txt](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/root-default.html) file. The [mod ID](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/root-modinfo.html#root-modinfo-id) should be used to reference the mods.\n\nIt should use the following syntax:\n```\nmods\n{\n  mod = mod1,\n  mod = mod2,\n  ...\n}\n```",
+    "shouldHaveParent": true,
+    "parents": [
+      "ROOT-Default"
+    ],
+    "parameters": {
+      "mod": {
+        "name": "mod",
+        "type": {
+          "main": "string"
+        },
+        "description": "The mod ID of the mod to load, which can be found in the [mod.info](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/root-modinfo.html) file of the mod.",
+        "allowedDuplicate": true
+      }
+    }
+  },
+  "ROOT-Rules": {
+    "name": "ROOT-Rules",
+    "description": "The `Rules.txt` file is used in the [mapping tools](https://pzwiki.net/wiki/Mapping#Mapping_tools) to define new [BMP to TMX](https://pzwiki.net/wiki/BMP_to_TMX) conversion rules. You can store this file anywhere on your computer and you need to reference it in the BMP Tool settings.\n\nA reference image containing the exact pixel colors you need to use for your BMP can be found [here](https://github.com/Unofficial-PZ-Mapping-Discord/B42-Colors/tree/main).",
+    "shouldHaveParent": false,
+    "parents": [],
+    "isRoot": true,
+    "pattern": [
+      "Rules\\.txt$"
+    ],
+    "parameters": {
+      "version": {
+        "name": "version",
+        "type": {
+          "main": "integer"
+        },
+        "description": "Version of the rules file. Should be 1 for now."
+      }
+    }
+  },
+  "ROOT-SandboxOptions": {
+    "name": "ROOT-SandboxOptions",
+    "description": "The root of a script file. Blocks than need to be in the root of the document should have this as parent.",
+    "shouldHaveParent": false,
+    "parents": [],
+    "isRoot": true,
+    "pattern": [
+      "media\\/sandbox-options\\.txt$"
+    ],
+    "parameters": {
+      "version": {
+        "name": "VERSION",
+        "description": "The version of the handler of the sandbox options. Keep this equal to 1.",
+        "required": true
+      }
+    }
+  },
+  "container": {
+    "name": "container",
+    "description": "",
+    "shouldHaveParent": true,
+    "parents": [
+      "part"
+    ],
+    "parameters": {
+      "capacity": {
+        "name": "capacity",
+        "type": {
+          "main": "integer"
+        }
+      },
+      "conditionaffectscapacity": {
+        "name": "conditionAffectsCapacity",
+        "type": {
+          "main": "boolean"
+        },
+        "description": "Sets whenever the condition of the part will impact the [capacity](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/container.html#container-capacity). A lower condition will negatively impact the container's capacity."
+      },
+      "contenttype": {
+        "name": "contentType",
+        "type": {
+          "main": "string"
+        },
+        "description": "Unclear how this parameter works exactly. The game uses it to define the \"content\" of tires and gas tanks by providing the string keys `Gasoline` or `Air`. It seems to simply remove any item container being used as the container for this part."
+      },
+      "seat": {
+        "name": "seat",
+        "type": {
+          "main": "string"
+        },
+        "description": "The seat ID of this container. When present, this container can be used as a seat for a vehicle."
+      },
+      "test": {
+        "name": "test",
+        "type": {
+          "main": "string"
+        },
+        "description": "Refers to a Lua global function returning a boolean which is used to determine whether an item can be put in this container when trying to transfer items.\n\nHere's an example from the vanilla game, with the parmeter being set to:\n```cpp\ntest = Vehicles.ContainerAccess.GloveBox\n```\n\nWith the Lua function being defined as:\n```lua\nfunction Vehicles.ContainerAccess.GloveBox(vehicle, part, chr)\n  if chr:getVehicle() == vehicle then\n    local seat = vehicle:getSeat(chr)\n    -- Can the seated player reach the passenger seat?\n    -- Only character in front seat can access it\n    return seat == 1 or seat == 0;\n  elseif chr:getVehicle() then\n    -- Can't reach from inside a different vehicle.\n    return false\n  else\n    -- Standing outside the vehicle.\n    if not vehicle:isInArea(part:getArea(), chr) then return false end\n    local doorPart = vehicle:getPartById(\"DoorFrontRight\")\n    if doorPart and doorPart:getDoor() and not doorPart:getDoor():isOpen() then\n      return false\n    end\n    return true\n  end\nend\n```\n\nThe parameters are:\n- `vehicle` is a [BaseVehicle](https://demiurgequantified.github.io/ProjectZomboidJavaDocs/zombie/vehicles/BaseVehicle.html) class\n- `part` is a [VehiclePart](https://demiurgequantified.github.io/ProjectZomboidJavaDocs/zombie/vehicles/VehiclePart.html)\n- `chr` is an [IsoGameCharacter](https://demiurgequantified.github.io/ProjectZomboidJavaDocs/zombie/characters/IsoGameCharacter.html)"
+      }
+    }
+  },
+  "ISTableLayoutCell": {
+    "name": "ISTableLayoutCell",
+    "description": "",
+    "shouldHaveParent": true,
+    "parents": [
+      "xuiSkin"
+    ],
+    "ID": {
+      "optional": [
+        "xuiSkin"
+      ]
+    },
+    "parameters": {}
+  },
+  "component Durability": {
+    "name": "component Durability",
+    "description": "",
+    "shouldHaveParent": true,
+    "isVariant": "component",
+    "parents": [
+      "item"
+    ],
+    "parameters": {}
+  },
+  "component": {
+    "name": "component",
+    "description": "A component is a block which can be added as a child to a specific block type like an item, vehicle etc, to provide additional functionalities.",
+    "shouldHaveParent": true,
+    "parents": [
+      "item",
+      "entity"
+    ],
+    "ID": {
+      "values": [
+        "CraftRecipe",
+        "SpriteConfig",
+        "UiConfig",
+        "CraftBench",
+        "CraftBenchSounds",
+        "Resources",
+        "DryingCraftLogic",
+        "SpriteOverlayConfig",
+        "Durability",
+        "FluidContainer",
+        "ContextMenuConfig",
+        "WallCoveringConfig"
+      ],
+      "asType": true
+    },
+    "parameters": {}
+  },
+  "character_profession_definition": {
+    "name": "character_profession_definition",
+    "description": "Defines a character profession.\n\n```cpp\ncharacter_profession_definition yourmod:example_profession\n{\n    CharacterProfession = yourmod:example_profession,\n    Cost = -6,\n    UIName = UI_prof_MetalWorker,\n    UIDescription = UI_profdesc_metalworker,\n    IconPathName = profession_metalworker,\n    XPBoosts = MetalWelding=4,\n    GrantedRecipes = Advanced_Forge;Blast_Furnace,\n}\n```",
+    "shouldHaveParent": true,
+    "parents": [
+      "module"
+    ],
+    "ID": {},
+    "parameters": {
+      "characterprofession": {
+        "name": "CharacterProfession",
+        "type": {
+          "main": "string"
+        },
+        "description": "The [registries](https://pzwiki.net/wiki/Registries) profession ID to link to."
+      },
+      "cost": {
+        "name": "Cost",
+        "type": {
+          "main": "integer"
+        },
+        "description": "The cost of the profession when selecting a character. Negative values remove points, positive values add points."
+      },
+      "uiname": {
+        "name": "UIName",
+        "type": {
+          "main": "string"
+        },
+        "description": "The translation key for the profession's name. The translation key needs to be in the UI translation file. See the wiki page about [translations](https://pzwiki.net/wiki/Translations) for more information."
+      },
+      "uidescription": {
+        "name": "UIDescription",
+        "type": {
+          "main": "string"
+        },
+        "description": "The translation key for the profession's description. The translation key needs to be in the UI translation file. See the wiki page about [translations](https://pzwiki.net/wiki/Translations) for more information."
+      },
+      "iconpathname": {
+        "name": "IconPathName",
+        "type": {
+          "main": "string"
+        }
+      },
+      "grantedtraits": {
+        "name": "GrantedTraits",
+        "type": {
+          "main": "array",
+          "array": {
+            "separator": ";",
+            "type": "string"
+          }
+        },
+        "description": "A list of character trait IDs that are granted to the character when this profession is selected."
+      },
+      "xpboosts": {
+        "name": "XPBoosts",
+        "description": "A list of experience boosts granted by this profession. Each entry should contain a skill name and the corresponding boost amount.\n\nFor example:\n```cpp\nXPBoosts = Axe=1;Blunt=1,\n```",
+        "type": {
+          "main": "object",
+          "object": {
+            "keyValueSeparator": ";",
+            "keyType": "string",
+            "valueType": "integer",
+            "pairsSeparator": ";"
+          }
+        }
+      },
+      "grantedrecipes": {
+        "name": "GrantedRecipes",
+        "type": {
+          "main": "array",
+          "array": {
+            "separator": ";",
+            "type": "string"
+          }
+        },
+        "description": "A list of [craftRecipe](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/craftrecipe.html) IDs that are granted to the character when this profession is selected."
+      }
+    }
+  },
+  "component WallCoveringConfig": {
+    "name": "component WallCoveringConfig",
+    "description": "",
+    "shouldHaveParent": true,
+    "isVariant": "component",
+    "parents": [
+      "entity"
+    ],
+    "parameters": {
+      "sign": {
+        "name": "sign"
+      },
+      "type": {
+        "name": "type"
+      }
+    }
+  },
+  "physicsHitReaction": {
+    "name": "physicsHitReaction",
+    "description": "Defines the physics reaction a bullet or bomb imposes to objects.",
+    "shouldHaveParent": true,
+    "parents": [
+      "module"
+    ],
+    "ID": {},
+    "parameters": {}
+  },
+  "ROOT-Default": {
+    "name": "ROOT-Default",
+    "description": "The default.txt file is used to select the mods and maps that will be loaded by the game.",
+    "shouldHaveParent": false,
+    "parents": [],
+    "needsChildren": [
+      "mods",
+      "maps"
+    ],
+    "isRoot": true,
+    "pattern": [
+      "mods/default\\.txt$"
+    ],
+    "parameters": {
+      "version": {
+        "name": "VERSION",
+        "type": {
+          "main": "integer"
+        },
+        "description": "The version of the default.txt file. Keep it at 1."
+      }
+    }
+  },
+  "component SpriteConfig": {
+    "name": "component SpriteConfig",
+    "description": "",
+    "shouldHaveParent": true,
+    "isVariant": "component",
+    "parents": [
+      "entity"
+    ],
+    "needsChildren": [
+      "face"
+    ],
+    "parameters": {
+      "isthumpable": {
+        "name": "isThumpable"
+      },
+      "oncreate": {
+        "name": "OnCreate"
+      },
+      "isprop": {
+        "name": "isProp"
+      },
+      "onisvalid": {
+        "name": "OnIsValid"
+      },
+      "timedactiononisvalid": {
+        "name": "TimedActionOnIsValid"
+      },
+      "health": {
+        "name": "health",
+        "type": {
+          "main": "integer"
+        }
+      },
+      "skillbasehealth": {
+        "name": "skillBaseHealth",
+        "type": {
+          "main": "integer"
+        }
+      }
+    }
+  },
+  "ISBaseComponentPanel": {
+    "name": "ISBaseComponentPanel",
+    "description": "",
+    "shouldHaveParent": true,
+    "parents": [
+      "xuiSkin"
+    ],
+    "parameters": {}
+  },
+  "component UiConfig": {
+    "name": "component UiConfig",
+    "description": "",
+    "shouldHaveParent": true,
+    "isVariant": "component",
+    "parents": [
+      "entity"
+    ],
+    "parameters": {
+      "xuiskin": {
+        "name": "xuiSkin"
+      },
+      "entitystyle": {
+        "name": "entityStyle"
+      },
+      "uienabled": {
+        "name": "uiEnabled"
+      }
+    }
+  },
+  "layer": {
+    "name": "layer",
+    "description": "",
+    "shouldHaveParent": true,
+    "parents": [
+      "face"
+    ],
+    "parameters": {
+      "row": {
+        "name": "row",
+        "allowedDuplicate": true
+      }
+    }
+  },
+  "component CraftBench": {
+    "name": "component CraftBench",
+    "description": "Used to add a crafting bench property to an [entity](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/entity.html) script, which can then be used in the [tags](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/craftrecipe.html#tags) parameter of a [craftRecipe](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/craftrecipe.html) script to create a crafting bench tag.",
+    "shouldHaveParent": true,
+    "isVariant": "component",
+    "parents": [
+      "entity"
+    ],
+    "parameters": {
+      "recipes": {
+        "name": "Recipes",
+        "description": "The tag name for this crafting bench to be used in the [tags](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/craftrecipe.html#tags) parameter of a [craftRecipe](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/craftrecipe.html) script.",
+        "type": {
+          "main": "array",
+          "array": {
+            "type": "string",
+            "separator": ";"
+          }
+        }
+      }
+    }
+  },
+  "door": {
+    "name": "door",
+    "description": "",
+    "shouldHaveParent": true,
+    "parents": [
+      "part"
+    ],
+    "ID": {
+      "optional": [
+        "part"
+      ]
+    },
+    "parameters": {}
+  },
+  "BlendBlackList": {
+    "name": "BlendBlackList",
+    "#ref": "BlendWhiteList",
+    "parameters": {},
+    "description": "BlendWhiteList defines a whitelist for fluids that the fluid can be blended with, while BlendBlackList defines a blacklist. By default those blocks are set whitelist, but you can add one of the available parameters to indicate whenever the block is a whitelist or a blacklist.\n\nFluids that are whitelisted/blacklisted can be identified either by their category via the use of a [categories](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/categories.html) child block, or by their name via the use of the [fluid](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/blendwhitelist.html#fluid) parameter.",
+    "shouldHaveParent": true,
+    "parents": [
+      "fluid"
+    ]
+  },
+  "group": {
+    "name": "group",
+    "description": "",
+    "shouldHaveParent": true,
+    "parents": [
+      "component Resources"
+    ],
+    "ID": {
+      "values": [
+        "craft_inputs",
+        "craft_outputs"
+      ]
+    },
+    "parameters": {}
+  },
+  "evolvedrecipe": {
+    "name": "evolvedrecipe",
+    "description": "Defines a dynamic recipe.",
+    "shouldHaveParent": true,
+    "parents": [
+      "module"
+    ],
+    "ID": {
+      "canHaveSpace": true
+    },
+    "parameters": {
+      "addingredientifcooked": {
+        "name": "AddIngredientIfCooked"
+      },
+      "addingredientsound": {
+        "name": "AddIngredientSound"
+      },
+      "baseitem": {
+        "name": "BaseItem"
+      },
+      "canaddspicesempty": {
+        "name": "CanAddSpicesEmpty"
+      },
+      "cookable": {
+        "name": "Cookable"
+      },
+      "maxitems": {
+        "name": "MaxItems"
+      },
+      "minimumwater": {
+        "name": "MinimumWater"
+      },
+      "name": {
+        "name": "Name"
+      },
+      "resultitem": {
+        "name": "ResultItem"
+      },
+      "template": {
+        "name": "Template"
+      }
+    }
+  },
   "ROOT-MapInfo": {
     "name": "ROOT-MapInfo",
     "description": "The `map.info` file is used to define the map's information. It is used by the game to display the map in the map selection screen and to load the map into the world.\nIt needs to be located in:\n```\n📁 media\n    📁maps\n        📁 <map folder>\n            📄 map.info\n```",
@@ -44,15 +511,755 @@
       }
     }
   },
-  "ragdoll": {
-    "name": "ragdoll",
-    "description": "Defines the ragdoll properties of a bone.",
+  "xuiSkin": {
+    "name": "xuiSkin",
+    "description": "Defines a XUI interface skin.",
+    "shouldHaveParent": true,
+    "parents": [
+      "module"
+    ],
+    "ID": {
+      "forbidden": [
+        "default"
+      ]
+    },
+    "parameters": {}
+  },
+  "animationsMesh": {
+    "name": "animationsMesh",
+    "description": "Defines an animated mesh, usually for characters or animals.",
     "shouldHaveParent": true,
     "parents": [
       "module"
     ],
     "ID": {},
+    "parameters": {
+      "animationdirectory": {
+        "name": "animationDirectory",
+        "allowedDuplicate": true
+      },
+      "animationprefix": {
+        "name": "animationPrefix",
+        "allowedDuplicate": true
+      },
+      "keepmeshanimations": {
+        "name": "keepMeshAnimations"
+      },
+      "meshfile": {
+        "name": "meshFile"
+      },
+      "postprocess": {
+        "name": "postProcess"
+      }
+    }
+  },
+  "ROOT-ModInfo": {
+    "name": "ROOT-ModInfo",
+    "description": "The mod.info file, which contains all the information about a mod.",
+    "shouldHaveParent": false,
+    "parents": [],
+    "isRoot": true,
+    "noComma": true,
+    "pattern": [
+      "mod\\.info$"
+    ],
+    "parameters": {
+      "name": {
+        "name": "name",
+        "type": {
+          "main": "string"
+        },
+        "description": "The displayed name for your mod in the game's mod manager. A translation can be provided in the [Mod.json translation file](https://pzwiki.net/wiki/Translation)."
+      },
+      "id": {
+        "name": "id",
+        "type": {
+          "main": "string"
+        },
+        "description": "The unique identifier of the mod, used in a mod list of the user or\nservers to activate the mod. Make sure to use something unique which isn't shared\nbetween mods. \n\n**Note:** This is not the same as the [Workshop ID](https://pzwiki.net/wiki/Workshop_ID)."
+      },
+      "author": {
+        "name": "author",
+        "type": {
+          "main": "string"
+        },
+        "description": "Name of the author(s) of the mod. Multiple authors are often separated by commas but no convention exists."
+      },
+      "description": {
+        "name": "description",
+        "type": {
+          "main": "string"
+        },
+        "description": "Description of your mod, which shows up in the mod manager. The description supports [ISRichTextPanel](https://pzwiki.net/wiki/ISRichTextPanel) tags. A translation can be provided in the [Mod.json translation file](https://pzwiki.net/wiki/Translation)."
+      },
+      "url": {
+        "name": "url",
+        "type": {
+          "main": "string"
+        },
+        "description": "Shows a URL link in the mod manager on the page of your mod for users to click on to open in their internet browser. The parameter appears as \"Homepage\" in the mod manager. For a list of valid links, see [URL](https://pzwiki.net/wiki/URL)."
+      },
+      "poster": {
+        "name": "poster",
+        "type": {
+          "main": "string"
+        },
+        "allowedDuplicate": true,
+        "description": "Image which will show up in the mod manager as the mod image. Multiple posters can be used to show multiple images, but the first one will be used as the main poster in the mod manager. The rest will be in a list of images of the mod that users can click on to view.\n\nExample:\n```\nposter=poster.png\nposter=showcase.png\nposter=flying_chickens.png\nposter=credits.png\n```\n\nIf you have multiple versions of your mod (e.g., 42.12 and 42.13) and don't want to copy your images, you can leave them in the common folder and use the following (but use unique names for these images since it will use the pool of all mods and their images in the common folder):\n```\nposter=../common/mymodname_poster.png\nposter=../common/mymodname_showcase.png\nposter=../common/mymodname_flying_chickens.png\nposter=../common/mymodname_credits.png\n```"
+      },
+      "icon": {
+        "name": "icon",
+        "type": {
+          "main": "string"
+        },
+        "description": "Image which will be used in the mod manager to put next to the name of the mod in the list of available mods. This image will be small and while you can use a full image size, you do not need it. You can set your poster as the icon too to not ship two images if desired."
+      },
+      "modversion": {
+        "name": "modversion",
+        "type": {
+          "main": "string"
+        },
+        "description": "Version of the mod."
+      },
+      "require": {
+        "name": "require",
+        "type": {
+          "main": "string"
+        },
+        "description": "Mods required to run this mod. Multiple mods can be specified separated by commas.\n\nExample:\n```\nrequire=theNeededMod,theOtherOne\n```"
+      },
+      "incompatible": {
+        "name": "incompatible",
+        "type": {
+          "main": "string"
+        },
+        "description": "Mods that cannot be enabled at the same time as this mod. When enabled, the other mods will be unselectable. This mod will also become unselectable if any of the other mods are enabled.\n\nExample:\n```\nincompatible=theUnwantedMod,theOtherOne\n```"
+      },
+      "loadmodafter": {
+        "name": "loadModAfter",
+        "type": {
+          "main": "string"
+        },
+        "description": "Loads the mod only after the set of mods listed.\n\nExample:\n```\nloadModAfter=someMod,anotherMod\n```"
+      },
+      "loadmodbefore": {
+        "name": "loadModBefore",
+        "type": {
+          "main": "string"
+        },
+        "description": "Loads the mod before the set of mods listed.\n\nExample:\n```\nloadModBefore=someMod,anotherMod\n```"
+      },
+      "category": {
+        "name": "category",
+        "type": {
+          "main": "string"
+        },
+        "description": "Category is used for filtering mods in the in-game ModManager. Known categories are \"map\", \"vehicle\", \"features\", \"modpack\". Using other terms will not generate a new filter category."
+      },
+      "pack": {
+        "name": "pack",
+        "type": {
+          "main": "string"
+        },
+        "description": "Name of pack files that need to be loaded by the game. Notably used for [Texture pack](https://pzwiki.net/wiki/Texture_pack) and [Tile pack](https://pzwiki.net/wiki/Mapping)."
+      },
+      "tiledef": {
+        "name": "tiledef",
+        "type": {
+          "main": "string"
+        },
+        "description": "Name of the tiledef with its ID that are added by the mod. You can find a community managed list of already used tiledef IDs in [Tiledefs used by mods](https://pzwiki.net/wiki/Tiledefs_used_by_mods).\n\nExample:\n```\ntiledef=Excavation 2112\n```\n\nIf you upload your mod with a new tiledef ID, you can update the list to reduce the chance of incompatibility with other mods adding tile packs."
+      },
+      "versionmin": {
+        "name": "versionMin",
+        "type": {
+          "main": "string"
+        },
+        "description": "The minimum version of the game the mod can be used on. This number needs to be in the format `build.major` at the very least, and not just `build` or it won't work. Example `42.0`."
+      },
+      "versionmax": {
+        "name": "versionMax",
+        "type": {
+          "main": "string"
+        },
+        "description": "The maximum version of the game the mod can be used on. This number needs to be in the format `build.major` at the very least, and not just `build` or it won't work. Example `42.12`."
+      }
+    }
+  },
+  "physicsShape": {
+    "name": "physicsShape",
+    "description": "Defines a 3D object's physical shape to be used as a world object.\n\nFor example:\n```cpp\nmodule YourModule {\n  physicsShape ramp20segment5w {\n      mesh = physics/ramp20|Segment5,\n      translate = 4.0 0.0 0.0,\n      rotate = 0.0 270.0 0.0,\n  }\n}\n```",
+    "shouldHaveParent": true,
+    "parents": [
+      "module"
+    ],
+    "ID": {},
+    "parameters": {
+      "mesh": {
+        "name": "mesh",
+        "type": {
+          "main": "string"
+        },
+        "description": "The path to the model's mesh file, relative to the folder `media/models_X`."
+      },
+      "translate": {
+        "name": "translate",
+        "type": {
+          "main": "array",
+          "array": {
+            "separator": " ",
+            "type": "float"
+          }
+        },
+        "description": "The position offset of the model, in the format `x y z`."
+      },
+      "rotate": {
+        "name": "rotate",
+        "type": {
+          "main": "array",
+          "array": {
+            "separator": " ",
+            "type": "float"
+          }
+        },
+        "description": "The rotation of the model, in the format `x y z`."
+      }
+    }
+  },
+  "module": {
+    "name": "module",
+    "description": "A module serves as a namespace for your scripts and is the barebone for most scripts you will create in your mod. The game's namespace is `Base`, and while you can insert in it, it is recommended to use your own module for your mod's scripts to avoid conflicts with the game and other mods.\n\nTo define a module, you need to create a block as follows, by changing the ID to a unique name for your mods:\n```cpp\nmodule yourID\n{\n  ...\n}\n```\n\nMost scripts that are defined in a module will need to be refered to by their 'full type', that is `module.id`, but this is a bit inconsistent as some places where a script block needs to be refered to require no module reference. For example, for an item, you can refer to it by its full type `yourModule.yourItemID`.",
+    "shouldHaveParent": true,
+    "parents": [
+      "_DOCUMENT",
+      "ROOT-Scripts"
+    ],
+    "ID": {},
     "parameters": {}
+  },
+  "tileGeometry": {
+    "name": "tileGeometry",
+    "description": "Used to define tile geometries.",
+    "shouldHaveParent": true,
+    "parents": [
+      "ROOT-TileGeometry"
+    ],
+    "parameters": {
+      "version": {
+        "name": "VERSION",
+        "description": "The version of the tile geometry file format. Keep it at 2 for now."
+      }
+    }
+  },
+  "Properties": {
+    "name": "Properties",
+    "description": "Define stat changes applied to the player drinking this [fluid](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/fluid.html).",
+    "shouldHaveParent": true,
+    "parents": [
+      "fluid"
+    ],
+    "parameters": {
+      "thirstchange": {
+        "name": "ThirstChange",
+        "type": {
+          "main": "float"
+        },
+        "description": "The amount of thirst this fluid changes when consumed. Positive values increase thirst, negative values decrease it."
+      },
+      "alcohol": {
+        "name": "alcohol",
+        "type": {
+          "main": "float"
+        }
+      },
+      "hungerchange": {
+        "name": "HungerChange",
+        "type": {
+          "main": "float"
+        },
+        "description": "The amount of hunger this fluid changes when consumed. Positive values increase hunger, negative values decrease it."
+      },
+      "calories": {
+        "name": "Calories",
+        "type": {
+          "main": "float"
+        },
+        "description": "The number of calories this fluid provides when consumed."
+      },
+      "carbohydrates": {
+        "name": "Carbohydrates",
+        "type": {
+          "main": "float"
+        },
+        "description": "The amount of carbohydrates this fluid provides when consumed."
+      },
+      "lipids": {
+        "name": "Lipids",
+        "type": {
+          "main": "float"
+        },
+        "description": "The amount of lipids (fats) this fluid provides when consumed."
+      },
+      "proteins": {
+        "name": "Proteins",
+        "type": {
+          "main": "float"
+        },
+        "description": "The amount of proteins this fluid provides when consumed."
+      },
+      "flureduction": {
+        "name": "fluReduction",
+        "type": {
+          "main": "float"
+        }
+      },
+      "painreduction": {
+        "name": "painReduction",
+        "type": {
+          "main": "float"
+        },
+        "description": "The amount of pain this fluid reduces when consumed."
+      },
+      "endurancechange": {
+        "name": "enduranceChange",
+        "type": {
+          "main": "float"
+        },
+        "description": "The amount of endurance given back."
+      },
+      "foodsicknesschange": {
+        "name": "foodSicknessChange",
+        "type": {
+          "main": "float"
+        },
+        "description": "The amount of food sickness provides."
+      },
+      "fatiguechange": {
+        "name": "fatigueChange",
+        "type": {
+          "main": "float"
+        },
+        "description": "The amount of fatigue this fluid changes when consumed. Positive values increase fatigue, negative values decrease it."
+      },
+      "stresschange": {
+        "name": "StressChange",
+        "type": {
+          "main": "float"
+        },
+        "description": "The amount of stress this fluid changes when consumed. Positive values increase stress, negative values decrease it."
+      },
+      "unhappychange": {
+        "name": "UnhappyChange",
+        "type": {
+          "main": "float"
+        },
+        "description": "The amount of unhappiness this fluid changes when consumed. Positive values increase unhappiness, negative values decrease it."
+      }
+    }
+  },
+  "tileset": {
+    "name": "tileset",
+    "description": "Used to define properties of tiles of tilesets.",
+    "shouldHaveParent": true,
+    "parents": [
+      "spriteModel",
+      "tileGeometry"
+    ],
+    "parameters": {
+      "name": {
+        "name": "name"
+      }
+    }
+  },
+  "component ContextMenuConfig": {
+    "name": "component ContextMenuConfig",
+    "description": "",
+    "shouldHaveParent": true,
+    "isVariant": "component",
+    "parents": [
+      "item",
+      "entity"
+    ],
+    "needsChildren": [
+      "contextEntry"
+    ],
+    "parameters": {}
+  },
+  "craftRecipe": {
+    "name": "craftRecipe",
+    "description": "The 'craftRecipe' script block is used to define a crafting recipe, which allows players to craft items or tiles in the game based on the parent script block. For example, a craftRecipe defined inside a [module](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/module.html) will be a recipe to craft an item usually, while when defined inside an [entity](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/entity.html) it will be the building recipe for that entity.\n\nA craftRecipe will usually require an [inputs](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/inputs.html) and [outputs](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/outputs.html) block. Other parameters are used to define properties of this recipe, such as the [time](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/craftrecipe.html#time) it takes to craft or the [XP awarded](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/craftrecipe.html#xpaward) for crafting it.\n\nFor example:\n```cpp\nmodule yourModule /* or Base */\n{\n    craftRecipe yourRecipeID\n    {\n        ...\n    }\n}\n```\n\nTo define a translation for this recipe, you need to create an entry in the translation file [Recipes.json](https://pz-wiki-modding.github.io/PZ-API-Docs/translations/translation_files.html#recipes). The translation entry should be formatted like this:\n```json\n{\n  \"yourRecipeID\": \"Your recipe\"\n}\n```\n\nNotice how you shouldn't use the [module](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/module.html) in the translation file key and only the craftRecipe ID.\n\nHere's an example of a craftRecipe with some parameters defined:\n```cpp\ncraftRecipe SawLogs\n{\n    timedAction = SawLogs,\n    Time = 230,\n    Tags = InHandCraft;CanBeDoneFromFloor,\n    category = Carpentry,\n    xpAward = Woodwork:5,\n    inputs\n    {\n        item 1 [Base.Log] flags[Prop2],\n        item 1 tags[Saw] mode:keep flags[MayDegradeLight;Prop1],\n    }\n    outputs\n    {\n        item 3 Base.Plank,\n    }\n}\n```\n\nOr:\n```cpp\ncraftRecipe CarveWhistle\n{\n    time = 200,\n    tags = AnySurfaceCraft;Survivalist,\n    category = Carving,\n    xpAward = Carving:60,\n    SkillRequired = Carving:6,\n    needTobeLearn = true,\n    AutoLearnAny = Carving:8,\n    timedAction = SharpenStake,\n    inputs\n    {\n        item 1 tags[DrillWood;DrillMetal;DrillWoodPoor] mode:keep flags[MayDegradeLight],\n        item 1 tags[SharpKnife] mode:keep flags[MayDegradeLight],\n        item 1 [Base.SmallAnimalBone] flags[Prop2;AllowDestroyedItem],\n    }\n    outputs\n    {\n        item 1 Base.Whistle_Bone,\n    }\n}\n```\n\nAnd a more advanced one:\n```cpp\ncraftRecipe RefillHurricaneLantern\n{\n    timedAction = Making,\n    Time = 50,\n    OnCreate = Recipe.OnCreate.RefillHurricaneLantern,\n    /* OnTest = Recipe.OnTest.RefillHurricaneLantern, */\n    Tags = InHandCraft;CanBeDoneInDark,\n    category = Miscellaneous, /*category = Survival,*/\n    inputs\n    {\n        item 1 [Base.Lantern_Hurricane;Base.Lantern_Hurricane_Copper;Base.Lantern_Hurricane_Forged;Base.Lantern_Hurricane_Gold;Base.Lantern_Hurricane_Silver] mode:destroy flags[NotFull;AllowFavorite;InheritFavorite;ItemCount] mappers[LampMapper],\n        item 1 [*],\n        -fluid 1.0 [Petrol],\n    }\n    outputs\n    {\n        item 1 mapper:LampMapper,\n    }\n    itemMapper LampMapper\n    {\n        Base.Lantern_Hurricane = Base.Lantern_Hurricane,\n        Base.Lantern_Hurricane_Copper = Base.Lantern_Hurricane_Copper,\n        Base.Lantern_Hurricane_Forged = Base.Lantern_Hurricane_Forged,\n        Base.Lantern_Hurricane_Gold = Base.Lantern_Hurricane_Gold,\n        Base.Lantern_Hurricane_Silver = Base.Lantern_Hurricane_Silver,\n\n        default = Base.Lantern_Hurricane,\n    }\n}\n```",
+    "shouldHaveParent": true,
+    "parents": [
+      "module"
+    ],
+    "needsChildren": [
+      "inputs"
+    ],
+    "ID": {},
+    "softOverride": true,
+    "parameters": {
+      "allowbatchcraft": {
+        "name": "AllowBatchCraft",
+        "description": "The AllowBatchCraft parameter is used to allow the recipe to be crafted in batches. This will make a slider appear on the crafting to craft multiple ones at once. Needs to be a boolean and default is true, set to false to disable batch craft.",
+        "type": {
+          "main": "boolean"
+        },
+        "default": true
+      },
+      "animation": {
+        "name": "Animation",
+        "isUseless": true,
+        "type": {
+          "main": "string"
+        }
+      },
+      "autolearnall": {
+        "name": "AutoLearnAll",
+        "description": "The `autoLearnAll` parameter specifies that all the provided skills and their associated level need to be reached to learn the recipe. The parameter should be formated this way:\n```cpp\n/* a single skill */\nautoLearnAll = <skill name>:<level amount>,\n\n/* multiple skills */\nautoLearnAll = <skill1 name>:<level amount>;<skill2 name>:<level amount>,format\n```\nFor the list of available skills, see [this](https://pzwiki.net/wiki/CraftRecipe#Available_skills).\n\nFor example:\n```cpp\nautoLearnAll = Carving:3;Maintenance:2,\n```"
+      },
+      "autolearnany": {
+        "name": "AutoLearnAny",
+        "description": "The autoLearnAny parameter specifies that at least one of the skills and its associated level need to be reached to learn the recipe. The parameter should be formated this way:\n```cpp\n/* a single skill */\nautoLearnAny = <skill name>:<level amount>,\n\n/* multiple skills */\nautoLearnAny = <skill1 name>:<level amount>;<skill2 name>:<level amount>,format\n```\nFor the list of available skills, see [this](https://pzwiki.net/wiki/CraftRecipe#Available_skills).\n\nFor example:\n```cpp\nautoLearnAny = Carving:3;Maintenance:2,\n```"
+      },
+      "canwalk": {
+        "name": "CanWalk",
+        "description": "Whether the player can walk while crafting this recipe.",
+        "type": {
+          "main": "boolean"
+        },
+        "default": false
+      },
+      "category": {
+        "name": "category",
+        "description": "The category under which the recipe will be listed in the crafting menu. Helps to organize and identify recipes in the crafting menu. Currently doesn't support translations (confirmed last 42.15)."
+      },
+      "icon": {
+        "name": "Icon",
+        "description": "Specifies the icon associated with this crafting recipe. The icon needs to be located in `media/textures`, for example `media/textures/myIcon.png` will be refered to as `Icon = myIcon,`.\n\nThis seems to be used only once in the vanilla recipes with the entry `Icon = Item_WaterDrop,`, as the icon usually defaults to the items that will be crafted."
+      },
+      "metarecipe": {
+        "name": "MetaRecipe",
+        "description": "A meta recipe is used to link two recipes so that if the meta recipe is known then this recipe will be known."
+      },
+      "needtobelearn": {
+        "name": "NeedToBeLearn",
+        "description": "Whether the recipe needs to be learned before it can be crafted."
+      },
+      "oncreate": {
+        "name": "OnCreate",
+        "description": "The OnCreate parameter allows the referencing of a Lua function that will be called when the crafting recipe is finished. This can be used to add custom behavior to the crafting recipe when it gets finished. The Lua function needs to be a [global function](https://pzwiki.net/wiki/Lua_(language)#Local_and_global), it can also be in a global table. The vanilla game OnCreate's are stored in the [Java](https://pzwiki.net/wiki/Java).\n\nThe function should have the following structure:\n```lua\nfunction MyOnCreateFunction(craftRecipeData, character)\n    -- your custom code here\nend\n```\n\nThe `craftRecipeData` is a [java object](https://demiurgequantified.github.io/ProjectZomboidJavaDocs/zombie/entity/components/crafting/recipe/CraftRecipeData.html) that contains the data of the crafting recipe. The `character` is the player character who is crafting the recipe."
+      },
+      "ontest": {
+        "name": "OnTest",
+        "description": "The OnTest parameter is used to define a Lua function that will be called to verify if the recipe can be crafted. If the function returns true, the recipe can be crafted but if the function returns false, the recipe cannot be crafted. The Lua function needs to be a [global function](https://pzwiki.net/wiki/Lua_(language)#Local_and_global), it can also be in a global table. The vanilla game OnTest's are stored in the [Java](https://pzwiki.net/wiki/Java).\n\nThe function should have the following structure:\n```lua\nfunction MyOnTestFunction(item, character)\n    -- your custom code here\n    return logicTestResult  -- based on your logic test above\nend\n```\n\n`item` is an InventoryItem while `character` is the player trying to craft this recipe."
+      },
+      "onfailed": {
+        "name": "OnFailed"
+      },
+      "onupdate": {
+        "name": "OnUpdate"
+      },
+      "onaddtomenu": {
+        "name": "OnAddToMenu"
+      },
+      "overlaystyle": {
+        "name": "overlayStyle"
+      },
+      "recipegroup": {
+        "name": "recipeGroup"
+      },
+      "researchany": {
+        "name": "ResearchAny"
+      },
+      "researchskilllevel": {
+        "name": "ResearchSkillLevel"
+      },
+      "skillrequired": {
+        "name": "SkillRequired",
+        "description": "Specifies the skill level required to perform this crafting action. It should be formated this way:\n```cpp\n/* a single skill */\nskillRequired = <skill name>:<level>,\n\n/* multiple skills */\nskillRequired = <skill1 name>:<level>;<skill2 name>:<level>,\n```\nFor the list of available skills, see [this](https://pzwiki.net/wiki/CraftRecipe#Available_skills).\n\nFor example:\n```cpp\nskillRequired = Blacksmith:3;Tailoring:2,\n```"
+      },
+      "tags": {
+        "name": "tags",
+        "description": "Specifies specific conditions which need to be respected to craft this item. At least one crafting bench tag is necessary for the craft to be recognized, such as `AnySurfaceCraft`. The syntax is as follows:\n```cpp\n/* single tag */\nTags = tag1,\n\n/* multiple tags */\nTags = tag1;tag2;...,\n```\n\nFor example:\n```cpp\nTags = InHandCraft;CanAlwaysBeResearched,\n```\n\nA crafting bench tag can be created by adding a [component CraftBench](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/component/component-craftbench.html) to an [entity](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/entity.html) script, which can then be used in this tags parameter.",
+        "required": true,
+        "type": {
+          "main": "array",
+          "array": {
+            "separator": ";",
+            "type": "string"
+          }
+        }
+      },
+      "time": {
+        "name": "time",
+        "description": "The time it takes to craft the item, not using a specific unit of time.",
+        "default": 50
+      },
+      "timedaction": {
+        "name": "timedAction",
+        "type": {
+          "main": "string",
+          "block": {
+            "name": "timedAction"
+          }
+        },
+        "description": "Refers to a timed action script block to trigger during the crafting process, for animations and/or sounds but also the calories burned and body heat generation."
+      },
+      "tooltip": {
+        "name": "Tooltip",
+        "description": "Description of the crafting which is shown in the crafting menu."
+      },
+      "xpaward": {
+        "name": "xpAward",
+        "description": "Specifies the experience points awarded for crafting this item. The parameter should be formated this way:\n```cpp\n/* a single skill */\nxpAward = <skill name>:<xp amount>,\n\n/* multiple skills */\nxpAward = <skill1 name>:<xp amount>;<skill2 name>:<xp amount>,format\n```\nFor the list of available skills, see [this](https://pzwiki.net/wiki/CraftRecipe#Available_skills).\n\nFor example:\n```cpp\nxpAward = Blacksmith:10;Tailoring:5,\n```"
+      }
+    }
+  },
+  "hand": {
+    "name": "hand",
+    "description": "",
+    "shouldHaveParent": true,
+    "parents": [
+      "clock"
+    ],
+    "ID": {},
+    "parameters": {}
+  },
+  "window": {
+    "name": "window",
+    "description": "",
+    "shouldHaveParent": true,
+    "parents": [
+      "part"
+    ],
+    "parameters": {
+      "openable": {
+        "name": "openable",
+        "type": {
+          "main": "boolean"
+        }
+      }
+    }
+  },
+  "progress": {
+    "name": "progress",
+    "description": "",
+    "shouldHaveParent": true,
+    "parents": [
+      "style"
+    ],
+    "ID": {},
+    "parameters": {}
+  },
+  "component DryingCraftLogic": {
+    "name": "component DryingCraftLogic",
+    "description": "",
+    "shouldHaveParent": true,
+    "isVariant": "component",
+    "parents": [
+      "entity"
+    ],
+    "parameters": {
+      "recipes": {
+        "name": "Recipes"
+      },
+      "startmode": {
+        "name": "StartMode"
+      },
+      "inputgroup": {
+        "name": "inputGroup"
+      },
+      "outputgroup": {
+        "name": "outputGroup"
+      },
+      "actionanim": {
+        "name": "actionAnim"
+      }
+    }
+  },
+  "lightbar": {
+    "name": "lightbar",
+    "description": "",
+    "shouldHaveParent": true,
+    "parents": [
+      "template",
+      "vehicle"
+    ],
+    "parameters": {
+      "texture": {
+        "name": "texture"
+      },
+      "soundsiren": {
+        "name": "soundSiren"
+      },
+      "leftcol": {
+        "name": "leftCol"
+      },
+      "rightcol": {
+        "name": "rightCol"
+      }
+    }
+  },
+  "switchSeat": {
+    "name": "switchSeat",
+    "description": "",
+    "shouldHaveParent": true,
+    "parents": [
+      "passenger"
+    ],
+    "ID": {},
+    "parameters": {
+      "anim": {
+        "name": "anim"
+      },
+      "rate": {
+        "name": "rate"
+      },
+      "sound": {
+        "name": "sound"
+      }
+    }
+  },
+  "Categories": {
+    "name": "Categories",
+    "description": "Acts as a sort of tag list. Notably used in fluid scripts. Doesn't have parameters and instead just functions as a list.\n\nAvailable categories for fluids are:\n- `Alcoholic`\n- `Beverage`\n- `Poisons`\n- `Colors`\n- `Medical`\n- `Industrial`\n- `Dyes`\n- `HairDyes`\n- `Paint`\n- `Fuel`\n- `Water`\n\nDo note that some of these don't seem to do anything.",
+    "shouldHaveParent": true,
+    "parents": [
+      "fluid",
+      "BlendWhiteList",
+      "BlendBlackList"
+    ],
+    "parameters": {}
+  },
+  "component SpriteOverlayConfig": {
+    "name": "component SpriteOverlayConfig",
+    "description": "",
+    "shouldHaveParent": true,
+    "isVariant": "component",
+    "parents": [
+      "entity"
+    ],
+    "parameters": {}
+  },
+  "spriteModel": {
+    "name": "spriteModel",
+    "description": "Used to define tileset properties.",
+    "shouldHaveParent": true,
+    "parents": [
+      "_DOCUMENT",
+      "ROOT-Scripts"
+    ],
+    "parameters": {
+      "version": {
+        "name": "VERSION",
+        "type": {
+          "main": "integer"
+        }
+      }
+    }
+  },
+  "model": {
+    "name": "model",
+    "description": "Defines a 3D model properties.",
+    "shouldHaveParent": true,
+    "parents": [
+      "module",
+      "vehicle",
+      "part"
+    ],
+    "ID": {
+      "parentsWithout": [
+        "vehicle"
+      ],
+      "optional": [
+        "part"
+      ]
+    },
+    "parameters": {
+      "animationsmesh": {
+        "name": "animationsMesh"
+      },
+      "boneweight": {
+        "name": "boneWeight"
+      },
+      "colorblue": {
+        "name": "ColorBlue"
+      },
+      "colorgreen": {
+        "name": "ColorGreen"
+      },
+      "colorred": {
+        "name": "ColorRed"
+      },
+      "cullface": {
+        "name": "cullFace"
+      },
+      "file": {
+        "name": "file"
+      },
+      "invertx": {
+        "name": "invertX"
+      },
+      "mesh": {
+        "name": "mesh"
+      },
+      "offset": {
+        "name": "offset"
+      },
+      "postprocess": {
+        "name": "postProcess"
+      },
+      "scale": {
+        "name": "scale",
+        "description": "Used to scale the model up or down.",
+        "type": {
+          "main": "float"
+        }
+      },
+      "shader": {
+        "name": "shader"
+      },
+      "specialkeyring": {
+        "name": "specialKeyRing"
+      },
+      "static": {
+        "name": "static"
+      },
+      "texture": {
+        "name": "texture"
+      },
+      "undocorescale": {
+        "name": "undoCoreScale"
+      },
+      "attachmentparent": {
+        "name": "attachmentParent"
+      },
+      "attachmentself": {
+        "name": "attachmentSelf"
+      },
+      "ignorevehiclescale": {
+        "name": "ignoreVehicleScale"
+      },
+      "rotate": {
+        "name": "rotate"
+      }
+    }
+  },
+  "contextEntry": {
+    "name": "contextEntry",
+    "description": "",
+    "shouldHaveParent": true,
+    "parents": [
+      "component ContextMenuConfig"
+    ],
+    "parameters": {
+      "menu": {
+        "name": "menu"
+      },
+      "customfunction": {
+        "name": "customFunction"
+      }
+    }
   },
   "blend": {
     "name": "blend",
@@ -94,6 +1301,58 @@
       },
       "exclude2": {
         "name": "exclude2"
+      }
+    }
+  },
+  "table": {
+    "name": "table",
+    "description": "",
+    "shouldHaveParent": true,
+    "parents": [
+      "part"
+    ],
+    "ID": {},
+    "parameters": {}
+  },
+  "Fluids": {
+    "name": "Fluids",
+    "description": "Used to make a list of fluids to appear in a [FluidContainer component](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/component/component_fluidcontainer.html).",
+    "shouldHaveParent": true,
+    "parents": [
+      "component FluidContainer"
+    ],
+    "parameters": {
+      "fluid": {
+        "name": "fluid",
+        "allowedDuplicate": true,
+        "description": "Refers to a fluid script"
+      }
+    }
+  },
+  "ROOT-TMXconfig": {
+    "name": "ROOT-TMXconfig",
+    "description": "The `TMXconfig.txt` file is used to configure the default layers which will be created in the TMX file.",
+    "shouldHaveParent": false,
+    "parents": [],
+    "isRoot": true,
+    "noComma": true,
+    "pattern": [
+      "TMXconfig\\.txt$"
+    ],
+    "parameters": {
+      "version": {
+        "name": "version",
+        "type": {
+          "main": "integer"
+        },
+        "description": "Version of the TMXconfig file. Should be 1 for now."
+      },
+      "revision": {
+        "name": "revision",
+        "type": {
+          "main": "integer"
+        },
+        "description": "Revision of the TMXconfig file. Keep it to 11 for now."
       }
     }
   },
@@ -619,8 +1878,8 @@
       }
     }
   },
-  "energy": {
-    "name": "energy",
+  "soundTimeline": {
+    "name": "soundTimeline",
     "description": "",
     "shouldHaveParent": true,
     "parents": [
@@ -629,429 +1888,247 @@
     "ID": {},
     "parameters": {}
   },
-  "Categories": {
-    "name": "Categories",
-    "description": "Acts as a sort of tag list. Notably used in fluid scripts. Doesn't have parameters and instead just functions as a list.\n\nAvailable categories for fluids are:\n- `Alcoholic`\n- `Beverage`\n- `Poisons`\n- `Colors`\n- `Medical`\n- `Industrial`\n- `Dyes`\n- `HairDyes`\n- `Paint`\n- `Fuel`\n- `Water`\n\nDo note that some of these don't seem to do anything.",
+  "sound": {
+    "name": "sound",
+    "description": "Makes one or more sound clips available for use in the game. Multiple clips can be added to a sound script, and the game will randomly select one of them to play when the sound is triggered.\n\n```cpp\nmodule yourModule {\n  sound yourSound {\n    category = Animal,\n    loop = true,\n    is3D = true,\n    clip {\n      file = media/sound/RideOfTheValkyries.ogg,\n      distanceMin = 20,\n      distanceMax = 650,\n      reverbFactor = 0.1,\n      volume = 0.7,\n    }\n  }\n}\n```",
     "shouldHaveParent": true,
     "parents": [
-      "fluid",
-      "BlendWhiteList",
-      "BlendBlackList"
-    ],
-    "parameters": {}
-  },
-  "CopyFrame": {
-    "name": "CopyFrame",
-    "description": "It is unknown what this block does.",
-    "shouldHaveParent": true,
-    "parents": [
-      "animation"
-    ],
-    "parameters": {
-      "frame": {
-        "name": "frame"
-      },
-      "source": {
-        "name": "source"
-      },
-      "sourceframe": {
-        "name": "sourceFrame"
-      }
-    }
-  },
-  "ROOT-TMXconfig": {
-    "name": "ROOT-TMXconfig",
-    "description": "The `TMXconfig.txt` file is used to configure the default layers which will be created in the TMX file.",
-    "shouldHaveParent": false,
-    "parents": [],
-    "isRoot": true,
-    "noComma": true,
-    "pattern": [
-      "TMXconfig\\.txt$"
-    ],
-    "parameters": {
-      "version": {
-        "name": "version",
-        "type": {
-          "main": "integer"
-        },
-        "description": "Version of the TMXconfig file. Should be 1 for now."
-      },
-      "revision": {
-        "name": "revision",
-        "type": {
-          "main": "integer"
-        },
-        "description": "Revision of the TMXconfig file. Keep it to 11 for now."
-      }
-    }
-  },
-  "attachment": {
-    "name": "attachment",
-    "description": "Defines an attachment point on a [model](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/model.html) or [vehicle](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/vehicle.html) block. The ID is the attachment name, it can be a custom ID or an existing one often used to define specific attachments. While manually modifying the attachment block is definitely possible, it is recommended to use the [attachment editor](https://pzwiki.net/wiki/Attachment_Editor) to create and edit those attachments.\n\nThe syntax of this block should be as follows:\n```cpp\nmodel upperScriptDefinition\n{\n    ...\n    attachment attachmentPointName\n    {\n        ...\n    }\n    ...\n}\n```\n\nFor example:\n```cpp\nmodel Burger\n{\n    mesh = Burger,\n\n    attachment Bip01_Prop2\n    {\n        offset = 0.0142 0.0401 0.0000,\n        rotate = -23.3606 21.2788 37.5386,\n        scale = 0.8280,\n    }\n}\n```\n\nHere is a list of attachment points provided by the game:\n- 1schoolbaglefthand\n- 1schoolbagrighthand\n- AnkleHolster\n- Bip01_Prop1\n- Bip01_Prop2\n- ShoulderHolster\n- axe_back\n- back\n- back_guitar\n- back_guitar_acoustic\n- backpack_left\n- bedroll_bottom\n- bedroll_bottom_alice\n- bedroll_bottom_big\n- belt_left\n- belt_left_screwdriver\n- belt_left_upside\n- belt_right\n- belt_right_screwdriver\n- belt_right_upside\n- belt_rotated_left\n- belt_rotated_right\n- big_blade_back_bag\n- big_w_back\n- big_w_back_bag\n- bighikingbaglefthand\n- bighikingbagrighthand\n- blade_back\n- crowbar_back\n- duffelbaglefthand\n- duffelbagrighthand\n- fryingpan_back\n- fryingpan_back_bag\n- hikingbaglefthand\n- hikingbagrighthand\n- holster_left\n- holster_right\n- knife_belt_back\n- knife_belt_front\n- knife_head\n- knife_in_back\n- knife_left_leg\n- knife_right_leg\n- knife_shoulder\n- knife_stomach\n- meatcleaver_in_back\n- meatcleaver_left\n- meatcleaver_right\n- nightstick_left\n- nightstick_right\n- racket_back\n- racket_back_bag\n- rifle_back\n- rifle_back_bag\n- saucepan_back\n- saucepan_back_bag\n- shovel_back\n- shovel_back_bag\n- stomach\n- walkie_belt_left\n- walkie_belt_right\n- webbing_left_knife\n- webbing_left_walkie\n- webbing_left_knife\n- webbing_left_walkie\n- wrench_left\n- wrench_right",
-    "shouldHaveParent": true,
-    "parents": [
+      "module",
       "vehicle",
-      "model",
       "template"
     ],
-    "ID": {},
+    "ID": {
+      "parentsWithout": [
+        "vehicle",
+        "template"
+      ]
+    },
     "parameters": {
-      "offset": {
-        "name": "offset",
+      "alarm": {
+        "name": "alarm",
+        "needs": [
+          {
+            "parents": [
+              "vehicle",
+              "template"
+            ]
+          }
+        ],
         "type": {
           "main": "array",
           "array": {
-            "type": "float",
-            "separator": " "
+            "separator": " ",
+            "type": "string"
           }
-        },
-        "description": "The position offset of the model relative to the bone. This is a vector in the format `x y z`. \n\n```cpp\noffset = -0.0300 -0.1020 0.1210,\n```"
+        }
       },
-      "rotate": {
-        "name": "rotate",
-        "type": {
-          "main": "array",
-          "array": {
-            "type": "float",
-            "separator": " "
+      "alarmloop": {
+        "name": "alarmLoop",
+        "needs": [
+          {
+            "parents": [
+              "vehicle",
+              "template"
+            ]
           }
-        },
-        "description": "The rotation of the model relative to the bone. This is a vector in the format `x y z`. The values are degrees.\n\n```cpp\nrotate = -60.0000 -49.0000 -3.0000,\n```"
+        ]
       },
-      "zoffset": {
-        "name": "zoffset"
-      },
-      "scale": {
-        "name": "scale",
+      "backsignal": {
+        "name": "backSignal",
+        "needs": [
+          {
+            "parents": [
+              "vehicle",
+              "template"
+            ]
+          }
+        ],
         "type": {
-          "main": "float"
-        },
-        "description": "The scale multiplier applied to the model attached to this attachment point.\n\n```cpp\nscale = 0.5,\n```"
+          "main": "string"
+        }
       },
-      "bone": {
-        "name": "bone",
-        "description": "\tThe name of the bone to which the model is attached to. \n\n ```cpp\n bone = Bip01_L_Hand,\n ```"
+      "category": {
+        "name": "category",
+        "type": {
+          "main": "string"
+        }
+      },
+      "engine": {
+        "name": "engine",
+        "needs": [
+          {
+            "parents": [
+              "vehicle",
+              "template"
+            ]
+          }
+        ],
+        "type": {
+          "main": "string"
+        }
+      },
+      "enginestart": {
+        "name": "engineStart",
+        "needs": [
+          {
+            "parents": [
+              "vehicle",
+              "template"
+            ]
+          }
+        ],
+        "type": {
+          "main": "string"
+        }
+      },
+      "engineturnoff": {
+        "name": "engineTurnOff",
+        "needs": [
+          {
+            "parents": [
+              "vehicle",
+              "template"
+            ]
+          }
+        ],
+        "type": {
+          "main": "string"
+        }
+      },
+      "handbrake": {
+        "name": "handBrake",
+        "needs": [
+          {
+            "parents": [
+              "vehicle",
+              "template"
+            ]
+          }
+        ],
+        "type": {
+          "main": "string"
+        }
+      },
+      "horn": {
+        "name": "horn",
+        "needs": [
+          {
+            "parents": [
+              "vehicle",
+              "template"
+            ]
+          }
+        ],
+        "type": {
+          "main": "string"
+        }
+      },
+      "ignitionfail": {
+        "name": "ignitionFail",
+        "needs": [
+          {
+            "parents": [
+              "vehicle",
+              "template"
+            ]
+          }
+        ]
+      },
+      "ignitionfailnopower": {
+        "name": "ignitionFailNoPower",
+        "needs": [
+          {
+            "parents": [
+              "vehicle",
+              "template"
+            ]
+          }
+        ],
+        "type": {
+          "main": "string"
+        }
+      },
+      "is3d": {
+        "name": "is3D",
+        "type": {
+          "main": "boolean"
+        },
+        "description": "This parameter looks unused.",
+        "isUseless": true
+      },
+      "loop": {
+        "name": "loop",
+        "description": "Whether the sound should loop or not. The sound plays until turned off or the emitter is destroyed.",
+        "type": {
+          "main": "boolean"
+        }
+      },
+      "master": {
+        "name": "master",
+        "type": {
+          "main": "string"
+        },
+        "description": "Links the sound to a sound handling setting, which controls the volume of all sounds linked to it. This seems to not properly work, as some methods that call sounds will simply note take into account the current sound settings. You can find a relevant request about this issue on the #mod_portal channel of the official Discord [here](https://discord.com/channels/136501320340209664/1476602902607954043/1505634480939860119).",
+        "values": [
+          "Primary",
+          "Ambient",
+          "Music",
+          "VehicleEngine"
+        ],
+        "default": "Primary"
+      },
+      "maxinstancesperemitter": {
+        "name": "maxInstancesPerEmitter",
+        "type": {
+          "main": "integer"
+        }
       }
     }
   },
-  "position": {
-    "name": "position",
+  "style": {
+    "name": "style",
     "description": "",
     "shouldHaveParent": true,
     "parents": [
-      "passenger"
+      "component SpriteOverlayConfig"
+    ],
+    "ID": {},
+    "parameters": {}
+  },
+  "passenger": {
+    "name": "passenger",
+    "description": "Defines a passenger position in a vehicle script.",
+    "shouldHaveParent": true,
+    "parents": [
+      "vehicle"
     ],
     "ID": {},
     "parameters": {
-      "offset": {
-        "name": "offset"
-      },
-      "rotate": {
-        "name": "rotate"
+      "door": {
+        "name": "door"
       },
       "area": {
         "name": "area"
       }
     }
   },
-  "ROOT-Rules": {
-    "name": "ROOT-Rules",
-    "description": "The `Rules.txt` file is used in the [mapping tools](https://pzwiki.net/wiki/Mapping#Mapping_tools) to define new [BMP to TMX](https://pzwiki.net/wiki/BMP_to_TMX) conversion rules. You can store this file anywhere on your computer and you need to reference it in the BMP Tool settings.",
-    "shouldHaveParent": false,
-    "parents": [],
-    "isRoot": true,
-    "pattern": [
-      "Rules\\.txt$"
-    ],
-    "parameters": {
-      "version": {
-        "name": "version",
-        "type": {
-          "main": "integer"
-        },
-        "description": "Version of the rules file. Should be 1 for now."
-      }
-    }
-  },
-  "animation": {
-    "name": "animation",
-    "description": "It is unknown what this block does.",
-    "shouldHaveParent": true,
-    "parents": [
-      "module"
-    ],
-    "ID": {},
-    "parameters": {}
-  },
-  "anim": {
-    "name": "anim",
-    "description": "",
-    "shouldHaveParent": true,
-    "parents": [
-      "part",
-      "passenger"
-    ],
-    "ID": {},
-    "parameters": {
-      "anim": {
-        "name": "anim"
-      },
-      "rate": {
-        "name": "rate"
-      },
-      "angle": {
-        "name": "angle"
-      },
-      "sound": {
-        "name": "sound"
-      },
-      "reverse": {
-        "name": "reverse"
-      },
-      "animate": {
-        "name": "animate"
-      }
-    }
-  },
-  "mannequin": {
-    "name": "mannequin",
-    "description": "Defines a mannequin tile properties.",
-    "shouldHaveParent": true,
-    "parents": [
-      "module"
-    ],
-    "ID": {},
-    "parameters": {
-      "animset": {
-        "name": "animSet"
-      },
-      "animstate": {
-        "name": "animState"
-      },
-      "female": {
-        "name": "female"
-      },
-      "model": {
-        "name": "model"
-      },
-      "outfit": {
-        "name": "outfit"
-      },
-      "pose": {
-        "name": "pose"
-      },
-      "texture": {
-        "name": "texture"
-      }
-    }
-  },
-  "hand": {
-    "name": "hand",
-    "description": "",
-    "shouldHaveParent": true,
-    "parents": [
-      "clock"
-    ],
-    "ID": {},
-    "parameters": {}
-  },
-  "table": {
-    "name": "table",
-    "description": "",
-    "shouldHaveParent": true,
-    "parents": [
-      "part"
-    ],
-    "ID": {},
-    "parameters": {}
-  },
-  "ROOT-MapBaseXML": {
-    "name": "ROOT-MapBaseXML",
-    "description": "The `MapBaseXML.txt` file is used to configure the layers of the TMX file.",
-    "shouldHaveParent": false,
-    "parents": [],
-    "isRoot": true,
-    "noComma": true,
-    "pattern": [
-      "MapBaseXML\\.txt$"
-    ],
-    "parameters": {}
-  },
-  "CraftLogic": {
-    "name": "CraftLogic",
-    "description": "While present in the vanilla files, there seems to be no reference to this block in the Java. It is likely they are not used, or even parsed.",
-    "shouldHaveParent": true,
-    "parents": [
-      "components"
-    ],
-    "parameters": {
-      "luapanelclass": {
-        "name": "LuaPanelClass"
-      },
-      "displayname": {
-        "name": "DisplayName"
-      },
-      "icon": {
-        "name": "Icon"
-      }
-    }
-  },
-  "progress": {
-    "name": "progress",
-    "description": "",
-    "shouldHaveParent": true,
-    "parents": [
-      "style"
-    ],
-    "ID": {},
-    "parameters": {}
-  },
-  "component Durability": {
-    "name": "component Durability",
-    "description": "",
-    "shouldHaveParent": true,
-    "isVariant": "component",
-    "parents": [
-      "item"
-    ],
-    "parameters": {}
-  },
-  "component DryingCraftLogic": {
-    "name": "component DryingCraftLogic",
+  "component Resources": {
+    "name": "component Resources",
     "description": "",
     "shouldHaveParent": true,
     "isVariant": "component",
     "parents": [
       "entity"
     ],
-    "parameters": {
-      "recipes": {
-        "name": "Recipes"
-      },
-      "startmode": {
-        "name": "StartMode"
-      },
-      "inputgroup": {
-        "name": "inputGroup"
-      },
-      "outputgroup": {
-        "name": "outputGroup"
-      },
-      "actionanim": {
-        "name": "actionAnim"
-      }
-    }
+    "parameters": {}
   },
-  "craftRecipe": {
-    "name": "craftRecipe",
-    "description": "The 'craftRecipe' script block is used to define a crafting recipe, which allows players to craft items or tiles in the game based on the parent script block. For example, a craftRecipe defined inside a [module](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/module.html) will be a recipe to craft an item usually, while when defined inside an [entity](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/entity.html) it will be the building recipe for that entity.\n\nA craftRecipe will usually require an [inputs](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/inputs.html) and [outputs](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/outputs.html) block. Other parameters are used to define properties of this recipe, such as the [time](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/craftrecipe.html#time) it takes to craft or the [XP awarded](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/craftrecipe.html#xpaward) for crafting it.\n\nFor example:\n```cpp\nmodule yourModule /* or Base */\n{\n    craftRecipe yourRecipeID\n    {\n        ...\n    }\n}\n```\n\nTo define a translation for this recipe, you need to create an entry in the translation file [Recipes.json](https://pz-wiki-modding.github.io/PZ-API-Docs/translations/translation_files.html#recipes). The translation entry should be formatted like this:\n```json\n{\n  \"yourRecipeID\": \"Your recipe\"\n}\n```\n\nNotice how you shouldn't use the [module](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/module.html) in the translation file key and only the craftRecipe ID.\n\nHere's an example of a craftRecipe with some parameters defined:\n```cpp\ncraftRecipe SawLogs\n{\n    timedAction = SawLogs,\n    Time = 230,\n    Tags = InHandCraft;CanBeDoneFromFloor,\n    category = Carpentry,\n    xpAward = Woodwork:5,\n    inputs\n    {\n        item 1 [Base.Log] flags[Prop2],\n        item 1 tags[Saw] mode:keep flags[MayDegradeLight;Prop1],\n    }\n    outputs\n    {\n        item 3 Base.Plank,\n    }\n}\n```\n\nOr:\n```cpp\ncraftRecipe CarveWhistle\n{\n    time = 200,\n    tags = AnySurfaceCraft;Survivalist,\n    category = Carving,\n    xpAward = Carving:60,\n    SkillRequired = Carving:6,\n    needTobeLearn = true,\n    AutoLearnAny = Carving:8,\n    timedAction = SharpenStake,\n    inputs\n    {\n        item 1 tags[DrillWood;DrillMetal;DrillWoodPoor] mode:keep flags[MayDegradeLight],\n        item 1 tags[SharpKnife] mode:keep flags[MayDegradeLight],\n        item 1 [Base.SmallAnimalBone] flags[Prop2;AllowDestroyedItem],\n    }\n    outputs\n    {\n        item 1 Base.Whistle_Bone,\n    }\n}\n```\n\nAnd a more advanced one:\n```cpp\ncraftRecipe RefillHurricaneLantern\n{\n    timedAction = Making,\n    Time = 50,\n    OnCreate = Recipe.OnCreate.RefillHurricaneLantern,\n    /* OnTest = Recipe.OnTest.RefillHurricaneLantern, */\n    Tags = InHandCraft;CanBeDoneInDark,\n    category = Miscellaneous, /*category = Survival,*/\n    inputs\n    {\n        item 1 [Base.Lantern_Hurricane;Base.Lantern_Hurricane_Copper;Base.Lantern_Hurricane_Forged;Base.Lantern_Hurricane_Gold;Base.Lantern_Hurricane_Silver] mode:destroy flags[NotFull;AllowFavorite;InheritFavorite;ItemCount] mappers[LampMapper],\n        item 1 [*],\n        -fluid 1.0 [Petrol],\n    }\n    outputs\n    {\n        item 1 mapper:LampMapper,\n    }\n    itemMapper LampMapper\n    {\n        Base.Lantern_Hurricane = Base.Lantern_Hurricane,\n        Base.Lantern_Hurricane_Copper = Base.Lantern_Hurricane_Copper,\n        Base.Lantern_Hurricane_Forged = Base.Lantern_Hurricane_Forged,\n        Base.Lantern_Hurricane_Gold = Base.Lantern_Hurricane_Gold,\n        Base.Lantern_Hurricane_Silver = Base.Lantern_Hurricane_Silver,\n\n        default = Base.Lantern_Hurricane,\n    }\n}\n```",
+  "overlayMapper": {
+    "name": "overlayMapper",
+    "description": "",
     "shouldHaveParent": true,
     "parents": [
-      "module"
+      "craftRecipe"
     ],
-    "needsChildren": [
-      "inputs"
-    ],
-    "ID": {},
-    "softOverride": true,
-    "parameters": {
-      "allowbatchcraft": {
-        "name": "AllowBatchCraft",
-        "description": "The AllowBatchCraft parameter is used to allow the recipe to be crafted in batches. This will make a slider appear on the crafting to craft multiple ones at once. Needs to be a boolean and default is true, set to false to disable batch craft.",
-        "type": {
-          "main": "boolean"
-        },
-        "default": true
-      },
-      "autolearnall": {
-        "name": "AutoLearnAll",
-        "description": "The `autoLearnAll` parameter specifies that all the provided skills and their associated level need to be reached to learn the recipe. The parameter should be formated this way:\n```cpp\n/* a single skill */\nautoLearnAll = <skill name>:<level amount>,\n\n/* multiple skills */\nautoLearnAll = <skill1 name>:<level amount>;<skill2 name>:<level amount>,format\n```\nFor the list of available skills, see [this](https://pzwiki.net/wiki/CraftRecipe#Available_skills).\n\nFor example:\n```cpp\nautoLearnAll = Carving:3;Maintenance:2,\n```"
-      },
-      "autolearnany": {
-        "name": "AutoLearnAny",
-        "description": "The autoLearnAny parameter specifies that at least one of the skills and its associated level need to be reached to learn the recipe. The parameter should be formated this way:\n```cpp\n/* a single skill */\nautoLearnAny = <skill name>:<level amount>,\n\n/* multiple skills */\nautoLearnAny = <skill1 name>:<level amount>;<skill2 name>:<level amount>,format\n```\nFor the list of available skills, see [this](https://pzwiki.net/wiki/CraftRecipe#Available_skills).\n\nFor example:\n```cpp\nautoLearnAny = Carving:3;Maintenance:2,\n```"
-      },
-      "category": {
-        "name": "category",
-        "description": "The category under which the recipe will be listed in the crafting menu. Helps to organize and identify recipes in the crafting menu. Currently doesn't support translations (confirmed last 42.15)."
-      },
-      "icon": {
-        "name": "Icon",
-        "description": "Specifies the icon associated with this crafting recipe. The icon needs to be located in `media/textures`, for example `media/textures/myIcon.png` will be refered to as `Icon = myIcon,`.\n\nThis seems to be used only once in the vanilla recipes with the entry `Icon = Item_WaterDrop,`, as the icon usually defaults to the items that will be crafted."
-      },
-      "metarecipe": {
-        "name": "MetaRecipe",
-        "description": "A meta recipe is used to link two recipes so that if the meta recipe is known then this recipe will be known."
-      },
-      "needtobelearn": {
-        "name": "NeedToBeLearn",
-        "description": "Whether the recipe needs to be learned before it can be crafted."
-      },
-      "oncreate": {
-        "name": "OnCreate",
-        "description": "The OnCreate parameter allows the referencing of a Lua function that will be called when the crafting recipe is finished. This can be used to add custom behavior to the crafting recipe when it gets finished. The Lua function needs to be a [global function](https://pzwiki.net/wiki/Lua_(language)#Local_and_global), it can also be in a global table. The vanilla game OnCreate's are stored in the [Java](https://pzwiki.net/wiki/Java).\n\nThe function should have the following structure:\n```lua\nfunction MyOnCreateFunction(craftRecipeData, character)\n    -- your custom code here\nend\n```\n\nThe `craftRecipeData` is a [java object](https://demiurgequantified.github.io/ProjectZomboidJavaDocs/zombie/entity/components/crafting/recipe/CraftRecipeData.html) that contains the data of the crafting recipe. The `character` is the player character who is crafting the recipe."
-      },
-      "ontest": {
-        "name": "OnTest",
-        "description": "The OnTest parameter is used to define a Lua function that will be called to verify if the recipe can be crafted. If the function returns true, the recipe can be crafted but if the function returns false, the recipe cannot be crafted. The Lua function needs to be a [global function](https://pzwiki.net/wiki/Lua_(language)#Local_and_global), it can also be in a global table. The vanilla game OnTest's are stored in the [Java](https://pzwiki.net/wiki/Java).\n\nThe function should have the following structure:\n```lua\nfunction MyOnTestFunction(item, character)\n    -- your custom code here\n    return logicTestResult  -- based on your logic test above\nend\n```\n\n`item` is an InventoryItem while `character` is the player trying to craft this recipe."
-      },
-      "overlaystyle": {
-        "name": "overlayStyle"
-      },
-      "recipegroup": {
-        "name": "recipeGroup"
-      },
-      "researchany": {
-        "name": "ResearchAny"
-      },
-      "researchskilllevel": {
-        "name": "ResearchSkillLevel"
-      },
-      "skillrequired": {
-        "name": "SkillRequired",
-        "description": "Specifies the skill level required to perform this crafting action. It should be formated this way:\n```cpp\n/* a single skill */\nskillRequired = <skill name>:<level>,\n\n/* multiple skills */\nskillRequired = <skill1 name>:<level>;<skill2 name>:<level>,\n```\nFor the list of available skills, see [this](https://pzwiki.net/wiki/CraftRecipe#Available_skills).\n\nFor example:\n```cpp\nskillRequired = Blacksmith:3;Tailoring:2,\n```"
-      },
-      "tags": {
-        "name": "tags",
-        "description": "Specifies specific conditions which need to be respected to craft this item. At least one crafting bench tag is necessary for the craft to be recognized, such as `AnySurfaceCraft`. The syntax is as follows:\n```cpp\n/* single tag */\nTags = tag1,\n\n/* multiple tags */\nTags = tag1;tag2;...,\n```\n\nFor example:\n```cpp\nTags = InHandCraft;CanAlwaysBeResearched,\n```\n\nA crafting bench tag can be created by adding a [component CraftBench](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/component/component-craftbench.html) to an [entity](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/entity.html) script, which can then be used in this tags parameter.",
-        "required": true,
-        "type": {
-          "main": "array",
-          "array": {
-            "separator": ";",
-            "type": "string"
-          }
-        }
-      },
-      "time": {
-        "name": "time",
-        "description": "The time it takes to craft the item, not using a specific unit of time.",
-        "default": 50
-      },
-      "timedaction": {
-        "name": "timedAction",
-        "description": "Refers to a timed action script block, used to trigger during the crafting process, for animations and/or sounds but also the calories burned and body heat generation."
-      },
-      "tooltip": {
-        "name": "Tooltip",
-        "description": "Description of the crafting which is shown in the crafting menu."
-      },
-      "xpaward": {
-        "name": "xpAward",
-        "description": "Specifies the experience points awarded for crafting this item. The parameter should be formated this way:\n```cpp\n/* a single skill */\nxpAward = <skill name>:<xp amount>,\n\n/* multiple skills */\nxpAward = <skill1 name>:<xp amount>;<skill2 name>:<xp amount>,format\n```\nFor the list of available skills, see [this](https://pzwiki.net/wiki/CraftRecipe#Available_skills).\n\nFor example:\n```cpp\nxpAward = Blacksmith:10;Tailoring:5,\n```"
-      }
-    }
-  },
-  "module": {
-    "name": "module",
-    "description": "A module serves as a namespace for your scripts and is the barebone for most scripts you will create in your mod. The game's namespace is `Base`, and while you can insert in it, it is recommended to use your own module for your mod's scripts to avoid conflicts with the game and other mods.\n\nTo define a module, you need to create a block as follows, by changing the ID to a unique name for your mods:\n```cpp\nmodule yourID\n{\n  ...\n}\n```\n\nMost scripts that are defined in a module will need to be refered to by their 'full type', that is `module.id`, but this is a bit inconsistent as some places where a script block needs to be refered to require no module reference. For example, for an item, you can refer to it by its full type `yourModule.yourItemID`.",
-    "shouldHaveParent": true,
-    "parents": [
-      "_DOCUMENT",
-      "ROOT-Scripts"
-    ],
-    "ID": {},
     "parameters": {}
   },
   "character_trait_definition": {
@@ -1157,227 +2234,97 @@
       }
     }
   },
-  "imports": {
-    "name": "imports",
-    "description": "By importing a module, you give your scripts direct access to the elements from these modules, and you can use item IDs directly without the module prefix (for example, you can use `ThatModItem` instead of `ThisMod.ThatModItem`). The `Base` module is by default already parsed, so you don't need to import it. It is overall suggested to not import modules and instead directly reference the IDs with their module.",
+  "tile": {
+    "name": "tile",
+    "description": "Defines some tile properties from a tileset.",
+    "shouldHaveParent": true,
+    "parents": [
+      "tileset"
+    ],
+    "parameters": {
+      "xy": {
+        "name": "xy"
+      },
+      "isprofessiontrait": {
+        "name": "IsProfessionTrait"
+      },
+      "runtime": {
+        "name": "runtime"
+      },
+      "modelscript": {
+        "name": "modelScript"
+      },
+      "translate": {
+        "name": "translate"
+      },
+      "rotate": {
+        "name": "rotate"
+      },
+      "scale": {
+        "name": "scale"
+      },
+      "animation": {
+        "name": "animation"
+      },
+      "animationtime": {
+        "name": "animationTime"
+      }
+    }
+  },
+  "fluid": {
+    "name": "fluid",
+    "description": "Create a new fluid definition. Different properties can be provided for the fluid v ia the use of different children blocks:\n- [Properties](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/properties.html) is used to indicate the various stats change that drinking this fluid would cause to the player.\n- [Categories](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/categories.html) act as tags for the fluid, to easily identify it.\n- [BlendWhiteList](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/blendwhitelist.html) and [BlendBlackList](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/blendblacklist.html) are used to provide rules for the blending of this fluid with other fluids.\n- [Poison](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/poison.html) is used to define poison properties for the fluid.",
+    "shouldHaveParent": true,
+    "parents": [
+      "module"
+    ],
+    "ID": {},
+    "parameters": {
+      "colorreference": {
+        "name": "ColorReference",
+        "description": "A reference to a color defined in the Colors class. You can find a full list of the colors available in the [Colors](https://pz-wiki-modding.github.io/PZ-API-Docs/java/colors.html) documentation.\n\nFor example, to use the color `Azure` from the documentation:\n```cpp\nfluid yourFluid\n{\n  ColorReference = Azure,\n  ...\n}\n```"
+      },
+      "displayname": {
+        "name": "DisplayName",
+        "description": "The name of the fluid that will be displayed in the game. The value corresponds to the key for the fluid's name in the [Fluids.json](https://pz-wiki-modding.github.io/PZ-API-Docs/translations/translation_files.html#fluids) translation file. The translation keys for the fluid usually have the prefix `Fluid_Name_` but this is technically not required.\n\nFor example:\n```cpp\nfluid yourFluid\n{\n  DisplayName = Fluid_Name_YourFluid,\n  ...\n}\n```\n\nAnd in the translation file of your mod:\n```cpp\n{\n  \"Fluid_Name_YourFluid\": \"Your Fluid\"\n}\n```"
+      }
+    }
+  },
+  "ROOT-Scripts": {
+    "name": "ROOT-Scripts",
+    "description": "The root of a script file. Blocks than need to be in the root of the document should have this as parent.",
+    "shouldHaveParent": false,
+    "parents": [],
+    "isRoot": true,
+    "pattern": [
+      "media\\/scripts\\/[\\s\\S]+\\.txt$"
+    ],
+    "parameters": {}
+  },
+  "entity": {
+    "name": "entity",
+    "description": "Defines a tile with special properties.",
     "shouldHaveParent": true,
     "parents": [
       "module",
       "xuiSkin"
     ],
-    "parameters": {}
-  },
-  "xuiSkin": {
-    "name": "xuiSkin",
-    "description": "Defines a XUI interface skin.",
-    "shouldHaveParent": true,
-    "parents": [
-      "module"
-    ],
-    "needsChildren": [
-      "entity"
-    ],
-    "ID": {},
-    "parameters": {}
-  },
-  "BlendWhiteList": {
-    "name": "BlendWhiteList",
-    "description": "BlendWhiteList defines a whitelist for fluids that the fluid can be blended with, while BlendBlackList defines a blacklist. By default those blocks are set whitelist, but you can add one of the available parameters to indicate whenever the block is a whitelist or a blacklist.\n\nFluids that are whitelisted/blacklisted can be identified either by their category via the use of a [categories](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/categories.html) child block, or by their name via the use of the [fluid](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/blendwhitelist.html#fluid) parameter.",
-    "shouldHaveParent": true,
-    "parents": [
-      "fluid"
-    ],
-    "parameters": {
-      "whitelist": {
-        "name": "whitelist",
-        "description": "Indicates whenever blending with other fluids is allowed.",
-        "type": {
-          "main": "boolean"
-        }
-      },
-      "blacklist": {
-        "name": "blacklist",
-        "description": "Indicates whenever blending with other fluids is disallowed.",
-        "type": {
-          "main": "boolean"
-        }
-      },
-      "fluid": {
-        "name": "fluid",
-        "description": "A list of fluids.",
-        "type": {
-          "main": "array",
-          "array": {
-            "separator": "/",
-            "type": "string"
-          }
-        }
-      },
-      "category": {
-        "name": "category",
-        "description": "Unclear what this is for since this is usually achieved with a [categories](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/categories.html) child block."
-      },
-      "filtertype": {
-        "name": "filterType",
-        "description": "Just use [whitelist](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/blendwhitelist.html#whitelist) or [blacklist](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/blendwhitelist.html#blacklist).",
-        "values": [
-          "whitelist"
-        ]
-      }
-    }
-  },
-  "option": {
-    "name": "option",
-    "description": "Defines a custom sandbox option for a mod.",
-    "shouldHaveParent": true,
-    "parents": [
-      "ROOT-SandboxOptions"
-    ],
-    "ID": {},
-    "parameters": {
-      "type": {
-        "name": "type",
-        "type": {
-          "main": "string"
-        },
-        "description": "The type of the option.",
-        "values": [
-          "boolean",
-          "integer",
-          "double",
-          "string",
-          "enum"
-        ],
-        "required": true
-      },
-      "min": {
-        "name": "min",
-        "type": {
-          "main": "float"
-        },
-        "description": "The minimum value the option can have. Only for integer and double types.",
-        "needs": [
-          {
-            "name": "type",
-            "values": [
-              "integer",
-              "double"
-            ]
-          }
-        ]
-      },
-      "max": {
-        "name": "max",
-        "type": {
-          "main": "float"
-        },
-        "description": "The maximum value the option can have. Only for integer and double types.",
-        "needs": [
-          {
-            "name": "type",
-            "values": [
-              "integer",
-              "double"
-            ]
-          }
-        ]
-      },
-      "default": {
-        "name": "default",
-        "needs": [
-          {
-            "name": "type",
-            "valueToType": {
-              "integer": "float",
-              "double": "float",
-              "boolean": "boolean",
-              "string": "string"
-            }
-          }
-        ]
-      },
-      "page": {
-        "name": "page",
-        "type": {
-          "main": "string"
-        },
-        "description": "The sandbox option to add the option to. Can be a custom page."
-      },
-      "translation": {
-        "name": "translation",
-        "type": {
-          "main": "string"
-        },
-        "description": "The translation key for the option's name."
-      }
-    }
-  },
-  "fixing": {
-    "name": "fixing",
-    "description": "Defines how an item can be repaired or fixed.",
-    "shouldHaveParent": true,
-    "parents": [
-      "module"
-    ],
     "ID": {
-      "canHaveSpace": true
+      "optional": [
+        "xuiSkin"
+      ]
     },
     "parameters": {
-      "fixer": {
-        "name": "Fixer",
-        "allowedDuplicate": true
+      "luawindowclass": {
+        "name": "LuaWindowClass"
       },
-      "require": {
-        "name": "Require"
+      "displayname": {
+        "name": "DisplayName"
       },
-      "globalitem": {
-        "name": "GlobalItem"
-      },
-      "conditionmodifier": {
-        "name": "ConditionModifier"
+      "icon": {
+        "name": "Icon"
       }
     }
-  },
-  "layer": {
-    "name": "layer",
-    "description": "",
-    "shouldHaveParent": true,
-    "parents": [
-      "face"
-    ],
-    "parameters": {
-      "row": {
-        "name": "row",
-        "allowedDuplicate": true
-      }
-    }
-  },
-  "component": {
-    "name": "component",
-    "description": "A component is a block which can be added as a child to a specific block type like an item, vehicle etc, to provide additional functionalities.",
-    "shouldHaveParent": true,
-    "parents": [
-      "item",
-      "entity"
-    ],
-    "ID": {
-      "values": [
-        "CraftRecipe",
-        "SpriteConfig",
-        "UiConfig",
-        "CraftBench",
-        "CraftBenchSounds",
-        "Resources",
-        "DryingCraftLogic",
-        "SpriteOverlayConfig",
-        "Durability",
-        "FluidContainer",
-        "ContextMenuConfig",
-        "WallCoveringConfig"
-      ],
-      "asType": true
-    },
-    "parameters": {}
   },
   "clip": {
     "name": "clip",
@@ -1440,40 +2387,78 @@
       }
     }
   },
-  "maps": {
-    "name": "maps",
-    "description": "A list of maps in the [default.txt](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/root-default.html) file.",
-    "shouldHaveParent": true,
-    "parents": [
-      "ROOT-Default"
+  "ROOT-MapBaseXML": {
+    "name": "ROOT-MapBaseXML",
+    "description": "The `MapBaseXML.txt` file is used to configure the layers of the TMX file.",
+    "shouldHaveParent": false,
+    "parents": [],
+    "isRoot": true,
+    "noComma": true,
+    "pattern": [
+      "MapBaseXML\\.txt$"
     ],
     "parameters": {}
   },
-  "animationsMesh": {
-    "name": "animationsMesh",
-    "description": "Defines an animated mesh, usually for characters or animals.",
+  "face": {
+    "name": "face",
+    "description": "",
     "shouldHaveParent": true,
     "parents": [
-      "module"
+      "component SpriteConfig",
+      "style",
+      "progress"
     ],
-    "ID": {},
+    "ID": {
+      "values": [
+        "SINGLE",
+        "S",
+        "E",
+        "W",
+        "N",
+        "S_OPEN",
+        "E_OPEN",
+        "W_OPEN",
+        "N_OPEN"
+      ]
+    },
+    "parameters": {}
+  },
+  "Poison": {
+    "name": "Poison",
+    "description": "Defines poison properties for a fluid script.",
+    "shouldHaveParent": true,
+    "parents": [
+      "fluid"
+    ],
     "parameters": {
-      "animationdirectory": {
-        "name": "animationDirectory",
-        "allowedDuplicate": true
+      "maxeffect": {
+        "name": "maxEffect",
+        "type": {
+          "main": "string"
+        },
+        "description": "Defines the strength of the poison.",
+        "values": [
+          "None",
+          "Mild",
+          "Medium",
+          "Severe",
+          "Extreme",
+          "Deadly"
+        ]
       },
-      "animationprefix": {
-        "name": "animationPrefix",
-        "allowedDuplicate": true
+      "minamount": {
+        "name": "minAmount",
+        "type": {
+          "main": "float"
+        },
+        "description": "The minimum amount required to consume to poison the player."
       },
-      "keepmeshanimations": {
-        "name": "keepMeshAnimations"
-      },
-      "meshfile": {
-        "name": "meshFile"
-      },
-      "postprocess": {
-        "name": "postProcess"
+      "diluteratio": {
+        "name": "diluteRatio",
+        "type": {
+          "main": "float"
+        },
+        "description": "The ratio at which the poison is diluted when mixed with other fluids."
       }
     }
   },
@@ -2458,7 +3443,10 @@
       "dropsound": {
         "name": "DropSound",
         "type": {
-          "main": "string"
+          "main": "string",
+          "block": {
+            "name": "sound"
+          }
         }
       },
       "eattime": {
@@ -3213,23 +4201,43 @@
       },
       "learnedrecipes": {
         "name": "LearnedRecipes",
+        "description": "List of [craftRecipe](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/craftrecipe.html) this item will teach the player when read.",
+        "needs": [
+          {
+            "name": "ItemType",
+            "values": [
+              "base:literature"
+            ]
+          }
+        ],
+        "type": {
+          "main": "array",
+          "array": {
+            "type": "block",
+            "separator": ";",
+            "block": {
+              "name": "craftRecipe"
+            }
+          }
+        },
         "itemTypes": [
           "literature"
         ]
       },
       "lightdistance": {
         "name": "LightDistance",
-        "itemTypes": [
-          "drainable",
-          "weaponpart"
-        ]
+        "#desc": "item/LightStrength",
+        "type": {
+          "main": "integer"
+        },
+        "description": "[LightDistance](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/item.html#item-lightdistance) is used to determine the radius of the light emitted by the item. It is compared to the [Manhattan distance](https://en.wikipedia.org/wiki/Taxicab_geometry) of the item to the square. The higher the value, the higher is the radius of the light.\n\n[LightStrength](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/item.html#item-lightstrength) will boost the light emitted.\n\n```\nnew_light_level = current_light_level + 3 * LightStrength * (1 - clamp(dist / LightDistance, 0.0, 1.0))\n```\n\nThe `new_light_level` is limited to a maximum of `2.5`."
       },
       "lightstrength": {
         "name": "LightStrength",
-        "itemTypes": [
-          "drainable",
-          "weaponpart"
-        ]
+        "description": "[LightDistance](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/item.html#item-lightdistance) is used to determine the radius of the light emitted by the item. It is compared to the [Manhattan distance](https://en.wikipedia.org/wiki/Taxicab_geometry) of the item to the square. The higher the value, the higher is the radius of the light.\n\n[LightStrength](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/item.html#item-lightstrength) will boost the light emitted.\n\n```\nnew_light_level = current_light_level + 3 * LightStrength * (1 - clamp(dist / LightDistance, 0.0, 1.0))\n```\n\nThe `new_light_level` is limited to a maximum of `2.5`.",
+        "type": {
+          "main": "float"
+        }
       },
       "lipids": {
         "name": "Lipids",
@@ -3241,14 +4249,20 @@
       },
       "lowlightbonus": {
         "name": "LowLightBonus",
-        "itemTypes": [
-          "weaponpart"
-        ]
+        "type": {
+          "main": "float"
+        },
+        "isUseless": true
       },
       "lvlskilltrained": {
         "name": "LvlSkillTrained",
-        "itemTypes": [
-          "literature"
+        "needs": [
+          {
+            "name": "ItemType",
+            "values": [
+              "base:literature"
+            ]
+          }
         ],
         "type": {
           "main": "integer"
@@ -3257,6 +4271,14 @@
       },
       "magazine_subject": {
         "name": "magazine_subject",
+        "description": "You can find a list of subjects in the [MagazineSubject](https://pz-wiki-modding.github.io/PZ-API-Docs/java/magazine_subject.html).",
+        "type": {
+          "main": "array",
+          "array": {
+            "separator": ";",
+            "type": "string"
+          }
+        },
         "itemTypes": [
           "literature"
         ]
@@ -3824,7 +4846,10 @@
       "placeonesound": {
         "name": "PlaceOneSound",
         "type": {
-          "main": "string"
+          "main": "string",
+          "block": {
+            "name": "sound"
+          }
         }
       },
       "poisonpower": {
@@ -4615,7 +5640,10 @@
       "unequipsound": {
         "name": "UnequipSound",
         "type": {
-          "main": "string"
+          "main": "string",
+          "block": {
+            "name": "sound"
+          }
         }
       },
       "unhappychange": {
@@ -4894,48 +5922,852 @@
       }
     }
   },
-  "physicsShape": {
-    "name": "physicsShape",
-    "description": "Defines a 3D object's physical shape to be used as a world object.\n\nFor example:\n```cpp\nmodule YourModule {\n  physicsShape ramp20segment5w {\n      mesh = physics/ramp20|Segment5,\n      translate = 4.0 0.0 0.0,\n      rotate = 0.0 270.0 0.0,\n  }\n}\n```",
+  "mannequin": {
+    "name": "mannequin",
+    "description": "Defines a mannequin tile properties.",
     "shouldHaveParent": true,
     "parents": [
       "module"
     ],
     "ID": {},
     "parameters": {
-      "mesh": {
-        "name": "mesh",
+      "animset": {
+        "name": "animSet"
+      },
+      "animstate": {
+        "name": "animState"
+      },
+      "female": {
+        "name": "female"
+      },
+      "model": {
+        "name": "model"
+      },
+      "outfit": {
+        "name": "outfit"
+      },
+      "pose": {
+        "name": "pose"
+      },
+      "texture": {
+        "name": "texture"
+      }
+    }
+  },
+  "whitelist": {
+    "name": "whitelist",
+    "description": "Whitelists a fluid to be allowed to put inside a [fluid container](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/component/component_fluidcontainer.html).",
+    "shouldHaveParent": true,
+    "parents": [
+      "component FluidContainer"
+    ],
+    "parameters": {
+      "fluid": {
+        "name": "fluid",
         "type": {
           "main": "string"
         },
-        "description": "The path to the model's mesh file, relative to the folder `media/models_X`."
+        "allowedDuplicate": true,
+        "description": "A fluid which is allowed to be put inside this fluid container."
+      }
+    }
+  },
+  "ROOT-TileGeometry": {
+    "name": "ROOT-TileGeometry",
+    "description": "The `tileGeometry.txt` file is used to register the tile depth of tiles. The file needs to be located inside the [common/media](https://pzwiki.net/wiki/Mod_structure#Common_and_versioning_folders) folder.",
+    "shouldHaveParent": false,
+    "parents": [],
+    "isRoot": true,
+    "pattern": [
+      "common\\/media\\/tileGeometry\\.txt$"
+    ],
+    "parameters": {
+      "version": {
+        "name": "VERSION",
+        "description": "The version of the tile geometry file format. Keep it at 2 for now."
+      }
+    }
+  },
+  "physics": {
+    "name": "physics",
+    "description": "",
+    "shouldHaveParent": true,
+    "parents": [
+      "template",
+      "vehicle"
+    ],
+    "ID": {
+      "values": [
+        "box",
+        "sphere",
+        "mesh"
+      ]
+    },
+    "parameters": {
+      "offset": {
+        "name": "offset"
       },
-      "translate": {
-        "name": "translate",
+      "extents": {
+        "name": "extents"
+      },
+      "rotate": {
+        "name": "rotate"
+      },
+      "physicsshapescript": {
+        "name": "physicsShapeScript",
+        "type": {
+          "main": "string",
+          "block": {
+            "name": "physicsShape",
+            "fullType": true
+          }
+        }
+      }
+    }
+  },
+  "area": {
+    "name": "area",
+    "description": "",
+    "shouldHaveParent": true,
+    "parents": [
+      "template",
+      "vehicle"
+    ],
+    "ID": {},
+    "parameters": {
+      "xywh": {
+        "name": "xywh"
+      }
+    }
+  },
+  "anim": {
+    "name": "anim",
+    "description": "",
+    "shouldHaveParent": true,
+    "parents": [
+      "part",
+      "passenger"
+    ],
+    "ID": {},
+    "parameters": {
+      "anim": {
+        "name": "anim"
+      },
+      "rate": {
+        "name": "rate"
+      },
+      "angle": {
+        "name": "angle"
+      },
+      "sound": {
+        "name": "sound"
+      },
+      "reverse": {
+        "name": "reverse"
+      },
+      "animate": {
+        "name": "animate"
+      }
+    }
+  },
+  "layers": {
+    "name": "layers",
+    "description": "Used to define the default layers of a new TMX file.",
+    "shouldHaveParent": true,
+    "noComma": true,
+    "parents": [
+      "ROOT-TMXconfig"
+    ],
+    "parameters": {
+      "tile": {
+        "name": "tile",
+        "allowedDuplicate": true,
+        "type": {
+          "main": "string"
+        }
+      },
+      "object": {
+        "name": "object",
+        "parentsOnly": [
+          "ROOT-MapBaseXML"
+        ],
+        "type": {
+          "main": "string"
+        }
+      }
+    }
+  },
+  "skin": {
+    "name": "skin",
+    "description": "",
+    "shouldHaveParent": true,
+    "parents": [
+      "template",
+      "vehicle"
+    ],
+    "parameters": {
+      "texture": {
+        "name": "texture"
+      }
+    }
+  },
+  "BlendWhiteList": {
+    "name": "BlendWhiteList",
+    "description": "BlendWhiteList defines a whitelist for fluids that the fluid can be blended with, while BlendBlackList defines a blacklist. By default those blocks are set whitelist, but you can add one of the available parameters to indicate whenever the block is a whitelist or a blacklist.\n\nFluids that are whitelisted/blacklisted can be identified either by their category via the use of a [categories](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/categories.html) child block, or by their name via the use of the [fluid](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/blendwhitelist.html#fluid) parameter.",
+    "shouldHaveParent": true,
+    "parents": [
+      "fluid"
+    ],
+    "parameters": {
+      "whitelist": {
+        "name": "whitelist",
+        "description": "Indicates whenever blending with other fluids is allowed.",
+        "type": {
+          "main": "boolean"
+        }
+      },
+      "blacklist": {
+        "name": "blacklist",
+        "description": "Indicates whenever blending with other fluids is disallowed.",
+        "type": {
+          "main": "boolean"
+        }
+      },
+      "fluid": {
+        "name": "fluid",
+        "description": "A list of fluids.",
+        "type": {
+          "main": "array",
+          "array": {
+            "separator": "/",
+            "type": "string"
+          }
+        }
+      },
+      "category": {
+        "name": "category",
+        "description": "Unclear what this is for since this is usually achieved with a [categories](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/categories.html) child block."
+      },
+      "filtertype": {
+        "name": "filterType",
+        "description": "Just use [whitelist](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/blendwhitelist.html#whitelist) or [blacklist](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/blendwhitelist.html#blacklist).",
+        "values": [
+          "whitelist"
+        ]
+      }
+    }
+  },
+  "energy": {
+    "name": "energy",
+    "description": "",
+    "shouldHaveParent": true,
+    "parents": [
+      "module"
+    ],
+    "ID": {},
+    "parameters": {}
+  },
+  "wheel": {
+    "name": "wheel",
+    "description": "Defines the wheels of a vehicle. While the ID can technically be anything, only the IDs 'FrontLeft', 'FrontRight', 'RearLeft', and 'RearRight' are recognized by the game and will function properly.",
+    "shouldHaveParent": true,
+    "parents": [
+      "template",
+      "vehicle"
+    ],
+    "ID": {},
+    "parameters": {
+      "radius": {
+        "name": "radius"
+      },
+      "offset": {
+        "name": "offset"
+      },
+      "front": {
+        "name": "front"
+      },
+      "width": {
+        "name": "width"
+      }
+    }
+  },
+  "alias": {
+    "name": "alias",
+    "description": "Defines an alias for a list of tiles. This can be directly be refered to in [rule](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/rule.html) blocks to list a bunch of tiles in different blocks or to organize them by type. Say for example you can list all the trees in an alias to use later, or split by tree type to easily associate to a color.\n\nHere is an example of how to use it:\n```cpp\nalias\n{\n    name = treez1\n    tiles = [\n        e_americanholly_1_3\n        e_americanholly_1_2\n        e_americanholly_1_1\n        e_americanlinden_1_11\n        e_americanlinden_1_10\n        e_americanlinden_1_15\n        e_americanlinden_1_14\n        e_canadianhemlock_1_3\n        e_canadianhemlock_1_2\n        e_canadianhemlock_1_1\n        e_carolinasilverbell_1_15\n        e_carolinasilverbell_1_14\n        e_cockspurhawthorn_1_15\n        e_cockspurhawthorn_1_14\n        e_cockspurhawthorn_1_13\n        e_dogwood_1_15\n        e_dogwood_1_14\n        e_easternredbud_1_15\n        e_easternredbud_1_14\n        vegetation_trees_01_13\n        vegetation_trees_01_14\n        vegetation_trees_01_15\n        vegetation_trees_01_8\n        vegetation_trees_01_9\n        vegetation_trees_01_10\n        vegetation_trees_01_11\n        vegetation_trees_01_17\n    ]\n}\n\nrule\n{\n    label = General Trees\n    bitmap = 1\n    color = 139 156 68\n    tiles = [\n      treez1\n    ]\n    layer = 0_Vegetation\n}\n```",
+    "shouldHaveParent": true,
+    "noComma": true,
+    "parents": [
+      "ROOT-Rules"
+    ],
+    "parameters": {
+      "name": {
+        "name": "name",
+        "type": {
+          "main": "string"
+        }
+      },
+      "tiles": {
+        "name": "tiles"
+      }
+    }
+  },
+  "fixing": {
+    "name": "fixing",
+    "description": "Defines how an item can be repaired or fixed.",
+    "shouldHaveParent": true,
+    "parents": [
+      "module"
+    ],
+    "ID": {
+      "canHaveSpace": true
+    },
+    "parameters": {
+      "fixer": {
+        "name": "Fixer",
+        "allowedDuplicate": true
+      },
+      "require": {
+        "name": "Require"
+      },
+      "globalitem": {
+        "name": "GlobalItem"
+      },
+      "conditionmodifier": {
+        "name": "ConditionModifier"
+      }
+    }
+  },
+  "animation": {
+    "name": "animation",
+    "description": "It is unknown what this block does.",
+    "shouldHaveParent": true,
+    "parents": [
+      "module"
+    ],
+    "ID": {},
+    "parameters": {}
+  },
+  "components": {
+    "name": "components",
+    "description": "",
+    "shouldHaveParent": true,
+    "parents": [
+      "entity"
+    ],
+    "parameters": {}
+  },
+  "CopyFrame": {
+    "name": "CopyFrame",
+    "description": "It is unknown what this block does.",
+    "shouldHaveParent": true,
+    "parents": [
+      "animation"
+    ],
+    "parameters": {
+      "frame": {
+        "name": "frame"
+      },
+      "source": {
+        "name": "source"
+      },
+      "sourceframe": {
+        "name": "sourceFrame"
+      }
+    }
+  },
+  "CopyFrames": {
+    "name": "CopyFrames",
+    "description": "It is unknown what this block does.",
+    "shouldHaveParent": true,
+    "parents": [
+      "animation"
+    ],
+    "parameters": {
+      "frame": {
+        "name": "frame"
+      },
+      "source": {
+        "name": "source"
+      },
+      "sourceframe1": {
+        "name": "sourceFrame1"
+      },
+      "sourceframe2": {
+        "name": "sourceFrame2"
+      }
+    }
+  },
+  "data": {
+    "name": "data",
+    "description": "",
+    "shouldHaveParent": true,
+    "parents": [
+      "vehicleEngineRPM"
+    ],
+    "parameters": {
+      "aftergearchange": {
+        "name": "afterGearChange",
+        "type": {
+          "main": "float"
+        },
+        "default": 0.0
+      },
+      "gearchange": {
+        "name": "gearChange",
+        "type": {
+          "main": "float"
+        },
+        "default": 0.0
+      }
+    }
+  },
+  "rule": {
+    "name": "rule",
+    "description": "A `rule` block defines a conversion rule for the [BMP to TMX](https://pzwiki.net/wiki/BMP_to_TMX) conversion process in the [mapping tools](https://pzwiki.net/wiki/Mapping#Mapping_tools). It is used to associate a color on the BMP for the vegetation or main image to a list of tiles to apply on a specific layer in the TMX.\n\nFor example:\n```cpp\nrule\n{\n  label = Sand\n  bitmap = 0\n  color = 210 200 160\n  tiles = sand\n  layer = 0_Floor\n}\n```",
+    "shouldHaveParent": true,
+    "noComma": true,
+    "parents": [
+      "ROOT-Rules"
+    ],
+    "parameters": {
+      "label": {
+        "name": "label",
+        "type": {
+          "main": "string"
+        }
+      },
+      "bitmap": {
+        "name": "bitmap",
+        "type": {
+          "main": "integer"
+        },
+        "description": "A value of `1` will have this rule used for the vegetation image, while a value of `0` will have it used for the main tiles image. Trees will for example use `1` while ground tiles will use `0`."
+      },
+      "tiles": {
+        "name": "tiles",
+        "description": "A list of tiles to apply randomly for this color. You can also use an alias block here to reference a list of tiles.\n\nFor example:\n```cpp\ntiles = vegetation_farm_01_35\n```\n```cpp\ntiles = [\n    vegetation_farm_01_32\n    vegetation_farm_01_33\n    vegetation_farm_01_34\n    vegetation_farm_01_35\n    vegetation_farm_01_36\n    vegetation_farm_01_37\n    vegetation_farm_01_38\n    vegetation_farm_01_39\n]\n```\n\nOr with one or more alias blocks:\n```cpp\nalias\n{\n    name = treez1\n    tiles = [\n        vegetation_trees_01_13\n        vegetation_trees_01_14\n        vegetation_trees_01_15\n        vegetation_trees_01_8\n        vegetation_trees_01_9\n        vegetation_trees_01_10\n        vegetation_trees_01_11\n        vegetation_trees_01_17\n    ]\n}\n```\n```cpp\ntiles = [\n  treez1\n]\n```"
+      },
+      "color": {
+        "name": "color",
+        "description": "The RGB color to replace with the tiles in the `tiles` parameter. This is the color you painted in your image file to associate to this rule.",
         "type": {
           "main": "array",
           "array": {
             "separator": " ",
-            "type": "float"
+            "type": "integer"
+          }
+        }
+      },
+      "layer": {
+        "name": "layer",
+        "description": "The layer to apply the tiles on.",
+        "type": {
+          "main": "string"
+        }
+      }
+    }
+  },
+  "componentBlock": {
+    "name": "_COMPONENT_BLOCK",
+    "description": "Component blocks are used in the [components](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/components.html) block to provide a new component element for [xuiSkin](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/xuiskin.html).\n\nUnclear what these are used for.",
+    "shouldHaveParent": true,
+    "anyName": true,
+    "parents": [
+      "components"
+    ],
+    "parameters": {
+      "luapanelclass": {
+        "name": "LuaPanelClass",
+        "type": {
+          "main": "string"
+        }
+      },
+      "displayname": {
+        "name": "DisplayName",
+        "type": {
+          "main": "string"
+        }
+      },
+      "icon": {
+        "name": "Icon",
+        "type": {
+          "main": "string"
+        }
+      },
+      "enabled": {
+        "name": "Enabled",
+        "type": {
+          "main": "boolean"
+        }
+      },
+      "listorderz": {
+        "name": "ListOrderZ",
+        "type": {
+          "main": "integer"
+        }
+      },
+      "xuistyle": {
+        "name": "xuiStyle",
+        "type": {
+          "main": "string"
+        }
+      }
+    }
+  },
+  "itemMapper": {
+    "name": "itemMapper",
+    "description": "",
+    "shouldHaveParent": true,
+    "parents": [
+      "craftRecipe"
+    ],
+    "ID": {},
+    "softOverride": true,
+    "parameters": {}
+  },
+  "maps": {
+    "name": "maps",
+    "description": "A list of maps in the [default.txt](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/root-default.html) file.",
+    "shouldHaveParent": true,
+    "parents": [
+      "ROOT-Default"
+    ],
+    "parameters": {}
+  },
+  "option": {
+    "name": "option",
+    "description": "Defines a custom sandbox option for a mod.",
+    "shouldHaveParent": true,
+    "parents": [
+      "ROOT-SandboxOptions"
+    ],
+    "ID": {},
+    "parameters": {
+      "type": {
+        "name": "type",
+        "type": {
+          "main": "string"
+        },
+        "description": "The type of the option.",
+        "values": [
+          "boolean",
+          "integer",
+          "double",
+          "string",
+          "enum"
+        ],
+        "required": true
+      },
+      "min": {
+        "name": "min",
+        "type": {
+          "main": "float"
+        },
+        "description": "The minimum value the option can have. Only for integer and double types.",
+        "needs": [
+          {
+            "name": "type",
+            "values": [
+              "integer",
+              "double"
+            ]
+          }
+        ]
+      },
+      "max": {
+        "name": "max",
+        "type": {
+          "main": "float"
+        },
+        "description": "The maximum value the option can have. Only for integer and double types.",
+        "needs": [
+          {
+            "name": "type",
+            "values": [
+              "integer",
+              "double"
+            ]
+          }
+        ]
+      },
+      "default": {
+        "name": "default",
+        "needs": [
+          {
+            "name": "type",
+            "valueToType": {
+              "integer": "float",
+              "double": "float",
+              "boolean": "boolean",
+              "string": "string"
+            }
+          }
+        ]
+      },
+      "page": {
+        "name": "page",
+        "type": {
+          "main": "string"
+        },
+        "description": "The sandbox option to add the option to. Can be a custom page."
+      },
+      "translation": {
+        "name": "translation",
+        "type": {
+          "main": "string"
+        },
+        "description": "The translation key for the option's name."
+      }
+    }
+  },
+  "attachment": {
+    "name": "attachment",
+    "description": "Defines an attachment point on a [model](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/model.html) or [vehicle](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/vehicle.html) block. The ID is the attachment name, it can be a custom ID or an existing one often used to define specific attachments. While manually modifying the attachment block is definitely possible, it is recommended to use the [attachment editor](https://pzwiki.net/wiki/Attachment_Editor) to create and edit those attachments.\n\nThe syntax of this block should be as follows:\n```cpp\nmodel upperScriptDefinition\n{\n    ...\n    attachment attachmentPointName\n    {\n        ...\n    }\n    ...\n}\n```\n\nFor example:\n```cpp\nmodel Burger\n{\n    mesh = Burger,\n\n    attachment Bip01_Prop2\n    {\n        offset = 0.0142 0.0401 0.0000,\n        rotate = -23.3606 21.2788 37.5386,\n        scale = 0.8280,\n    }\n}\n```\n\nHere is a list of attachment points provided by the game:\n- 1schoolbaglefthand\n- 1schoolbagrighthand\n- AnkleHolster\n- Bip01_Prop1\n- Bip01_Prop2\n- ShoulderHolster\n- axe_back\n- back\n- back_guitar\n- back_guitar_acoustic\n- backpack_left\n- bedroll_bottom\n- bedroll_bottom_alice\n- bedroll_bottom_big\n- belt_left\n- belt_left_screwdriver\n- belt_left_upside\n- belt_right\n- belt_right_screwdriver\n- belt_right_upside\n- belt_rotated_left\n- belt_rotated_right\n- big_blade_back_bag\n- big_w_back\n- big_w_back_bag\n- bighikingbaglefthand\n- bighikingbagrighthand\n- blade_back\n- crowbar_back\n- duffelbaglefthand\n- duffelbagrighthand\n- fryingpan_back\n- fryingpan_back_bag\n- hikingbaglefthand\n- hikingbagrighthand\n- holster_left\n- holster_right\n- knife_belt_back\n- knife_belt_front\n- knife_head\n- knife_in_back\n- knife_left_leg\n- knife_right_leg\n- knife_shoulder\n- knife_stomach\n- meatcleaver_in_back\n- meatcleaver_left\n- meatcleaver_right\n- nightstick_left\n- nightstick_right\n- racket_back\n- racket_back_bag\n- rifle_back\n- rifle_back_bag\n- saucepan_back\n- saucepan_back_bag\n- shovel_back\n- shovel_back_bag\n- stomach\n- walkie_belt_left\n- walkie_belt_right\n- webbing_left_knife\n- webbing_left_walkie\n- webbing_left_knife\n- webbing_left_walkie\n- wrench_left\n- wrench_right",
+    "shouldHaveParent": true,
+    "parents": [
+      "vehicle",
+      "model",
+      "template"
+    ],
+    "ID": {},
+    "parameters": {
+      "offset": {
+        "name": "offset",
+        "type": {
+          "main": "array",
+          "array": {
+            "type": "float",
+            "separator": " "
           }
         },
-        "description": "The position offset of the model, in the format `x y z`."
+        "description": "The position offset of the model relative to the bone. This is a vector in the format `x y z`. \n\n```cpp\noffset = -0.0300 -0.1020 0.1210,\n```"
       },
       "rotate": {
         "name": "rotate",
         "type": {
           "main": "array",
           "array": {
-            "separator": " ",
-            "type": "float"
+            "type": "float",
+            "separator": " "
           }
         },
-        "description": "The rotation of the model, in the format `x y z`."
+        "description": "The rotation of the model relative to the bone. This is a vector in the format `x y z`. The values are degrees.\n\n```cpp\nrotate = -60.0000 -49.0000 -3.0000,\n```"
+      },
+      "zoffset": {
+        "name": "zoffset"
+      },
+      "scale": {
+        "name": "scale",
+        "type": {
+          "main": "float"
+        },
+        "description": "The scale multiplier applied to the model attached to this attachment point.\n\n```cpp\nscale = 0.5,\n```"
+      },
+      "bone": {
+        "name": "bone",
+        "description": "\tThe name of the bone to which the model is attached to. \n\n ```cpp\n bone = Bip01_L_Hand,\n ```"
       }
     }
   },
-  "template": {
-    "name": "template",
+  "ragdoll": {
+    "name": "ragdoll",
+    "description": "Defines the ragdoll properties of a bone.",
+    "shouldHaveParent": true,
+    "parents": [
+      "module"
+    ],
+    "ID": {},
+    "parameters": {}
+  },
+  "timedAction": {
+    "name": "timedAction",
+    "description": "The timedAction script block is used to define an action which can be used in [craftRecipes](https://pz-wiki-modding.github.io/PZ-API-Docs/blocks/craftRecipe.html). You can specify the animation played, props in hands during the action, the sound played. Also define its impact on the player character, including effects on calories burned and body heat generation.\n\nBelow are a few examples of {{Code|timedAction}} blocks from the vanilla game:\n\n```cpp\ntimedAction UseLathe\n{\n    metabolics      = Default,\n    actionAnim      = UseLathe,\n}\n```\n\n```cpp\ntimedAction BuildCairn\n{\n    metabolics      = HeavyWork,\n    actionAnim      = Loot,\n    animVarKey      = LootPosition,\n    animVarVal      = Low,\n    sound           = BuildingGeneric,\n    completionSound = BuildFenceCairn,\n    muscleStrainFactor = 0.0025,\n    muscleStrainSkill = Strength,\n    muscleStrainParts = Neck,\n}\n```\n\n```cpp\ntimedAction BuildBarbedWireFence\n{\n    metabolics      = HeavyWork,\n    actionAnim      = Loot,\n    animVarKey      = LootPosition,\n    animVarVal      = Low,\n    sound           = BuildingGeneric,\n    completionSound = BuildMetalStructureSmallWiredFence,\n}\n```",
+    "shouldHaveParent": true,
+    "parents": [
+      "module"
+    ],
+    "ID": {},
+    "parameters": {
+      "actionanim": {
+        "name": "actionAnim",
+        "description": "The actionAnim parameter is used to define the animation played during a timed action. It links to a [PerformingAction](https://pzwiki.net/wiki/PerformingAction) define in the action [AnimSets](https://pzwiki.net/wiki/AnimSet).",
+        "type": {
+          "main": "string"
+        }
+      },
+      "animvarkey": {
+        "name": "animVarKey",
+        "description": "The [animVarKey](https://pz-wiki-modding.github.io/PZ-API-Docs/blocks/timedAction.html#animVarKey) and [animVarVal](https://pz-wiki-modding.github.io/PZ-API-Docs/blocks/timedAction.html#animVarVal) parameters are used together to link to a specific [AnimNode Conditions](https://pzwiki.net/wiki/Conditions). `animVarKey` will correspond to the `m_Name` field and `animVarVal` to the `m_Value` field.\n\nThis allows for easy swapping between variants of [actionAnim](https://pz-wiki-modding.github.io/PZ-API-Docs/blocks/timedAction.html#actionAnim). For example, for the AnimNode:\n\n```cpp\n<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<animNode x_extends=\"Loot.xml\">\n  <m_Name>LootHigh</m_Name>\n  <m_AnimName>Bob_IdleLooting_High</m_AnimName>\n  <m_Conditions />\n  <m_Conditions />\n  <m_Conditions>\n    <m_Name>LootPosition</m_Name>\n    <m_Type>STRING</m_Type>\n    <m_StringValue>High</m_StringValue>\n  </m_Conditions>\n</animNode>\n```\n\nYou can define those parameters in the timedAction as follows:\n\n```cpp\nactionAnim      = Loot,\nanimVarKey      = LootPosition,\nanimVarVal      = Low,\n```"
+      },
+      "animvarval": {
+        "name": "animVarVal",
+        "#desc": "timedAction/animVarKey",
+        "description": "The [animVarKey](https://pz-wiki-modding.github.io/PZ-API-Docs/blocks/timedAction.html#animVarKey) and [animVarVal](https://pz-wiki-modding.github.io/PZ-API-Docs/blocks/timedAction.html#animVarVal) parameters are used together to link to a specific [AnimNode Conditions](https://pzwiki.net/wiki/Conditions). `animVarKey` will correspond to the `m_Name` field and `animVarVal` to the `m_Value` field.\n\nThis allows for easy swapping between variants of [actionAnim](https://pz-wiki-modding.github.io/PZ-API-Docs/blocks/timedAction.html#actionAnim). For example, for the AnimNode:\n\n```cpp\n<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<animNode x_extends=\"Loot.xml\">\n  <m_Name>LootHigh</m_Name>\n  <m_AnimName>Bob_IdleLooting_High</m_AnimName>\n  <m_Conditions />\n  <m_Conditions />\n  <m_Conditions>\n    <m_Name>LootPosition</m_Name>\n    <m_Type>STRING</m_Type>\n    <m_StringValue>High</m_StringValue>\n  </m_Conditions>\n</animNode>\n```\n\nYou can define those parameters in the timedAction as follows:\n\n```cpp\nactionAnim      = Loot,\nanimVarKey      = LootPosition,\nanimVarVal      = Low,\n```"
+      },
+      "completionsound": {
+        "name": "completionSound",
+        "type": {
+          "main": "string",
+          "block": {
+            "name": "sound"
+          }
+        }
+      },
+      "metabolics": {
+        "name": "metabolics",
+        "description": "The metabolics parameter is used to define the impact of the action on the player character's metabolics, such as the calories burn rate or body heat generation. It uses predefined enumeration values to specify the multiplier on the metabolism. You can find a list of metabolic types and their associated values in the [Metabolics](https://pz-wiki-modding.github.io/PZ-API-Docs/java/metabolics.html) documentation."
+      },
+      "musclestrainfactor": {
+        "name": "muscleStrainFactor",
+        "description": "Muscle strain is an effect which applies to the character limbs, simulating the fatigue and strain of performing certain actions. A timedAction script can be set to apply muscle strain to specific limbs and based on the level of the character in a specific skill.\n\n[muscleStrainFactor](https://pz-wiki-modding.github.io/PZ-API-Docs/blocks/timedAction.html#muscleStrainFactor) serves as a parameter of how much muscle strain will be gained.\n\n[muscleStrainParts](https://pz-wiki-modding.github.io/PZ-API-Docs/blocks/timedAction.html#muscleStrainParts) will indicate the limbs affected by the muscle strain, which needs to be an array of [BodyPartType](https://demiurgequantified.github.io/ProjectZomboidJavaDocs/zombie/characters/BodyDamage/BodyPartType.html#enum-constant-summary).\n\nIf [muscleStrainSkill](https://pz-wiki-modding.github.io/PZ-API-Docs/blocks/timedAction.html#muscleStrainSkill) is provided, the skill will be used to reduce the muscle strain when the player gets better at something.\n\n```\nstrain = deltaTime * muscleStrainFactor * (1 - skillLevel * 0.5)\n```"
+      },
+      "musclestrainparts": {
+        "name": "muscleStrainParts",
+        "#desc": "timedAction/muscleStrainFactor",
+        "type": {
+          "main": "array",
+          "array": {
+            "separator": ";",
+            "type": "string"
+          }
+        },
+        "needs": [
+          {
+            "name": "muscleStrainParts"
+          }
+        ],
+        "description": "Muscle strain is an effect which applies to the character limbs, simulating the fatigue and strain of performing certain actions. A timedAction script can be set to apply muscle strain to specific limbs and based on the level of the character in a specific skill.\n\n[muscleStrainFactor](https://pz-wiki-modding.github.io/PZ-API-Docs/blocks/timedAction.html#muscleStrainFactor) serves as a parameter of how much muscle strain will be gained.\n\n[muscleStrainParts](https://pz-wiki-modding.github.io/PZ-API-Docs/blocks/timedAction.html#muscleStrainParts) will indicate the limbs affected by the muscle strain, which needs to be an array of [BodyPartType](https://demiurgequantified.github.io/ProjectZomboidJavaDocs/zombie/characters/BodyDamage/BodyPartType.html#enum-constant-summary).\n\nIf [muscleStrainSkill](https://pz-wiki-modding.github.io/PZ-API-Docs/blocks/timedAction.html#muscleStrainSkill) is provided, the skill will be used to reduce the muscle strain when the player gets better at something.\n\n```\nstrain = deltaTime * muscleStrainFactor * (1 - skillLevel * 0.5)\n```"
+      },
+      "musclestrainskill": {
+        "name": "muscleStrainSkill",
+        "#desc": "timedAction/muscleStrainFactor",
+        "description": "Muscle strain is an effect which applies to the character limbs, simulating the fatigue and strain of performing certain actions. A timedAction script can be set to apply muscle strain to specific limbs and based on the level of the character in a specific skill.\n\n[muscleStrainFactor](https://pz-wiki-modding.github.io/PZ-API-Docs/blocks/timedAction.html#muscleStrainFactor) serves as a parameter of how much muscle strain will be gained.\n\n[muscleStrainParts](https://pz-wiki-modding.github.io/PZ-API-Docs/blocks/timedAction.html#muscleStrainParts) will indicate the limbs affected by the muscle strain, which needs to be an array of [BodyPartType](https://demiurgequantified.github.io/ProjectZomboidJavaDocs/zombie/characters/BodyDamage/BodyPartType.html#enum-constant-summary).\n\nIf [muscleStrainSkill](https://pz-wiki-modding.github.io/PZ-API-Docs/blocks/timedAction.html#muscleStrainSkill) is provided, the skill will be used to reduce the muscle strain when the player gets better at something.\n\n```\nstrain = deltaTime * muscleStrainFactor * (1 - skillLevel * 0.5)\n```"
+      },
+      "prop1": {
+        "name": "prop1",
+        "type": {
+          "main": "string",
+          "block": {
+            "name": "item"
+          }
+        }
+      },
+      "prop2": {
+        "name": "prop2",
+        "type": {
+          "main": "string",
+          "block": {
+            "name": "item"
+          }
+        }
+      },
+      "sound": {
+        "name": "sound",
+        "type": {
+          "main": "string",
+          "block": {
+            "name": "sound"
+          }
+        }
+      },
+      "soundtime": {
+        "name": "soundTime",
+        "description": "This parameter is used in the Lua to indicate when the sound should be played during the timed action. This is notably used to play a sound at the end or the start of the action during [crafting](https://pz-wiki-modding.github.io/PZ-API-Docs/blocks/craftRecipe.html#timedAction).\n\nBy itself, this doesn't do anything and requires implementation in [Lua](https://pzwiki.net/wiki/Lua_(API)). For example inside `ISHandcraftAction`.\n\nFor a full list of the accepted events, see [this](https://pz-wiki-modding.github.io/PZ-API-Docs/java/action_sound_time.html).",
+        "isUseless": true,
+        "type": {
+          "main": "string"
+        },
+        "default": "action_start"
+      }
+    }
+  },
+  "colors": {
+    "name": "colors",
+    "description": "Used to create a new color definition which can be then be used in other blocks. Those colors are added to the available [colors](https://pz-wiki-modding.github.io/PZ-API-Docs/java/colors.html) via the use of [Colors.AddGameColor](https://demiurgequantified.github.io/ProjectZomboidJavaDocs/zombie/core/Colors.html#AddGameColor(java.lang.String,zombie.core.Color)).",
+    "shouldHaveParent": true,
+    "parents": [
+      "xuiSkin"
+    ],
+    "ID": {},
+    "parameters": {
+      "_any": {
+        "name": "_ANY",
+        "anyName": true,
+        "type": {
+          "main": "array",
+          "array": {
+            "separator": ":",
+            "type": "float"
+          }
+        }
+      }
+    }
+  },
+  "vehicleEngineRPM": {
+    "name": "vehicleEngineRPM",
+    "description": "Unclear how the definition of this block works.\n\nHere's the jeep example from the base game:\n```cpp\nmodule Base \n{\n  vehicleEngineRPM jeep\n  {\n      VERSION = 1,\n      data\n      {\n          gearChange = 3000,\n          afterGearChange = 2000,\n      }\n      data\n      {\n          gearChange = 3500,\n          afterGearChange = 2000,\n      }\n      data\n      {\n          gearChange = 4000,\n          afterGearChange = 2500,\n      }\n      data\n      {\n          gearChange = 4500,\n          afterGearChange = 2800,\n      }\n      data\n      {\n          gearChange = 6000,\n          afterGearChange = 4500,\n      }\n  }\n}\n```",
+    "shouldHaveParent": true,
+    "parents": [
+      "module"
+    ],
+    "ID": {},
+    "parameters": {
+      "version": {
+        "name": "VERSION",
+        "type": {
+          "main": "integer"
+        },
+        "description": "Unclear what this does, preferably keep it at 1."
+      }
+    }
+  },
+  "ROOT-Blends": {
+    "name": "ROOT-Blends",
+    "description": "The `Blends.txt` file is used in the [mapping tools](https://pzwiki.net/wiki/Mapping#Mapping_tools) to assign blend tiles around the tiles you paint.",
+    "shouldHaveParent": false,
+    "parents": [],
+    "isRoot": true,
+    "noComma": true,
+    "pattern": [
+      "Blends\\.txt$"
+    ],
+    "parameters": {
+      "name": {
+        "name": "name"
+      }
+    }
+  },
+  "component CraftBenchSounds": {
+    "name": "component CraftBenchSounds",
+    "description": "",
+    "shouldHaveParent": true,
+    "isVariant": "component",
+    "parents": [
+      "entity"
+    ],
+    "parameters": {
+      "addfuel": {
+        "name": "AddFuel"
+      },
+      "lightfire": {
+        "name": "LightFire"
+      },
+      "running": {
+        "name": "Running"
+      },
+      "addinput": {
+        "name": "AddInput"
+      },
+      "removeinput": {
+        "name": "RemoveInput"
+      },
+      "startcraft": {
+        "name": "StartCraft"
+      }
+    }
+  },
+  "clock": {
+    "name": "clock",
     "description": "",
     "shouldHaveParent": true,
     "parents": [
@@ -4985,858 +6817,6 @@
         "name": "wheel"
       }
     }
-  },
-  "tile": {
-    "name": "tile",
-    "description": "Defines some tile properties from a tileset.",
-    "shouldHaveParent": true,
-    "parents": [
-      "tileset"
-    ],
-    "parameters": {
-      "xy": {
-        "name": "xy"
-      },
-      "isprofessiontrait": {
-        "name": "IsProfessionTrait"
-      },
-      "runtime": {
-        "name": "runtime"
-      },
-      "modelscript": {
-        "name": "modelScript"
-      },
-      "translate": {
-        "name": "translate"
-      },
-      "rotate": {
-        "name": "rotate"
-      },
-      "scale": {
-        "name": "scale"
-      },
-      "animation": {
-        "name": "animation"
-      },
-      "animationtime": {
-        "name": "animationTime"
-      }
-    }
-  },
-  "Poison": {
-    "name": "Poison",
-    "description": "Defines poison properties for a fluid script.",
-    "shouldHaveParent": true,
-    "parents": [
-      "fluid"
-    ],
-    "parameters": {
-      "maxeffect": {
-        "name": "maxEffect",
-        "type": {
-          "main": "string"
-        },
-        "description": "Defines the strength of the poison.",
-        "values": [
-          "None",
-          "Mild",
-          "Medium",
-          "Severe",
-          "Extreme",
-          "Deadly"
-        ]
-      },
-      "minamount": {
-        "name": "minAmount",
-        "type": {
-          "main": "float"
-        },
-        "description": "The minimum amount required to consume to poison the player."
-      },
-      "diluteratio": {
-        "name": "diluteRatio",
-        "type": {
-          "main": "float"
-        },
-        "description": "The ratio at which the poison is diluted when mixed with other fluids."
-      }
-    }
-  },
-  "layers": {
-    "name": "layers",
-    "description": "Used to define the default layers of a new TMX file.",
-    "shouldHaveParent": true,
-    "noComma": true,
-    "parents": [
-      "ROOT-TMXconfig"
-    ],
-    "parameters": {
-      "tile": {
-        "name": "tile",
-        "allowedDuplicate": true,
-        "type": {
-          "main": "string"
-        }
-      },
-      "object": {
-        "name": "object",
-        "parentsOnly": [
-          "ROOT-MapBaseXML"
-        ],
-        "type": {
-          "main": "string"
-        }
-      }
-    }
-  },
-  "component WallCoveringConfig": {
-    "name": "component WallCoveringConfig",
-    "description": "",
-    "shouldHaveParent": true,
-    "isVariant": "component",
-    "parents": [
-      "entity"
-    ],
-    "parameters": {
-      "sign": {
-        "name": "sign"
-      },
-      "type": {
-        "name": "type"
-      }
-    }
-  },
-  "component CraftRecipe": {
-    "name": "component CraftRecipe",
-    "description": "",
-    "shouldHaveParent": true,
-    "isVariant": "component",
-    "parents": [
-      "entity"
-    ],
-    "needsChildren": [
-      "inputs"
-    ],
-    "parameters": {
-      "category": {
-        "name": "category",
-        "description": "The category under which the recipe will be listed in the crafting menu. Helps to organize and identify recipes in the crafting menu. Currently doesn't support translations (confirmed last 42.15).",
-        "#ref": "craftRecipe/category"
-      },
-      "needtobelearn": {
-        "name": "NeedToBeLearn",
-        "description": "Whether the recipe needs to be learned before it can be crafted.",
-        "#ref": "craftRecipe/NeedToBeLearn"
-      },
-      "onaddtomenu": {
-        "name": "OnAddToMenu"
-      },
-      "oncreate": {
-        "name": "OnCreate",
-        "description": "The OnCreate parameter allows the referencing of a Lua function that will be called when the crafting recipe is finished. This can be used to add custom behavior to the crafting recipe when it gets finished. The Lua function needs to be a [global function](https://pzwiki.net/wiki/Lua_(language)#Local_and_global), it can also be in a global table. The vanilla game OnCreate's are stored in the [Java](https://pzwiki.net/wiki/Java).\n\nThe function should have the following structure:\n```lua\nfunction MyOnCreateFunction(craftRecipeData, character)\n    -- your custom code here\nend\n```\n\nThe `craftRecipeData` is a [java object](https://demiurgequantified.github.io/ProjectZomboidJavaDocs/zombie/entity/components/crafting/recipe/CraftRecipeData.html) that contains the data of the crafting recipe. The `character` is the player character who is crafting the recipe.",
-        "#ref": "craftRecipe/OnCreate"
-      },
-      "skillrequired": {
-        "name": "SkillRequired",
-        "description": "Specifies the skill level required to perform this crafting action. It should be formated this way:\n```cpp\n/* a single skill */\nskillRequired = <skill name>:<level>,\n\n/* multiple skills */\nskillRequired = <skill1 name>:<level>;<skill2 name>:<level>,\n```\nFor the list of available skills, see [this](https://pzwiki.net/wiki/CraftRecipe#Available_skills).\n\nFor example:\n```cpp\nskillRequired = Blacksmith:3;Tailoring:2,\n```",
-        "#ref": "craftRecipe/SkillRequired"
-      },
-      "tags": {
-        "name": "tags",
-        "description": "Specifies specific conditions which need to be respected to craft this item. At least one crafting bench tag is necessary for the craft to be recognized, such as `AnySurfaceCraft`. The syntax is as follows:\n```cpp\n/* single tag */\nTags = tag1,\n\n/* multiple tags */\nTags = tag1;tag2;...,\n```\n\nFor example:\n```cpp\nTags = InHandCraft;CanAlwaysBeResearched,\n```\n\nA crafting bench tag can be created by adding a [component CraftBench](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/component/component-craftbench.html) to an [entity](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/entity.html) script, which can then be used in this tags parameter.",
-        "required": true,
-        "type": {
-          "main": "array",
-          "array": {
-            "separator": ";",
-            "type": "string"
-          }
-        },
-        "#ref": "craftRecipe/tags"
-      },
-      "time": {
-        "name": "time",
-        "description": "The time it takes to craft the item, not using a specific unit of time.",
-        "default": 50,
-        "#ref": "craftRecipe/time"
-      },
-      "timedaction": {
-        "name": "timedAction",
-        "description": "Refers to a timed action script block, used to trigger during the crafting process, for animations and/or sounds but also the calories burned and body heat generation.",
-        "#ref": "craftRecipe/timedAction"
-      },
-      "tooltip": {
-        "name": "Tooltip",
-        "description": "Description of the crafting which is shown in the crafting menu.",
-        "#ref": "craftRecipe/Tooltip"
-      },
-      "xpaward": {
-        "name": "xpAward",
-        "description": "Specifies the experience points awarded for crafting this item. The parameter should be formated this way:\n```cpp\n/* a single skill */\nxpAward = <skill name>:<xp amount>,\n\n/* multiple skills */\nxpAward = <skill1 name>:<xp amount>;<skill2 name>:<xp amount>,format\n```\nFor the list of available skills, see [this](https://pzwiki.net/wiki/CraftRecipe#Available_skills).\n\nFor example:\n```cpp\nxpAward = Blacksmith:10;Tailoring:5,\n```",
-        "#ref": "craftRecipe/xpAward"
-      }
-    }
-  },
-  "ISBaseComponentPanel": {
-    "name": "ISBaseComponentPanel",
-    "description": "",
-    "shouldHaveParent": true,
-    "parents": [
-      "xuiSkin"
-    ],
-    "parameters": {}
-  },
-  "BlendBlackList": {
-    "name": "BlendBlackList",
-    "#ref": "BlendWhiteList",
-    "parameters": {},
-    "description": "BlendWhiteList defines a whitelist for fluids that the fluid can be blended with, while BlendBlackList defines a blacklist. By default those blocks are set whitelist, but you can add one of the available parameters to indicate whenever the block is a whitelist or a blacklist.\n\nFluids that are whitelisted/blacklisted can be identified either by their category via the use of a [categories](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/categories.html) child block, or by their name via the use of the [fluid](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/blendwhitelist.html#fluid) parameter.",
-    "shouldHaveParent": true,
-    "parents": [
-      "fluid"
-    ]
-  },
-  "overlayMapper": {
-    "name": "overlayMapper",
-    "description": "",
-    "shouldHaveParent": true,
-    "parents": [
-      "craftRecipe"
-    ],
-    "parameters": {}
-  },
-  "ROOT-TileGeometry": {
-    "name": "ROOT-TileGeometry",
-    "description": "The `tileGeometry.txt` file is used to register the tile depth of tiles. The file needs to be located inside the [common/media](https://pzwiki.net/wiki/Mod_structure#Common_and_versioning_folders) folder.",
-    "shouldHaveParent": false,
-    "parents": [],
-    "isRoot": true,
-    "pattern": [
-      "common\\/media\\/tileGeometry\\.txt$"
-    ],
-    "parameters": {
-      "version": {
-        "name": "VERSION",
-        "description": "The version of the tile geometry file format. Keep it at 2 for now."
-      }
-    }
-  },
-  "face": {
-    "name": "face",
-    "description": "",
-    "shouldHaveParent": true,
-    "parents": [
-      "component SpriteConfig",
-      "style",
-      "progress"
-    ],
-    "ID": {
-      "values": [
-        "SINGLE",
-        "S",
-        "E",
-        "W",
-        "N",
-        "S_OPEN",
-        "E_OPEN",
-        "W_OPEN",
-        "N_OPEN"
-      ]
-    },
-    "parameters": {}
-  },
-  "alias": {
-    "name": "alias",
-    "description": "Defines an alias for a list of tiles. This can be directly be refered to in [rule](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/rule.html) blocks to list a bunch of tiles in different blocks or to organize them by type. Say for example you can list all the trees in an alias to use later, or split by tree type to easily associate to a color.\n\nHere is an example of how to use it:\n```cpp\nalias\n{\n    name = treez1\n    tiles = [\n        e_americanholly_1_3\n        e_americanholly_1_2\n        e_americanholly_1_1\n        e_americanlinden_1_11\n        e_americanlinden_1_10\n        e_americanlinden_1_15\n        e_americanlinden_1_14\n        e_canadianhemlock_1_3\n        e_canadianhemlock_1_2\n        e_canadianhemlock_1_1\n        e_carolinasilverbell_1_15\n        e_carolinasilverbell_1_14\n        e_cockspurhawthorn_1_15\n        e_cockspurhawthorn_1_14\n        e_cockspurhawthorn_1_13\n        e_dogwood_1_15\n        e_dogwood_1_14\n        e_easternredbud_1_15\n        e_easternredbud_1_14\n        vegetation_trees_01_13\n        vegetation_trees_01_14\n        vegetation_trees_01_15\n        vegetation_trees_01_8\n        vegetation_trees_01_9\n        vegetation_trees_01_10\n        vegetation_trees_01_11\n        vegetation_trees_01_17\n    ]\n}\n\nrule\n{\n    label = General Trees\n    bitmap = 1\n    color = 139 156 68\n    tiles = [\n      treez1\n    ]\n    layer = 0_Vegetation\n}\n```",
-    "shouldHaveParent": true,
-    "noComma": true,
-    "parents": [
-      "ROOT-Rules"
-    ],
-    "parameters": {
-      "name": {
-        "name": "name",
-        "type": {
-          "main": "string"
-        }
-      },
-      "tiles": {
-        "name": "tiles"
-      }
-    }
-  },
-  "contextEntry": {
-    "name": "contextEntry",
-    "description": "",
-    "shouldHaveParent": true,
-    "parents": [
-      "component ContextMenuConfig"
-    ],
-    "parameters": {
-      "menu": {
-        "name": "menu"
-      },
-      "customfunction": {
-        "name": "customFunction"
-      }
-    }
-  },
-  "clock": {
-    "name": "clock",
-    "description": "",
-    "shouldHaveParent": true,
-    "parents": [
-      "module"
-    ],
-    "ID": {},
-    "parameters": {}
-  },
-  "component Resources": {
-    "name": "component Resources",
-    "description": "",
-    "shouldHaveParent": true,
-    "isVariant": "component",
-    "parents": [
-      "entity"
-    ],
-    "parameters": {}
-  },
-  "components": {
-    "name": "components",
-    "description": "",
-    "shouldHaveParent": true,
-    "parents": [
-      "entity"
-    ],
-    "parameters": {}
-  },
-  "data": {
-    "name": "data",
-    "description": "",
-    "shouldHaveParent": true,
-    "parents": [
-      "vehicleEngineRPM"
-    ],
-    "parameters": {
-      "aftergearchange": {
-        "name": "afterGearChange",
-        "type": {
-          "main": "float"
-        },
-        "default": 0.0
-      },
-      "gearchange": {
-        "name": "gearChange",
-        "type": {
-          "main": "float"
-        },
-        "default": 0.0
-      }
-    }
-  },
-  "character_profession_definition": {
-    "name": "character_profession_definition",
-    "description": "Defines a character profession.\n\n```cpp\ncharacter_profession_definition yourmod:example_profession\n{\n    CharacterProfession = yourmod:example_profession,\n    Cost = -6,\n    UIName = UI_prof_MetalWorker,\n    UIDescription = UI_profdesc_metalworker,\n    IconPathName = profession_metalworker,\n    XPBoosts = MetalWelding=4,\n    GrantedRecipes = Advanced_Forge;Blast_Furnace,\n}\n```",
-    "shouldHaveParent": true,
-    "parents": [
-      "module"
-    ],
-    "ID": {},
-    "parameters": {
-      "characterprofession": {
-        "name": "CharacterProfession",
-        "type": {
-          "main": "string"
-        },
-        "description": "The [registries](https://pzwiki.net/wiki/Registries) profession ID to link to."
-      },
-      "cost": {
-        "name": "Cost",
-        "type": {
-          "main": "integer"
-        },
-        "description": "The cost of the profession when selecting a character. Negative values remove points, positive values add points."
-      },
-      "uiname": {
-        "name": "UIName",
-        "type": {
-          "main": "string"
-        },
-        "description": "The translation key for the profession's name. The translation key needs to be in the UI translation file. See the wiki page about [translations](https://pzwiki.net/wiki/Translations) for more information."
-      },
-      "uidescription": {
-        "name": "UIDescription",
-        "type": {
-          "main": "string"
-        },
-        "description": "The translation key for the profession's description. The translation key needs to be in the UI translation file. See the wiki page about [translations](https://pzwiki.net/wiki/Translations) for more information."
-      },
-      "iconpathname": {
-        "name": "IconPathName",
-        "type": {
-          "main": "string"
-        }
-      },
-      "grantedtraits": {
-        "name": "GrantedTraits",
-        "type": {
-          "main": "array",
-          "array": {
-            "separator": ";",
-            "type": "string"
-          }
-        },
-        "description": "A list of character trait IDs that are granted to the character when this profession is selected."
-      },
-      "xpboosts": {
-        "name": "XPBoosts",
-        "description": "A list of experience boosts granted by this profession. Each entry should contain a skill name and the corresponding boost amount.\n\nFor example:\n```cpp\nXPBoosts = Axe=1;Blunt=1,\n```",
-        "type": {
-          "main": "object",
-          "object": {
-            "keyValueSeparator": ";",
-            "keyType": "string",
-            "valueType": "integer",
-            "pairsSeparator": ";"
-          }
-        }
-      },
-      "grantedrecipes": {
-        "name": "GrantedRecipes",
-        "type": {
-          "main": "array",
-          "array": {
-            "separator": ";",
-            "type": "string"
-          }
-        },
-        "description": "A list of [craftRecipe](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/craftrecipe.html) IDs that are granted to the character when this profession is selected."
-      }
-    }
-  },
-  "evolvedrecipe": {
-    "name": "evolvedrecipe",
-    "description": "Defines a dynamic recipe.",
-    "shouldHaveParent": true,
-    "parents": [
-      "module"
-    ],
-    "ID": {
-      "canHaveSpace": true
-    },
-    "parameters": {
-      "addingredientifcooked": {
-        "name": "AddIngredientIfCooked"
-      },
-      "addingredientsound": {
-        "name": "AddIngredientSound"
-      },
-      "baseitem": {
-        "name": "BaseItem"
-      },
-      "canaddspicesempty": {
-        "name": "CanAddSpicesEmpty"
-      },
-      "cookable": {
-        "name": "Cookable"
-      },
-      "maxitems": {
-        "name": "MaxItems"
-      },
-      "minimumwater": {
-        "name": "MinimumWater"
-      },
-      "name": {
-        "name": "Name"
-      },
-      "resultitem": {
-        "name": "ResultItem"
-      },
-      "template": {
-        "name": "Template"
-      }
-    }
-  },
-  "component SpriteOverlayConfig": {
-    "name": "component SpriteOverlayConfig",
-    "description": "",
-    "shouldHaveParent": true,
-    "isVariant": "component",
-    "parents": [
-      "entity"
-    ],
-    "parameters": {}
-  },
-  "container": {
-    "name": "container",
-    "description": "",
-    "shouldHaveParent": true,
-    "parents": [
-      "part"
-    ],
-    "parameters": {
-      "capacity": {
-        "name": "capacity",
-        "type": {
-          "main": "integer"
-        }
-      },
-      "conditionaffectscapacity": {
-        "name": "conditionAffectsCapacity",
-        "type": {
-          "main": "boolean"
-        },
-        "description": "Sets whenever the condition of the part will impact the [capacity](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/container.html#container-capacity). A lower condition will negatively impact the container's capacity."
-      },
-      "contenttype": {
-        "name": "contentType",
-        "type": {
-          "main": "string"
-        },
-        "description": "Unclear how this parameter works exactly. The game uses it to define the \"content\" of tires and gas tanks by providing the string keys `Gasoline` or `Air`. It seems to simply remove any item container being used as the container for this part."
-      },
-      "seat": {
-        "name": "seat",
-        "type": {
-          "main": "string"
-        },
-        "description": "The seat ID of this container. When present, this container can be used as a seat for a vehicle."
-      },
-      "test": {
-        "name": "test",
-        "type": {
-          "main": "string"
-        },
-        "description": "Refers to a Lua global function returning a boolean which is used to determine whether an item can be put in this container when trying to transfer items.\n\nHere's an example from the vanilla game, with the parmeter being set to:\n```cpp\ntest = Vehicles.ContainerAccess.GloveBox\n```\n\nWith the Lua function being defined as:\n```lua\nfunction Vehicles.ContainerAccess.GloveBox(vehicle, part, chr)\n  if chr:getVehicle() == vehicle then\n    local seat = vehicle:getSeat(chr)\n    -- Can the seated player reach the passenger seat?\n    -- Only character in front seat can access it\n    return seat == 1 or seat == 0;\n  elseif chr:getVehicle() then\n    -- Can't reach from inside a different vehicle.\n    return false\n  else\n    -- Standing outside the vehicle.\n    if not vehicle:isInArea(part:getArea(), chr) then return false end\n    local doorPart = vehicle:getPartById(\"DoorFrontRight\")\n    if doorPart and doorPart:getDoor() and not doorPart:getDoor():isOpen() then\n      return false\n    end\n    return true\n  end\nend\n```\n\nThe parameters are:\n- `vehicle` is a [BaseVehicle](https://demiurgequantified.github.io/ProjectZomboidJavaDocs/zombie/vehicles/BaseVehicle.html) class\n- `part` is a [VehiclePart](https://demiurgequantified.github.io/ProjectZomboidJavaDocs/zombie/vehicles/VehiclePart.html)\n- `chr` is an [IsoGameCharacter](https://demiurgequantified.github.io/ProjectZomboidJavaDocs/zombie/characters/IsoGameCharacter.html)"
-      }
-    }
-  },
-  "ROOT-Scripts": {
-    "name": "ROOT-Scripts",
-    "description": "The root of a script file. Blocks than need to be in the root of the document should have this as parent.",
-    "shouldHaveParent": false,
-    "parents": [],
-    "isRoot": true,
-    "pattern": [
-      "media\\/scripts\\/[\\s\\S]+\\.txt$"
-    ],
-    "parameters": {}
-  },
-  "style": {
-    "name": "style",
-    "description": "",
-    "shouldHaveParent": true,
-    "parents": [
-      "component SpriteOverlayConfig"
-    ],
-    "ID": {},
-    "parameters": {}
-  },
-  "lightbar": {
-    "name": "lightbar",
-    "description": "",
-    "shouldHaveParent": true,
-    "parents": [
-      "template",
-      "vehicle"
-    ],
-    "parameters": {
-      "texture": {
-        "name": "texture"
-      },
-      "soundsiren": {
-        "name": "soundSiren"
-      },
-      "leftcol": {
-        "name": "leftCol"
-      },
-      "rightcol": {
-        "name": "rightCol"
-      }
-    }
-  },
-  "ROOT-ModInfo": {
-    "name": "ROOT-ModInfo",
-    "description": "The mod.info file, which contains all the information about a mod.",
-    "shouldHaveParent": false,
-    "parents": [],
-    "isRoot": true,
-    "noComma": true,
-    "pattern": [
-      "mod\\.info$"
-    ],
-    "parameters": {
-      "name": {
-        "name": "name",
-        "type": {
-          "main": "string"
-        },
-        "description": "The displayed name for your mod in the game's mod manager. A translation can be provided in the [Mod.json translation file](https://pzwiki.net/wiki/Translation)."
-      },
-      "id": {
-        "name": "id",
-        "type": {
-          "main": "string"
-        },
-        "description": "The unique identifier of the mod, used in a mod list of the user or\nservers to activate the mod. Make sure to use something unique which isn't shared\nbetween mods. \n\n**Note:** This is not the same as the [Workshop ID](https://pzwiki.net/wiki/Workshop_ID)."
-      },
-      "author": {
-        "name": "author",
-        "type": {
-          "main": "string"
-        },
-        "description": "Name of the author(s) of the mod. Multiple authors are often separated by commas but no convention exists."
-      },
-      "description": {
-        "name": "description",
-        "type": {
-          "main": "string"
-        },
-        "description": "Description of your mod, which shows up in the mod manager. The description supports [ISRichTextPanel](https://pzwiki.net/wiki/ISRichTextPanel) tags. A translation can be provided in the [Mod.json translation file](https://pzwiki.net/wiki/Translation)."
-      },
-      "url": {
-        "name": "url",
-        "type": {
-          "main": "string"
-        },
-        "description": "Shows a URL link in the mod manager on the page of your mod for users to click on to open in their internet browser. The parameter appears as \"Homepage\" in the mod manager. For a list of valid links, see [URL](https://pzwiki.net/wiki/URL)."
-      },
-      "poster": {
-        "name": "poster",
-        "type": {
-          "main": "string"
-        },
-        "allowedDuplicate": true,
-        "description": "Image which will show up in the mod manager as the mod image. Multiple posters can be used to show multiple images, but the first one will be used as the main poster in the mod manager. The rest will be in a list of images of the mod that users can click on to view.\n\nExample:\n```\nposter=poster.png\nposter=showcase.png\nposter=flying_chickens.png\nposter=credits.png\n```\n\nIf you have multiple versions of your mod (e.g., 42.12 and 42.13) and don't want to copy your images, you can leave them in the common folder and use the following (but use unique names for these images since it will use the pool of all mods and their images in the common folder):\n```\nposter=../common/mymodname_poster.png\nposter=../common/mymodname_showcase.png\nposter=../common/mymodname_flying_chickens.png\nposter=../common/mymodname_credits.png\n```"
-      },
-      "icon": {
-        "name": "icon",
-        "type": {
-          "main": "string"
-        },
-        "description": "Image which will be used in the mod manager to put next to the name of the mod in the list of available mods. This image will be small and while you can use a full image size, you do not need it. You can set your poster as the icon too to not ship two images if desired."
-      },
-      "modversion": {
-        "name": "modversion",
-        "type": {
-          "main": "string"
-        },
-        "description": "Version of the mod."
-      },
-      "require": {
-        "name": "require",
-        "type": {
-          "main": "string"
-        },
-        "description": "Mods required to run this mod. Multiple mods can be specified separated by commas.\n\nExample:\n```\nrequire=theNeededMod,theOtherOne\n```"
-      },
-      "incompatible": {
-        "name": "incompatible",
-        "type": {
-          "main": "string"
-        },
-        "description": "Mods that cannot be enabled at the same time as this mod. When enabled, the other mods will be unselectable. This mod will also become unselectable if any of the other mods are enabled.\n\nExample:\n```\nincompatible=theUnwantedMod,theOtherOne\n```"
-      },
-      "loadmodafter": {
-        "name": "loadModAfter",
-        "type": {
-          "main": "string"
-        },
-        "description": "Loads the mod only after the set of mods listed.\n\nExample:\n```\nloadModAfter=someMod,anotherMod\n```"
-      },
-      "loadmodbefore": {
-        "name": "loadModBefore",
-        "type": {
-          "main": "string"
-        },
-        "description": "Loads the mod before the set of mods listed.\n\nExample:\n```\nloadModBefore=someMod,anotherMod\n```"
-      },
-      "category": {
-        "name": "category",
-        "type": {
-          "main": "string"
-        },
-        "description": "Category is used for filtering mods in the in-game ModManager. Known categories are \"map\", \"vehicle\", \"features\", \"modpack\". Using other terms will not generate a new filter category."
-      },
-      "pack": {
-        "name": "pack",
-        "type": {
-          "main": "string"
-        },
-        "description": "Name of pack files that need to be loaded by the game. Notably used for [Texture pack](https://pzwiki.net/wiki/Texture_pack) and [Tile pack](https://pzwiki.net/wiki/Mapping)."
-      },
-      "tiledef": {
-        "name": "tiledef",
-        "type": {
-          "main": "string"
-        },
-        "description": "Name of the tiledef with its ID that are added by the mod. You can find a community managed list of already used tiledef IDs in [Tiledefs used by mods](https://pzwiki.net/wiki/Tiledefs_used_by_mods).\n\nExample:\n```\ntiledef=Excavation 2112\n```\n\nIf you upload your mod with a new tiledef ID, you can update the list to reduce the chance of incompatibility with other mods adding tile packs."
-      },
-      "versionmin": {
-        "name": "versionMin",
-        "type": {
-          "main": "string"
-        },
-        "description": "The minimum version of the game the mod can be used on. This number needs to be in the format `build.major` at the very least, and not just `build` or it won't work. Example `42.0`."
-      },
-      "versionmax": {
-        "name": "versionMax",
-        "type": {
-          "main": "string"
-        },
-        "description": "The maximum version of the game the mod can be used on. This number needs to be in the format `build.major` at the very least, and not just `build` or it won't work. Example `42.12`."
-      }
-    }
-  },
-  "vehicleEngineRPM": {
-    "name": "vehicleEngineRPM",
-    "description": "Unclear how the definition of this block works.\n\nHere's the jeep example from the base game:\n```cpp\nmodule Base \n{\n  vehicleEngineRPM jeep\n  {\n      VERSION = 1,\n      data\n      {\n          gearChange = 3000,\n          afterGearChange = 2000,\n      }\n      data\n      {\n          gearChange = 3500,\n          afterGearChange = 2000,\n      }\n      data\n      {\n          gearChange = 4000,\n          afterGearChange = 2500,\n      }\n      data\n      {\n          gearChange = 4500,\n          afterGearChange = 2800,\n      }\n      data\n      {\n          gearChange = 6000,\n          afterGearChange = 4500,\n      }\n  }\n}\n```",
-    "shouldHaveParent": true,
-    "parents": [
-      "module"
-    ],
-    "ID": {},
-    "parameters": {
-      "version": {
-        "name": "VERSION",
-        "type": {
-          "main": "integer"
-        },
-        "description": "Unclear what this does, preferably keep it at 1."
-      }
-    }
-  },
-  "spriteModel": {
-    "name": "spriteModel",
-    "description": "Used to define tileset properties.",
-    "shouldHaveParent": true,
-    "parents": [
-      "_DOCUMENT",
-      "ROOT-Scripts"
-    ],
-    "parameters": {
-      "version": {
-        "name": "VERSION",
-        "type": {
-          "main": "integer"
-        }
-      }
-    }
-  },
-  "component ContextMenuConfig": {
-    "name": "component ContextMenuConfig",
-    "description": "",
-    "shouldHaveParent": true,
-    "isVariant": "component",
-    "parents": [
-      "item",
-      "entity"
-    ],
-    "needsChildren": [
-      "contextEntry"
-    ],
-    "parameters": {}
-  },
-  "whitelist": {
-    "name": "whitelist",
-    "description": "Whitelists a fluid to be allowed to put inside a [fluid container](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/component/component_fluidcontainer.html).",
-    "shouldHaveParent": true,
-    "parents": [
-      "component FluidContainer"
-    ],
-    "parameters": {
-      "fluid": {
-        "name": "fluid",
-        "type": {
-          "main": "string"
-        },
-        "allowedDuplicate": true,
-        "description": "A fluid which is allowed to be put inside this fluid container."
-      }
-    }
-  },
-  "timedAction": {
-    "name": "timedAction",
-    "description": "Defines a callable action sound and/or animation, including effects on calories burned and body heat generation.",
-    "shouldHaveParent": true,
-    "parents": [
-      "module"
-    ],
-    "ID": {},
-    "parameters": {
-      "actionanim": {
-        "name": "actionAnim"
-      },
-      "animvarkey": {
-        "name": "animVarKey"
-      },
-      "animvarval": {
-        "name": "animVarVal"
-      },
-      "completionsound": {
-        "name": "completionSound"
-      },
-      "metabolics": {
-        "name": "metabolics"
-      },
-      "musclestrainfactor": {
-        "name": "muscleStrainFactor"
-      },
-      "musclestrainparts": {
-        "name": "muscleStrainParts"
-      },
-      "musclestrainskill": {
-        "name": "muscleStrainSkill"
-      },
-      "prop1": {
-        "name": "prop1"
-      },
-      "prop2": {
-        "name": "prop2"
-      },
-      "sound": {
-        "name": "sound"
-      },
-      "soundtime": {
-        "name": "soundTime"
-      }
-    }
-  },
-  "tileset": {
-    "name": "tileset",
-    "description": "Used to define properties of tiles of tilesets.",
-    "shouldHaveParent": true,
-    "parents": [
-      "spriteModel"
-    ],
-    "parameters": {
-      "name": {
-        "name": "name"
-      }
-    }
-  },
-  "lua": {
-    "name": "lua",
-    "description": "",
-    "shouldHaveParent": true,
-    "parents": [
-      "part"
-    ],
-    "parameters": {}
-  },
-  "ISTableLayoutCell": {
-    "name": "ISTableLayoutCell",
-    "description": "",
-    "shouldHaveParent": true,
-    "parents": [
-      "xuiSkin"
-    ],
-    "ID": {
-      "optional": [
-        "xuiSkin"
-      ]
-    },
-    "parameters": {}
   },
   "inputs": {
     "name": "inputs",
@@ -5942,259 +6922,105 @@
     },
     "parameters": {}
   },
-  "Properties": {
-    "name": "Properties",
-    "description": "Define stat changes applied to the player drinking this [fluid](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/fluid.html).",
+  "outputs": {
+    "name": "outputs",
+    "description": "The `outputs` block defines the items that will be created when the recipe is finished. Outputs are listed one after the other and follow the format below:\n```cpp\noutputs\n{\n\n    /* simple item output */\n    item quantity item,\n\n    /* using mappers */\n    item quantity mapper:mapperID,\n\n    ...\n}\n```\n\nFor example:\n```cpp\noutputs\n{\n    item 1 Base.Tissue,\n    item 1 Base.ScratchTicket,\n}\n```",
     "shouldHaveParent": true,
+    "softOverride": false,
     "parents": [
-      "fluid"
+      "craftRecipe"
     ],
-    "parameters": {
-      "thirstchange": {
-        "name": "ThirstChange",
-        "type": {
-          "main": "float"
-        },
-        "description": "The amount of thirst this fluid changes when consumed. Positive values increase thirst, negative values decrease it."
-      },
-      "alcohol": {
-        "name": "alcohol",
-        "type": {
-          "main": "float"
-        }
-      },
-      "hungerchange": {
-        "name": "HungerChange",
-        "type": {
-          "main": "float"
-        },
-        "description": "The amount of hunger this fluid changes when consumed. Positive values increase hunger, negative values decrease it."
-      },
-      "calories": {
-        "name": "Calories",
-        "type": {
-          "main": "float"
-        },
-        "description": "The number of calories this fluid provides when consumed."
-      },
-      "carbohydrates": {
-        "name": "Carbohydrates",
-        "type": {
-          "main": "float"
-        },
-        "description": "The amount of carbohydrates this fluid provides when consumed."
-      },
-      "lipids": {
-        "name": "Lipids",
-        "type": {
-          "main": "float"
-        },
-        "description": "The amount of lipids (fats) this fluid provides when consumed."
-      },
-      "proteins": {
-        "name": "Proteins",
-        "type": {
-          "main": "float"
-        },
-        "description": "The amount of proteins this fluid provides when consumed."
-      },
-      "flureduction": {
-        "name": "fluReduction",
-        "type": {
-          "main": "float"
-        }
-      },
-      "painreduction": {
-        "name": "painReduction",
-        "type": {
-          "main": "float"
-        },
-        "description": "The amount of pain this fluid reduces when consumed."
-      },
-      "endurancechange": {
-        "name": "enduranceChange",
-        "type": {
-          "main": "float"
-        },
-        "description": "The amount of endurance given back."
-      },
-      "foodsicknesschange": {
-        "name": "foodSicknessChange",
-        "type": {
-          "main": "float"
-        },
-        "description": "The amount of food sickness provides."
-      },
-      "fatiguechange": {
-        "name": "fatigueChange",
-        "type": {
-          "main": "float"
-        },
-        "description": "The amount of fatigue this fluid changes when consumed. Positive values increase fatigue, negative values decrease it."
-      },
-      "stresschange": {
-        "name": "StressChange",
-        "type": {
-          "main": "float"
-        },
-        "description": "The amount of stress this fluid changes when consumed. Positive values increase stress, negative values decrease it."
-      },
-      "unhappychange": {
-        "name": "UnhappyChange",
-        "type": {
-          "main": "float"
-        },
-        "description": "The amount of unhappiness this fluid changes when consumed. Positive values increase unhappiness, negative values decrease it."
-      }
-    }
+    "parameters": {}
   },
-  "rule": {
-    "name": "rule",
-    "description": "A `rule` block defines a conversion rule for the [BMP to TMX](https://pzwiki.net/wiki/BMP_to_TMX) conversion process in the [mapping tools](https://pzwiki.net/wiki/Mapping#Mapping_tools). It is used to associate a color on the BMP for the vegetation or main image to a list of tiles to apply on a specific layer in the TMX.\n\nFor example:\n```cpp\nrule\n{\n  label = Sand\n  bitmap = 0\n  color = 210 200 160\n  tiles = sand\n  layer = 0_Floor\n}\n```",
-    "shouldHaveParent": true,
-    "noComma": true,
-    "parents": [
-      "ROOT-Rules"
-    ],
-    "parameters": {
-      "label": {
-        "name": "label",
-        "type": {
-          "main": "string"
-        }
-      },
-      "bitmap": {
-        "name": "bitmap",
-        "type": {
-          "main": "integer"
-        },
-        "description": "A value of `1` will have this rule used for the vegetation image, while a value of `0` will have it used for the main tiles image. Trees will for example use `1` while ground tiles will use `0`."
-      },
-      "tiles": {
-        "name": "tiles",
-        "description": "A list of tiles to apply randomly for this color. You can also use an alias block here to reference a list of tiles.\n\nFor example:\n```cpp\ntiles = vegetation_farm_01_35\n```\n```cpp\ntiles = [\n    vegetation_farm_01_32\n    vegetation_farm_01_33\n    vegetation_farm_01_34\n    vegetation_farm_01_35\n    vegetation_farm_01_36\n    vegetation_farm_01_37\n    vegetation_farm_01_38\n    vegetation_farm_01_39\n]\n```\n\nOr with one or more alias blocks:\n```cpp\nalias\n{\n    name = treez1\n    tiles = [\n        vegetation_trees_01_13\n        vegetation_trees_01_14\n        vegetation_trees_01_15\n        vegetation_trees_01_8\n        vegetation_trees_01_9\n        vegetation_trees_01_10\n        vegetation_trees_01_11\n        vegetation_trees_01_17\n    ]\n}\n```\n```cpp\ntiles = [\n  treez1\n]\n```"
-      },
-      "color": {
-        "name": "color",
-        "description": "The RGB color to replace with the tiles in the `tiles` parameter. This is the color you painted in your image file to associate to this rule.",
-        "type": {
-          "main": "array",
-          "array": {
-            "separator": " ",
-            "type": "integer"
-          }
-        }
-      },
-      "layer": {
-        "name": "layer",
-        "description": "The layer to apply the tiles on.",
-        "type": {
-          "main": "string"
-        }
-      }
-    }
-  },
-  "entity": {
-    "name": "entity",
-    "description": "Defines a tile with special properties.",
-    "shouldHaveParent": true,
-    "parents": [
-      "module",
-      "xuiSkin"
-    ],
-    "ID": {
-      "optional": [
-        "xuiSkin"
-      ]
-    },
-    "parameters": {
-      "luawindowclass": {
-        "name": "LuaWindowClass"
-      },
-      "displayname": {
-        "name": "DisplayName"
-      },
-      "icon": {
-        "name": "Icon"
-      }
-    }
-  },
-  "fluid": {
-    "name": "fluid",
-    "description": "Create a new fluid definition. Different properties can be provided for the fluid v ia the use of different children blocks:\n- [Properties](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/properties.html) is used to indicate the various stats change that drinking this fluid would cause to the player.\n- [Categories](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/categories.html) act as tags for the fluid, to easily identify it.\n- [BlendWhiteList](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/blendwhitelist.html) and [BlendBlackList](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/blendblacklist.html) are used to provide rules for the blending of this fluid with other fluids.\n- [Poison](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/poison.html) is used to define poison properties for the fluid.",
+  "template": {
+    "name": "template",
+    "description": "",
     "shouldHaveParent": true,
     "parents": [
       "module"
     ],
     "ID": {},
-    "parameters": {
-      "colorreference": {
-        "name": "ColorReference",
-        "description": "A reference to a color defined in the Colors class. You can find a full list of the colors available in the [Colors](https://pz-wiki-modding.github.io/PZ-API-Docs/java/colors.html) documentation.\n\nFor example, to use the color `Azure` from the documentation:\n```cpp\nfluid yourFluid\n{\n  ColorReference = Azure,\n  ...\n}\n```"
-      },
-      "displayname": {
-        "name": "DisplayName",
-        "description": "The name of the fluid that will be displayed in the game. The value corresponds to the key for the fluid's name in the [Fluids.json](https://pz-wiki-modding.github.io/PZ-API-Docs/translations/translation_files.html#fluids) translation file. The translation keys for the fluid usually have the prefix `Fluid_Name_` but this is technically not required.\n\nFor example:\n```cpp\nfluid yourFluid\n{\n  DisplayName = Fluid_Name_YourFluid,\n  ...\n}\n```\n\nAnd in the translation file of your mod:\n```cpp\n{\n  \"Fluid_Name_YourFluid\": \"Your Fluid\"\n}\n```"
-      }
-    }
+    "parameters": {}
   },
-  "mods": {
-    "name": "mods",
-    "description": "A list of mods in the [default.txt](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/root-default.html) file. The [mod ID](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/root-modinfo.html#root-modinfo-id) should be used to reference the mods.\n\nIt should use the following syntax:\n```\nmods\n{\n  mod = mod1,\n  mod = mod2,\n  ...\n}\n```",
-    "shouldHaveParent": true,
-    "parents": [
-      "ROOT-Default"
-    ],
-    "parameters": {
-      "mod": {
-        "name": "mod",
-        "type": {
-          "main": "string"
-        },
-        "description": "The mod ID of the mod to load, which can be found in the [mod.info](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/root-modinfo.html) file of the mod.",
-        "allowedDuplicate": true
-      }
-    }
-  },
-  "physics": {
-    "name": "physics",
+  "component CraftRecipe": {
+    "name": "component CraftRecipe",
     "description": "",
     "shouldHaveParent": true,
+    "isVariant": "component",
     "parents": [
-      "template",
-      "vehicle"
+      "entity"
     ],
-    "ID": {
-      "values": [
-        "box",
-        "sphere",
-        "mesh"
-      ]
-    },
+    "needsChildren": [
+      "inputs"
+    ],
     "parameters": {
-      "offset": {
-        "name": "offset"
+      "category": {
+        "name": "category",
+        "description": "The category under which the recipe will be listed in the crafting menu. Helps to organize and identify recipes in the crafting menu. Currently doesn't support translations (confirmed last 42.15).",
+        "#ref": "craftRecipe/category"
       },
-      "extents": {
-        "name": "extents"
+      "needtobelearn": {
+        "name": "NeedToBeLearn",
+        "description": "Whether the recipe needs to be learned before it can be crafted.",
+        "#ref": "craftRecipe/NeedToBeLearn"
       },
-      "rotate": {
-        "name": "rotate"
+      "onaddtomenu": {
+        "name": "OnAddToMenu"
       },
-      "physicsshapescript": {
-        "name": "physicsShapeScript",
+      "oncreate": {
+        "name": "OnCreate",
+        "description": "The OnCreate parameter allows the referencing of a Lua function that will be called when the crafting recipe is finished. This can be used to add custom behavior to the crafting recipe when it gets finished. The Lua function needs to be a [global function](https://pzwiki.net/wiki/Lua_(language)#Local_and_global), it can also be in a global table. The vanilla game OnCreate's are stored in the [Java](https://pzwiki.net/wiki/Java).\n\nThe function should have the following structure:\n```lua\nfunction MyOnCreateFunction(craftRecipeData, character)\n    -- your custom code here\nend\n```\n\nThe `craftRecipeData` is a [java object](https://demiurgequantified.github.io/ProjectZomboidJavaDocs/zombie/entity/components/crafting/recipe/CraftRecipeData.html) that contains the data of the crafting recipe. The `character` is the player character who is crafting the recipe.",
+        "#ref": "craftRecipe/OnCreate"
+      },
+      "skillrequired": {
+        "name": "SkillRequired",
+        "description": "Specifies the skill level required to perform this crafting action. It should be formated this way:\n```cpp\n/* a single skill */\nskillRequired = <skill name>:<level>,\n\n/* multiple skills */\nskillRequired = <skill1 name>:<level>;<skill2 name>:<level>,\n```\nFor the list of available skills, see [this](https://pzwiki.net/wiki/CraftRecipe#Available_skills).\n\nFor example:\n```cpp\nskillRequired = Blacksmith:3;Tailoring:2,\n```",
+        "#ref": "craftRecipe/SkillRequired"
+      },
+      "tags": {
+        "name": "tags",
+        "description": "Specifies specific conditions which need to be respected to craft this item. At least one crafting bench tag is necessary for the craft to be recognized, such as `AnySurfaceCraft`. The syntax is as follows:\n```cpp\n/* single tag */\nTags = tag1,\n\n/* multiple tags */\nTags = tag1;tag2;...,\n```\n\nFor example:\n```cpp\nTags = InHandCraft;CanAlwaysBeResearched,\n```\n\nA crafting bench tag can be created by adding a [component CraftBench](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/component/component-craftbench.html) to an [entity](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/entity.html) script, which can then be used in this tags parameter.",
+        "required": true,
+        "type": {
+          "main": "array",
+          "array": {
+            "separator": ";",
+            "type": "string"
+          }
+        },
+        "#ref": "craftRecipe/tags"
+      },
+      "time": {
+        "name": "time",
+        "description": "The time it takes to craft the item, not using a specific unit of time.",
+        "default": 50,
+        "#ref": "craftRecipe/time"
+      },
+      "timedaction": {
+        "name": "timedAction",
         "type": {
           "main": "string",
           "block": {
-            "name": "physicsShape",
-            "fullType": true
+            "name": "timedAction"
           }
-        }
+        },
+        "description": "Refers to a timed action script block to trigger during the crafting process, for animations and/or sounds but also the calories burned and body heat generation.",
+        "#ref": "craftRecipe/timedAction"
+      },
+      "tooltip": {
+        "name": "Tooltip",
+        "description": "Description of the crafting which is shown in the crafting menu.",
+        "#ref": "craftRecipe/Tooltip"
+      },
+      "xpaward": {
+        "name": "xpAward",
+        "description": "Specifies the experience points awarded for crafting this item. The parameter should be formated this way:\n```cpp\n/* a single skill */\nxpAward = <skill name>:<xp amount>,\n\n/* multiple skills */\nxpAward = <skill1 name>:<xp amount>;<skill2 name>:<xp amount>,format\n```\nFor the list of available skills, see [this](https://pzwiki.net/wiki/CraftRecipe#Available_skills).\n\nFor example:\n```cpp\nxpAward = Blacksmith:10;Tailoring:5,\n```",
+        "#ref": "craftRecipe/xpAward"
       }
     }
   },
-  "switchSeat": {
-    "name": "switchSeat",
+  "position": {
+    "name": "position",
     "description": "",
     "shouldHaveParent": true,
     "parents": [
@@ -6202,16 +7028,35 @@
     ],
     "ID": {},
     "parameters": {
-      "anim": {
-        "name": "anim"
+      "offset": {
+        "name": "offset"
       },
-      "rate": {
-        "name": "rate"
+      "rotate": {
+        "name": "rotate"
       },
-      "sound": {
-        "name": "sound"
+      "area": {
+        "name": "area"
       }
     }
+  },
+  "lua": {
+    "name": "lua",
+    "description": "",
+    "shouldHaveParent": true,
+    "parents": [
+      "part"
+    ],
+    "parameters": {}
+  },
+  "imports": {
+    "name": "imports",
+    "description": "By importing a module, you give your scripts direct access to the elements from these modules, and you can use item IDs directly without the module prefix (for example, you can use `ThatModItem` instead of `ThisMod.ThatModItem`). The `Base` module is by default already parsed, so you don't need to import it. It is overall suggested to not import modules and instead directly reference the IDs with their module.",
+    "shouldHaveParent": true,
+    "parents": [
+      "module",
+      "xuiSkin"
+    ],
+    "parameters": {}
   },
   "component FluidContainer": {
     "name": "component FluidContainer",
@@ -6334,640 +7179,6 @@
         },
         "default": false,
         "description": "When set to true, the container will fill with clean water instead of tainted water when left outside in the rain."
-      }
-    }
-  },
-  "door": {
-    "name": "door",
-    "description": "",
-    "shouldHaveParent": true,
-    "parents": [
-      "part"
-    ],
-    "ID": {
-      "optional": [
-        "part"
-      ]
-    },
-    "parameters": {}
-  },
-  "group": {
-    "name": "group",
-    "description": "",
-    "shouldHaveParent": true,
-    "parents": [
-      "component Resources"
-    ],
-    "ID": {
-      "values": [
-        "craft_inputs",
-        "craft_outputs"
-      ]
-    },
-    "parameters": {}
-  },
-  "passenger": {
-    "name": "passenger",
-    "description": "Defines a passenger position in a vehicle script.",
-    "shouldHaveParent": true,
-    "parents": [
-      "vehicle"
-    ],
-    "ID": {},
-    "parameters": {
-      "door": {
-        "name": "door"
-      },
-      "area": {
-        "name": "area"
-      }
-    }
-  },
-  "area": {
-    "name": "area",
-    "description": "",
-    "shouldHaveParent": true,
-    "parents": [
-      "template",
-      "vehicle"
-    ],
-    "ID": {},
-    "parameters": {
-      "xywh": {
-        "name": "xywh"
-      }
-    }
-  },
-  "skin": {
-    "name": "skin",
-    "description": "",
-    "shouldHaveParent": true,
-    "parents": [
-      "template",
-      "vehicle"
-    ],
-    "parameters": {
-      "texture": {
-        "name": "texture"
-      }
-    }
-  },
-  "component UiConfig": {
-    "name": "component UiConfig",
-    "description": "",
-    "shouldHaveParent": true,
-    "isVariant": "component",
-    "parents": [
-      "entity"
-    ],
-    "parameters": {
-      "xuiskin": {
-        "name": "xuiSkin"
-      },
-      "entitystyle": {
-        "name": "entityStyle"
-      },
-      "uienabled": {
-        "name": "uiEnabled"
-      }
-    }
-  },
-  "component CraftBenchSounds": {
-    "name": "component CraftBenchSounds",
-    "description": "",
-    "shouldHaveParent": true,
-    "isVariant": "component",
-    "parents": [
-      "entity"
-    ],
-    "parameters": {
-      "addfuel": {
-        "name": "AddFuel"
-      },
-      "lightfire": {
-        "name": "LightFire"
-      },
-      "running": {
-        "name": "Running"
-      },
-      "addinput": {
-        "name": "AddInput"
-      },
-      "removeinput": {
-        "name": "RemoveInput"
-      },
-      "startcraft": {
-        "name": "StartCraft"
-      }
-    }
-  },
-  "itemMapper": {
-    "name": "itemMapper",
-    "description": "",
-    "shouldHaveParent": true,
-    "parents": [
-      "craftRecipe"
-    ],
-    "ID": {},
-    "softOverride": true,
-    "parameters": {}
-  },
-  "ROOT-Blends": {
-    "name": "ROOT-Blends",
-    "description": "The `Blends.txt` file is used in the [mapping tools](https://pzwiki.net/wiki/Mapping#Mapping_tools) to assign blend tiles around the tiles you paint.",
-    "shouldHaveParent": false,
-    "parents": [],
-    "isRoot": true,
-    "noComma": true,
-    "pattern": [
-      "Blends\\.txt$"
-    ],
-    "parameters": {
-      "name": {
-        "name": "name"
-      }
-    }
-  },
-  "window": {
-    "name": "window",
-    "description": "",
-    "shouldHaveParent": true,
-    "parents": [
-      "part"
-    ],
-    "parameters": {
-      "openable": {
-        "name": "openable",
-        "type": {
-          "main": "boolean"
-        }
-      }
-    }
-  },
-  "CopyFrames": {
-    "name": "CopyFrames",
-    "description": "It is unknown what this block does.",
-    "shouldHaveParent": true,
-    "parents": [
-      "animation"
-    ],
-    "parameters": {
-      "frame": {
-        "name": "frame"
-      },
-      "source": {
-        "name": "source"
-      },
-      "sourceframe1": {
-        "name": "sourceFrame1"
-      },
-      "sourceframe2": {
-        "name": "sourceFrame2"
-      }
-    }
-  },
-  "model": {
-    "name": "model",
-    "description": "Defines a 3D model properties.",
-    "shouldHaveParent": true,
-    "parents": [
-      "module",
-      "vehicle",
-      "part"
-    ],
-    "ID": {
-      "parentsWithout": [
-        "vehicle"
-      ],
-      "optional": [
-        "part"
-      ]
-    },
-    "parameters": {
-      "animationsmesh": {
-        "name": "animationsMesh"
-      },
-      "boneweight": {
-        "name": "boneWeight"
-      },
-      "colorblue": {
-        "name": "ColorBlue"
-      },
-      "colorgreen": {
-        "name": "ColorGreen"
-      },
-      "colorred": {
-        "name": "ColorRed"
-      },
-      "cullface": {
-        "name": "cullFace"
-      },
-      "file": {
-        "name": "file"
-      },
-      "invertx": {
-        "name": "invertX"
-      },
-      "mesh": {
-        "name": "mesh"
-      },
-      "offset": {
-        "name": "offset"
-      },
-      "postprocess": {
-        "name": "postProcess"
-      },
-      "scale": {
-        "name": "scale",
-        "description": "Used to scale the model up or down.",
-        "type": {
-          "main": "float"
-        }
-      },
-      "shader": {
-        "name": "shader"
-      },
-      "specialkeyring": {
-        "name": "specialKeyRing"
-      },
-      "static": {
-        "name": "static"
-      },
-      "texture": {
-        "name": "texture"
-      },
-      "undocorescale": {
-        "name": "undoCoreScale"
-      },
-      "attachmentparent": {
-        "name": "attachmentParent"
-      },
-      "attachmentself": {
-        "name": "attachmentSelf"
-      },
-      "ignorevehiclescale": {
-        "name": "ignoreVehicleScale"
-      },
-      "rotate": {
-        "name": "rotate"
-      }
-    }
-  },
-  "wheel": {
-    "name": "wheel",
-    "description": "Defines the wheels of a vehicle. While the ID can technically be anything, only the IDs 'FrontLeft', 'FrontRight', 'RearLeft', and 'RearRight' are recognized by the game and will function properly.",
-    "shouldHaveParent": true,
-    "parents": [
-      "template",
-      "vehicle"
-    ],
-    "ID": {},
-    "parameters": {
-      "radius": {
-        "name": "radius"
-      },
-      "offset": {
-        "name": "offset"
-      },
-      "front": {
-        "name": "front"
-      },
-      "width": {
-        "name": "width"
-      }
-    }
-  },
-  "outputs": {
-    "name": "outputs",
-    "description": "The `outputs` block defines the items that will be created when the recipe is finished. Outputs are listed one after the other and follow the format below:\n```cpp\noutputs\n{\n\n    /* simple item output */\n    item quantity item,\n\n    /* using mappers */\n    item quantity mapper:mapperID,\n\n    ...\n}\n```\n\nFor example:\n```cpp\noutputs\n{\n    item 1 Base.Tissue,\n    item 1 Base.ScratchTicket,\n}\n```",
-    "shouldHaveParent": true,
-    "softOverride": false,
-    "parents": [
-      "craftRecipe"
-    ],
-    "parameters": {}
-  },
-  "physicsHitReaction": {
-    "name": "physicsHitReaction",
-    "description": "Defines the physics reaction a bullet or bomb imposes to objects.",
-    "shouldHaveParent": true,
-    "parents": [
-      "module"
-    ],
-    "ID": {},
-    "parameters": {}
-  },
-  "Fluids": {
-    "name": "Fluids",
-    "description": "Used to make a list of fluids to appear in a [FluidContainer component](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/component/component_fluidcontainer.html).",
-    "shouldHaveParent": true,
-    "parents": [
-      "component FluidContainer"
-    ],
-    "parameters": {
-      "fluid": {
-        "name": "fluid",
-        "allowedDuplicate": true,
-        "description": "Refers to a fluid script"
-      }
-    }
-  },
-  "sound": {
-    "name": "sound",
-    "description": "Makes one or more sound clips available for use in the game. Multiple clips can be added to a sound script, and the game will randomly select one of them to play when the sound is triggered.\n\n```cpp\nmodule yourModule {\n  sound yourSound {\n    category = Animal,\n    loop = true,\n    is3D = true,\n    clip {\n      file = media/sound/RideOfTheValkyries.ogg,\n      distanceMin = 20,\n      distanceMax = 650,\n      reverbFactor = 0.1,\n      volume = 0.7,\n    }\n  }\n}\n```",
-    "shouldHaveParent": true,
-    "parents": [
-      "module",
-      "vehicle",
-      "template"
-    ],
-    "ID": {
-      "parentsWithout": [
-        "vehicle",
-        "template"
-      ]
-    },
-    "parameters": {
-      "alarm": {
-        "name": "alarm",
-        "needs": [
-          {
-            "parents": [
-              "vehicle",
-              "template"
-            ]
-          }
-        ],
-        "type": {
-          "main": "array",
-          "array": {
-            "separator": " ",
-            "type": "string"
-          }
-        }
-      },
-      "alarmloop": {
-        "name": "alarmLoop",
-        "needs": [
-          {
-            "parents": [
-              "vehicle",
-              "template"
-            ]
-          }
-        ]
-      },
-      "backsignal": {
-        "name": "backSignal",
-        "needs": [
-          {
-            "parents": [
-              "vehicle",
-              "template"
-            ]
-          }
-        ],
-        "type": {
-          "main": "string"
-        }
-      },
-      "category": {
-        "name": "category",
-        "type": {
-          "main": "string"
-        }
-      },
-      "engine": {
-        "name": "engine",
-        "needs": [
-          {
-            "parents": [
-              "vehicle",
-              "template"
-            ]
-          }
-        ],
-        "type": {
-          "main": "string"
-        }
-      },
-      "enginestart": {
-        "name": "engineStart",
-        "needs": [
-          {
-            "parents": [
-              "vehicle",
-              "template"
-            ]
-          }
-        ],
-        "type": {
-          "main": "string"
-        }
-      },
-      "engineturnoff": {
-        "name": "engineTurnOff",
-        "needs": [
-          {
-            "parents": [
-              "vehicle",
-              "template"
-            ]
-          }
-        ],
-        "type": {
-          "main": "string"
-        }
-      },
-      "handbrake": {
-        "name": "handBrake",
-        "needs": [
-          {
-            "parents": [
-              "vehicle",
-              "template"
-            ]
-          }
-        ],
-        "type": {
-          "main": "string"
-        }
-      },
-      "horn": {
-        "name": "horn",
-        "needs": [
-          {
-            "parents": [
-              "vehicle",
-              "template"
-            ]
-          }
-        ],
-        "type": {
-          "main": "string"
-        }
-      },
-      "ignitionfail": {
-        "name": "ignitionFail",
-        "needs": [
-          {
-            "parents": [
-              "vehicle",
-              "template"
-            ]
-          }
-        ]
-      },
-      "ignitionfailnopower": {
-        "name": "ignitionFailNoPower",
-        "needs": [
-          {
-            "parents": [
-              "vehicle",
-              "template"
-            ]
-          }
-        ],
-        "type": {
-          "main": "string"
-        }
-      },
-      "is3d": {
-        "name": "is3D",
-        "type": {
-          "main": "boolean"
-        },
-        "description": "This parameter looks unused.",
-        "isUseless": true
-      },
-      "loop": {
-        "name": "loop",
-        "description": "Whether the sound should loop or not. The sound plays until turned off or the emitter is destroyed.",
-        "type": {
-          "main": "boolean"
-        }
-      },
-      "master": {
-        "name": "master",
-        "type": {
-          "main": "string"
-        },
-        "description": "Links the sound to a master sound category, which controls the volume of all sounds linked to it.",
-        "values": [
-          "Primary",
-          "Ambient",
-          "Music",
-          "VehicleEngine"
-        ]
-      },
-      "maxinstancesperemitter": {
-        "name": "maxInstancesPerEmitter",
-        "type": {
-          "main": "integer"
-        }
-      }
-    }
-  },
-  "component CraftBench": {
-    "name": "component CraftBench",
-    "description": "Used to add a crafting bench property to an [entity](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/entity.html) script, which can then be used in the [tags](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/craftrecipe.html#tags) parameter of a [craftRecipe](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/craftrecipe.html) script to create a crafting bench tag.",
-    "shouldHaveParent": true,
-    "isVariant": "component",
-    "parents": [
-      "entity"
-    ],
-    "parameters": {
-      "recipes": {
-        "name": "Recipes",
-        "description": "The tag name for this crafting bench to be used in the [tags](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/craftrecipe.html#tags) parameter of a [craftRecipe](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/craftrecipe.html) script.",
-        "type": {
-          "main": "array",
-          "array": {
-            "type": "string",
-            "separator": ";"
-          }
-        }
-      }
-    }
-  },
-  "ROOT-SandboxOptions": {
-    "name": "ROOT-SandboxOptions",
-    "description": "The root of a script file. Blocks than need to be in the root of the document should have this as parent.",
-    "shouldHaveParent": false,
-    "parents": [],
-    "isRoot": true,
-    "pattern": [
-      "media\\/sandbox-options\\.txt$"
-    ],
-    "parameters": {
-      "version": {
-        "name": "VERSION",
-        "description": "The version of the handler of the sandbox options. Keep this equal to 1.",
-        "required": true
-      }
-    }
-  },
-  "ROOT-Default": {
-    "name": "ROOT-Default",
-    "description": "The default.txt file is used to select the mods and maps that will be loaded by the game.",
-    "shouldHaveParent": false,
-    "parents": [],
-    "needsChildren": [
-      "mods",
-      "maps"
-    ],
-    "isRoot": true,
-    "pattern": [
-      "mods/default\\.txt$"
-    ],
-    "parameters": {
-      "version": {
-        "name": "VERSION",
-        "type": {
-          "main": "integer"
-        },
-        "description": "The version of the default.txt file. Keep it at 1."
-      }
-    }
-  },
-  "component SpriteConfig": {
-    "name": "component SpriteConfig",
-    "description": "",
-    "shouldHaveParent": true,
-    "isVariant": "component",
-    "parents": [
-      "entity"
-    ],
-    "needsChildren": [
-      "face"
-    ],
-    "parameters": {
-      "isthumpable": {
-        "name": "isThumpable"
-      },
-      "oncreate": {
-        "name": "OnCreate"
-      },
-      "isprop": {
-        "name": "isProp"
-      },
-      "onisvalid": {
-        "name": "OnIsValid"
-      },
-      "timedactiononisvalid": {
-        "name": "TimedActionOnIsValid"
-      },
-      "health": {
-        "name": "health",
-        "type": {
-          "main": "integer"
-        }
-      },
-      "skillbasehealth": {
-        "name": "skillBaseHealth",
-        "type": {
-          "main": "integer"
-        }
       }
     }
   }

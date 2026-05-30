@@ -36,6 +36,7 @@ export async function activate(context: vscode.ExtensionContext) {
     
     watcher.onDidDelete((uri) => {
         itemCache.clearForFile(uri.fsPath);
+        DocumentBlock.clearCacheForUri(uri);
         console.debug(`Invalidated cache for : ${uri.fsPath}`);
     });
     

@@ -960,6 +960,10 @@ export class DocumentBlock extends ScriptBlock {
         DocumentBlock.documentBlockCache.clear();
     }
 
+    public static clearCacheForUri(uri: vscode.Uri): void {
+        DocumentBlock.documentBlockCache.delete(uri.toString());
+    }
+
 
 // ACTIONS
 
