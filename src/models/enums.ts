@@ -88,8 +88,8 @@ export enum DiagnosticType {
 
     NO_BLOCK_REF = "No block reference found in value '{value}' for parameter '{parameter}'. Something might be wrong with the value or the parameter data definition.",
     CANNOT_PROVIDE_MODULE = "Referencing a block cannot be done with the full type ('module.block') for '{parameter}'. Make sure the value only contains the ID of the block to reference. This usually means the game defaults to a 'Base' module.",
-    INVALID_BLOCK_REF = "The block reference '{value}' for parameter '{parameter}' does not match any existing block. Make sure the referenced block exists and is correctly spelled ('module.id').",
-    MULTIPLE_BLOCK_REFS = "Multiple block references found for '{value}' for parameter '{parameter}'. Make sure duplicate block references ('module.id') are not present.",
+    INVALID_BLOCK_REF = "The block reference '{value}' for parameter '{parameter}' does not match any existing block. Make sure the referenced block exists.",
+    MULTIPLE_BLOCK_REFS = "Multiple block references found for '{value}' for parameter '{parameter}'. Make sure duplicate block references are not present.",
 
     // craftRecipe related diagnostics
     INVALID_AMOUNT = "'{amount}' is not a valid amount for '{type}'.",
