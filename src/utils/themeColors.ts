@@ -8,7 +8,7 @@ const TokenColorsCache = new Map<string, (token: string) => any>();
 * Retrieves token colors for a given theme.
 * https://github.com/microsoft/vscode/issues/32813#issuecomment-3236474810
 */
-export function getTokenColorsForTheme(themeName: string): (token: string) => any {
+function getTokenColorsForTheme(themeName: string): (token: string) => any {
     if (TokenColorsCache.has(themeName)) {
         return TokenColorsCache.get(themeName)!;
     }
@@ -67,7 +67,7 @@ export function getTokenColorsForTheme(themeName: string): (token: string) => an
     return tktColor;
 }
 
-export function getThemeColors(): any {
+function getThemeColors(): any {
     // retrieve the current theme name and colors
     const themeName = workspace.getConfiguration("workbench").get("colorTheme");
     const tokenColors = getTokenColorsForTheme(themeName as string);

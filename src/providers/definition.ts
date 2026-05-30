@@ -33,7 +33,7 @@ export async function provideDefinition(
         // return the location to the ref if any
         if (param.ref) {
             const loc: vscode.Location[] = [];
-            for (const refBlock of param.ref) {
+            for (const refBlock of param.ref.blocks) {
                 loc.push(refBlock.getDefinitionLocation());
             }
             return loc;

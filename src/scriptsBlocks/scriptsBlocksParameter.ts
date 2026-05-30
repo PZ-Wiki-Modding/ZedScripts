@@ -21,6 +21,11 @@ import { getScriptBlockData, getMainVariant } from "./scriptsBlocksUtility";
 import { color } from "../utils/themeColors";
 import { IndexRange } from '../utils/positions'; 
 
+export interface ReferenceData {
+    blocks: ScriptBlock[];
+    expectedBlock: string;
+}
+
 export class ScriptParameter {
 // MEMBERS
     // extra
@@ -34,7 +39,7 @@ export class ScriptParameter {
     value: string;
     comma: string;
     isDuplicate: boolean;
-    ref: ScriptBlock[] | undefined = undefined;
+    ref: ReferenceData | undefined = undefined;
 
     // positions
     parameterRange: IndexRange;
@@ -736,9 +741,12 @@ export class ScriptParameter {
                 );
                 // return false;
             }
-            
+
             // assign the reference to the parameter for later use in hovers and go to definition
-            this.ref = refBlocks;
+            this.ref = {
+                blocks: refBlocks,
+                expectedBlock: expectedBlock
+            };
         }
 
         // validate dependent parameters based on 'needs' property

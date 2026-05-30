@@ -10,8 +10,29 @@ import { loadEnvironment } from "./providers/libraries";
 import { fetchData } from "./utils/fetchData";
 import { DefaultText, LANG_ZEDSCRIPTS } from "./models/enums";
 import { DocumentBlock } from "./scriptsBlocks/scriptsBlocks";
+import { createReferenceDecoration } from './models/decorations';
 
 let debounceTimer: NodeJS.Timeout | undefined;
+
+function loadDecorations(document: vscode.TextDocument) {
+    const editor = vscode.window.activeTextEditor;
+
+    if (!editor || editor.document !== document) {
+        return;
+    }
+
+    const documentBlock = DocumentBlock.getDocumentBlock(document);
+    if (documentBlock) {
+        const references: Map<string, vscode.Range[]> = new Map();
+        documentBlock.collectReferences(references);
+
+        // for each references, create a decoration
+        for (const [refType, ranges] of references) {
+            const decoration = createReferenceDecoration(refType);
+            editor.setDecorations(decoration, ranges);
+        }
+    };
+}
 
 export async function activate(context: vscode.ExtensionContext) {
     console.debug('Activating extension "pz-syntax-extension"...');
@@ -28,6 +49,7 @@ export async function activate(context: vscode.ExtensionContext) {
             vscode.window.activeTextEditor.document,
             DIAGNOSTIC_PROVIDER
         );
+        loadDecorations(vscode.window.activeTextEditor.document);
     }
 
     const watcher = vscode.workspace.createFileSystemWatcher("**/*.txt");
@@ -105,6 +127,7 @@ export async function activate(context: vscode.ExtensionContext) {
         // diagnostics
         vscode.workspace.onDidOpenTextDocument((document) => {
             diagnosticNonLibrary(document, DIAGNOSTIC_PROVIDER);
+            loadDecorations(document);
         }),
         vscode.workspace.onDidChangeTextDocument((event) => {
             // debounce to avoid too many diagnostics on fast typing
@@ -113,6 +136,7 @@ export async function activate(context: vscode.ExtensionContext) {
             }
             debounceTimer = setTimeout(() => {
                 diagnosticNonLibrary(event.document, DIAGNOSTIC_PROVIDER);
+                loadDecorations(event.document);
             }, 500);
         }),
 

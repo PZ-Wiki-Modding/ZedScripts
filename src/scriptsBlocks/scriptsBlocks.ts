@@ -16,7 +16,6 @@ import { getScriptBlockData, getVariantTree, getMainVariant, isScriptBlock } fro
 import { IndexRange, createIndexRange, replaceCommentsWithWhitespace } from '../utils/positions';
 import { ScriptParameter } from './scriptsBlocksParameter';
 import { InputsItemParameter, InputsFluidParameter, InputsParameter } from './scriptsBlocksProperties';
-import Module from 'node:module';
 
 /**
  * Represents a script block in a PZ script file. Handles nested blocks and diagnostics.
@@ -252,6 +251,32 @@ export class ScriptBlock {
         return shouldHaveIDfromParent;
     }
     
+
+    public collectReferences(refs: Map<string, vscode.Range[]>): void {
+        // collect references from parameters
+        for (const param of this.parameters) {
+            if (param.ref) {
+                // get position
+                const valueRange = param.valueRange;
+                const startPos = this.document.positionAt(valueRange.start);
+                const endPos = this.document.positionAt(valueRange.end);
+
+                const expectedBlock = param.ref.expectedBlock;
+
+                if (!refs.has(expectedBlock)) {
+                    refs.set(expectedBlock, []);
+                }
+
+                refs.get(expectedBlock)!.push(new vscode.Range(startPos, endPos));
+            }
+        }
+
+        // collect references from children blocks
+        for (const child of this.children) {
+            child.collectReferences(refs);
+        }
+    }
+
 
 // SEARCHERS
 
