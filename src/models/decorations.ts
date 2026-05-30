@@ -13,12 +13,12 @@ export function createReferenceDecoration(refBlock: string): vscode.TextEditorDe
 
     const decoration = vscode.window.createTextEditorDecorationType({
         color: getColor(ThemeColorType.FULLTYPE),
-        before: {
-            contentText: refBlock + ':',
-            color: 'rgba(150, 150, 150, 0.8)',
-            backgroundColor: 'rgba(100, 100, 100, 0.15)',
-            margin: '0 4px 0 0',
-        }
+        // before: {
+        //     contentText: refBlock + ':',
+        //     color: 'rgba(150, 150, 150, 0.8)',
+        //     backgroundColor: 'rgba(100, 100, 100, 0.15)',
+        //     margin: '0 4px 0 0',
+        // },
     });
 
     cachedDecorations.set(refBlock, decoration);
