@@ -111,7 +111,7 @@ With each update, the extension fetches the latest data from the pz-scripts-data
 1.10.7:
 - added export of script blocks to JSON file with the command "ZedScripts: Export to JSON" in the Command Palette (Ctrl + Shift + P) [EXPERIMENTAL, LIKELY TO BE CHANGED]
 - fixed a major issue that made the parser fail and stop ZedScripts working for some files with specific content
-- tweak syntax highlighting, not block references are all highlighted with the same color
+- tweak syntax highlighting, now block references are all highlighted with the same color
 - improved performances by adding a delay before making diagnostics
 - remove newly deleted files from the cached data to avoid issues with missing/duplicate refs
 
