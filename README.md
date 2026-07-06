@@ -108,6 +108,9 @@ This project is licensed under the MIT License. See the LICENSE file for details
 ## Changelog
 With each update, the extension fetches the latest data from the pz-scripts-data repository and make a local copy of it. If you're having issues, it might be because of outdated data, so make sure to fetch the latest data.
 
+1.10.8:
+- update dataset
+
 1.10.7:
 - added export of script blocks to JSON file with the command "ZedScripts: Export to JSON" in the Command Palette (Ctrl + Shift + P) [EXPERIMENTAL, LIKELY TO BE CHANGED]
 - fixed a major issue that made the parser fail and stop ZedScripts working for some files with specific content
