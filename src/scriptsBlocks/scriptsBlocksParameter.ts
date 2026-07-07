@@ -303,6 +303,14 @@ export class ScriptParameter {
                 type = VALUE_TYPES.INT;
             }
 
+        // check if block: consider as type block directly
+        } else if (expectedType === VALUE_TYPES.BLOCK) {
+            type = VALUE_TYPES.BLOCK;
+
+        // check if callback: consider as type callback directly
+        } else if (expectedType === VALUE_TYPES.CALLBACK) {
+            type = VALUE_TYPES.CALLBACK;
+
         // default to string
         } else {
             type = VALUE_TYPES.STRING;

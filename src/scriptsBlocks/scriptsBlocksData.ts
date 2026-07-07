@@ -12,6 +12,8 @@ export enum VALUE_TYPES {
     BOOLEAN = "boolean",
     ARRAY = "array",
     OBJECT = "object",
+    BLOCK = "block",
+    CALLBACK = "callback",
 }
 
 

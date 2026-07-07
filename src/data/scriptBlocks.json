@@ -6388,7 +6388,7 @@
     "description": "Used to define tileset properties.",
     "shouldHaveParent": true,
     "parents": [
-      "ROOT-Scripts"
+      "ROOT-SpriteModels"
     ],
     "parameters": {
       "version": {
@@ -6870,8 +6870,7 @@
     ],
     "parameters": {},
     "children": [
-      "module",
-      "spriteModel"
+      "module"
     ]
   },
   "polygon": {
@@ -8351,12 +8350,9 @@
       },
       "template": {
         "name": "Template",
-        "description": "Whenever an item uses this recipe via the [EvolvedRecipe](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/item.html#item-evolvedrecipe) parameter, and links to the recipe of the `Template`, that ingredient will be added to both the template and this evolved recipe. This allows you to make variants of the same evolved recipe with different containers, for example for beverages, where the same recipe can be used for a cup, a bottle or a jar.\n\nIt will not copy the parameters of the template recipe however, only the ingredients.",
+        "description": "Whenever an [item](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/item.html) uses this recipe via the [EvolvedRecipe](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/item.html#item-evolvedrecipe) parameter, and links to the recipe of the `Template`, that ingredient will be added to both every evolved recipe with this template value. This allows you to make variants of the same evolved recipe with different containers, for example for beverages, where the same recipe can be used for a cup, a bottle or a jar.",
         "type": {
-          "main": "block",
-          "block": {
-            "name": "evolvedrecipe"
-          }
+          "main": "string"
         }
       }
     }
@@ -8370,7 +8366,10 @@
     "pattern": [
       "media\\/spriteModels\\.txt$"
     ],
-    "parameters": {}
+    "parameters": {},
+    "children": [
+      "spriteModel"
+    ]
   },
   "contextEntry": {
     "name": "contextEntry",
