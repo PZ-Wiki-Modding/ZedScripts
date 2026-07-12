@@ -901,7 +901,7 @@
     },
     "children": [
       "box",
-      "properties",
+      "Properties",
       "polygon",
       "cylinder"
     ]
@@ -2104,7 +2104,8 @@
         "type": {
           "main": "block",
           "block": {
-            "name": "craftRecipe"
+            "name": "craftRecipe",
+            "fullType": true
           }
         }
       },
@@ -4781,7 +4782,7 @@
       },
       "weight": {
         "name": "Weight",
-        "description": "[Weight](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/item.html#item-weight) sets the weight of the item, or more commonly refered to as a [encumbrance](https://pzwiki.net/wiki/Heavy_load). [Weapon parts](https://demiurgequantified.github.io/ProjectZomboidJavaDocs/zombie/inventory/types/WeaponPart.html) will impact the weight of the weapon when attached. Will also impact stamina drain when [UseEndurance](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/item.html#item-useendurance) is `true`.\n\n[WeightEmpty](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/item.html#item-weightempty) is used to set the weight of a drainable when it is empty.\n\n[WeightWet](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/item.html#item-weightwet) is used to set the weight of a clothing item when it is wet. The weight of the clothing item will be interpolated between `Weight` and `WeightWet` based on the [wetness](https://demiurgequantified.github.io/ProjectZomboidJavaDocs/zombie/inventory/InventoryItem.html#getWetness()) of the clothing item.",
+        "description": "[Weight](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/item.html#item-weight) sets the weight of the item, or more commonly refered to as a [encumbrance](https://pzwiki.net/wiki/Heavy_load). [Weapon parts](https://demiurgequantified.github.io/ProjectZomboidJavaDocs/zombie/inventory/types/WeaponPart.html) will impact the weight of the weapon when attached. Will also impact stamina drain when [UseEndurance](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/item.html#item-useendurance) is `true`. You need to make sure to add a [translation](https://pzwiki.net/wiki/Item_(scripts)#Display_name) to the item or the weight will not work in-game.\n\n[WeightEmpty](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/item.html#item-weightempty) is used to set the weight of a drainable when it is empty.\n\n[WeightWet](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/item.html#item-weightwet) is used to set the weight of a clothing item when it is wet. The weight of the clothing item will be interpolated between `Weight` and `WeightWet` based on the [wetness](https://demiurgequantified.github.io/ProjectZomboidJavaDocs/zombie/inventory/InventoryItem.html#getWetness()) of the clothing item.",
         "type": {
           "main": "float"
         },
@@ -4791,12 +4792,12 @@
       "weightempty": {
         "name": "WeightEmpty",
         "#desc": "item/Weight",
-        "description": "[Weight](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/item.html#item-weight) sets the weight of the item, or more commonly refered to as a [encumbrance](https://pzwiki.net/wiki/Heavy_load). [Weapon parts](https://demiurgequantified.github.io/ProjectZomboidJavaDocs/zombie/inventory/types/WeaponPart.html) will impact the weight of the weapon when attached. Will also impact stamina drain when [UseEndurance](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/item.html#item-useendurance) is `true`.\n\n[WeightEmpty](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/item.html#item-weightempty) is used to set the weight of a drainable when it is empty.\n\n[WeightWet](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/item.html#item-weightwet) is used to set the weight of a clothing item when it is wet. The weight of the clothing item will be interpolated between `Weight` and `WeightWet` based on the [wetness](https://demiurgequantified.github.io/ProjectZomboidJavaDocs/zombie/inventory/InventoryItem.html#getWetness()) of the clothing item."
+        "description": "[Weight](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/item.html#item-weight) sets the weight of the item, or more commonly refered to as a [encumbrance](https://pzwiki.net/wiki/Heavy_load). [Weapon parts](https://demiurgequantified.github.io/ProjectZomboidJavaDocs/zombie/inventory/types/WeaponPart.html) will impact the weight of the weapon when attached. Will also impact stamina drain when [UseEndurance](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/item.html#item-useendurance) is `true`. You need to make sure to add a [translation](https://pzwiki.net/wiki/Item_(scripts)#Display_name) to the item or the weight will not work in-game.\n\n[WeightEmpty](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/item.html#item-weightempty) is used to set the weight of a drainable when it is empty.\n\n[WeightWet](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/item.html#item-weightwet) is used to set the weight of a clothing item when it is wet. The weight of the clothing item will be interpolated between `Weight` and `WeightWet` based on the [wetness](https://demiurgequantified.github.io/ProjectZomboidJavaDocs/zombie/inventory/InventoryItem.html#getWetness()) of the clothing item."
       },
       "weightwet": {
         "name": "WeightWet",
         "#desc": "item/Weight",
-        "description": "[Weight](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/item.html#item-weight) sets the weight of the item, or more commonly refered to as a [encumbrance](https://pzwiki.net/wiki/Heavy_load). [Weapon parts](https://demiurgequantified.github.io/ProjectZomboidJavaDocs/zombie/inventory/types/WeaponPart.html) will impact the weight of the weapon when attached. Will also impact stamina drain when [UseEndurance](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/item.html#item-useendurance) is `true`.\n\n[WeightEmpty](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/item.html#item-weightempty) is used to set the weight of a drainable when it is empty.\n\n[WeightWet](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/item.html#item-weightwet) is used to set the weight of a clothing item when it is wet. The weight of the clothing item will be interpolated between `Weight` and `WeightWet` based on the [wetness](https://demiurgequantified.github.io/ProjectZomboidJavaDocs/zombie/inventory/InventoryItem.html#getWetness()) of the clothing item."
+        "description": "[Weight](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/item.html#item-weight) sets the weight of the item, or more commonly refered to as a [encumbrance](https://pzwiki.net/wiki/Heavy_load). [Weapon parts](https://demiurgequantified.github.io/ProjectZomboidJavaDocs/zombie/inventory/types/WeaponPart.html) will impact the weight of the weapon when attached. Will also impact stamina drain when [UseEndurance](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/item.html#item-useendurance) is `true`. You need to make sure to add a [translation](https://pzwiki.net/wiki/Item_(scripts)#Display_name) to the item or the weight will not work in-game.\n\n[WeightEmpty](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/item.html#item-weightempty) is used to set the weight of a drainable when it is empty.\n\n[WeightWet](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/item.html#item-weightwet) is used to set the weight of a clothing item when it is wet. The weight of the clothing item will be interpolated between `Weight` and `WeightWet` based on the [wetness](https://demiurgequantified.github.io/ProjectZomboidJavaDocs/zombie/inventory/InventoryItem.html#getWetness()) of the clothing item."
       },
       "weightmodifier": {
         "name": "WeightModifier",
@@ -6434,10 +6435,11 @@
   },
   "Properties": {
     "name": "Properties",
-    "description": "Define stat changes applied to the player drinking this [fluid](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/fluid.html).",
+    "description": "Define stat changes applied to the player drinking this [fluid](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/fluid.html) or properties for a [tile](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/tile.html).",
     "shouldHaveParent": true,
     "parents": [
-      "fluid"
+      "fluid",
+      "tile"
     ],
     "parameters": {
       "thirstchange": {
@@ -6445,96 +6447,194 @@
         "type": {
           "main": "float"
         },
-        "description": "The amount of thirst this fluid changes when consumed. Positive values increase thirst, negative values decrease it."
+        "description": "The amount of thirst this fluid changes when consumed. Positive values increase thirst, negative values decrease it.",
+        "needs": [
+          {
+            "parents": [
+              "fluid"
+            ]
+          }
+        ]
       },
       "alcohol": {
         "name": "alcohol",
         "type": {
           "main": "float"
-        }
+        },
+        "needs": [
+          {
+            "parents": [
+              "fluid"
+            ]
+          }
+        ]
       },
       "hungerchange": {
         "name": "HungerChange",
         "type": {
           "main": "float"
         },
-        "description": "The amount of hunger this fluid changes when consumed. Positive values increase hunger, negative values decrease it."
+        "description": "The amount of hunger this fluid changes when consumed. Positive values increase hunger, negative values decrease it.",
+        "needs": [
+          {
+            "parents": [
+              "fluid"
+            ]
+          }
+        ]
       },
       "calories": {
         "name": "Calories",
         "type": {
           "main": "float"
         },
-        "description": "The number of calories this fluid provides when consumed."
+        "description": "The number of calories this fluid provides when consumed.",
+        "needs": [
+          {
+            "parents": [
+              "fluid"
+            ]
+          }
+        ]
       },
       "carbohydrates": {
         "name": "Carbohydrates",
         "type": {
           "main": "float"
         },
-        "description": "The amount of carbohydrates this fluid provides when consumed."
+        "description": "The amount of carbohydrates this fluid provides when consumed.",
+        "needs": [
+          {
+            "parents": [
+              "fluid"
+            ]
+          }
+        ]
       },
       "lipids": {
         "name": "Lipids",
         "type": {
           "main": "float"
         },
-        "description": "The amount of lipids (fats) this fluid provides when consumed."
+        "description": "The amount of lipids (fats) this fluid provides when consumed.",
+        "needs": [
+          {
+            "parents": [
+              "fluid"
+            ]
+          }
+        ]
       },
       "proteins": {
         "name": "Proteins",
         "type": {
           "main": "float"
         },
-        "description": "The amount of proteins this fluid provides when consumed."
+        "description": "The amount of proteins this fluid provides when consumed.",
+        "needs": [
+          {
+            "parents": [
+              "fluid"
+            ]
+          }
+        ]
       },
       "flureduction": {
         "name": "fluReduction",
         "type": {
           "main": "float"
-        }
+        },
+        "needs": [
+          {
+            "parents": [
+              "fluid"
+            ]
+          }
+        ]
       },
       "painreduction": {
         "name": "painReduction",
         "type": {
           "main": "float"
         },
-        "description": "The amount of pain this fluid reduces when consumed."
+        "description": "The amount of pain this fluid reduces when consumed.",
+        "needs": [
+          {
+            "parents": [
+              "fluid"
+            ]
+          }
+        ]
       },
       "endurancechange": {
         "name": "enduranceChange",
         "type": {
           "main": "float"
         },
-        "description": "The amount of endurance given back."
+        "description": "The amount of endurance given back.",
+        "needs": [
+          {
+            "parents": [
+              "fluid"
+            ]
+          }
+        ]
       },
       "foodsicknesschange": {
         "name": "foodSicknessChange",
         "type": {
           "main": "float"
         },
-        "description": "The amount of food sickness provides."
+        "description": "The amount of food sickness provides.",
+        "needs": [
+          {
+            "parents": [
+              "fluid"
+            ]
+          }
+        ]
       },
       "fatiguechange": {
         "name": "fatigueChange",
         "type": {
           "main": "float"
         },
-        "description": "The amount of fatigue this fluid changes when consumed. Positive values increase fatigue, negative values decrease it."
+        "description": "The amount of fatigue this fluid changes when consumed. Positive values increase fatigue, negative values decrease it.",
+        "needs": [
+          {
+            "parents": [
+              "fluid"
+            ]
+          }
+        ]
       },
       "stresschange": {
         "name": "StressChange",
         "type": {
           "main": "float"
         },
-        "description": "The amount of stress this fluid changes when consumed. Positive values increase stress, negative values decrease it."
+        "description": "The amount of stress this fluid changes when consumed. Positive values increase stress, negative values decrease it.",
+        "needs": [
+          {
+            "parents": [
+              "fluid"
+            ]
+          }
+        ]
       },
       "unhappychange": {
         "name": "UnhappyChange",
         "type": {
           "main": "float"
         },
-        "description": "The amount of unhappiness this fluid changes when consumed. Positive values increase unhappiness, negative values decrease it."
+        "description": "The amount of unhappiness this fluid changes when consumed. Positive values increase unhappiness, negative values decrease it.",
+        "needs": [
+          {
+            "parents": [
+              "fluid"
+            ]
+          }
+        ]
       }
     }
   },
@@ -6695,15 +6795,6 @@
     "children": [
       "_COMPONENT_BLOCK"
     ]
-  },
-  "properties": {
-    "name": "properties",
-    "description": "Provide properties for a [tile](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/tile.html).",
-    "shouldHaveParent": true,
-    "parents": [
-      "tile"
-    ],
-    "parameters": {}
   },
   "component Resources": {
     "name": "component Resources",
