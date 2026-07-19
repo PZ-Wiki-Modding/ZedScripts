@@ -1177,3 +1177,4 @@ assignedClasses.set("lua", IgnoreAll);
 assignedClasses.set("itemMapper", IgnoreAll);
 assignedClasses.set("overlayMapper", IgnoreAll);
 assignedClasses.set("components", IgnoreAll);
+assignedClasses.set("xuiSkin", IgnoreAll);
