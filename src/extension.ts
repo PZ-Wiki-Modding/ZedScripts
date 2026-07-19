@@ -116,6 +116,7 @@ export async function activate(context: vscode.ExtensionContext) {
             // console.debug(`Active editor changed: ${editor?.document.fileName}`);
             if (!editor) { return; }
             diagnosticNonLibrary(editor.document, DIAGNOSTIC_PROVIDER);
+            loadDecorations(editor.document);
         }),
 
         // diagnostics

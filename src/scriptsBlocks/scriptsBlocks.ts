@@ -92,7 +92,7 @@ export class ScriptsBlock {
         return new vscode.Location(
             this.document.uri,
             new vscode.Range(
-                this.document.positionAt(this.start),
+                this.document.positionAt(this.headerStart),
                 this.document.positionAt(this.end)
             )
         );
