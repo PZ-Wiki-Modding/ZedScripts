@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { scriptBlockRegex, parameterRegex, inputsOutputsRegex } from '../models/regexPatterns';
+import { scriptBlockRegex, parameterRegex } from '../models/regexPatterns';
 import { 
     DOCUMENT_IDENTIFIER, 
     ThemeColorType, 
@@ -13,14 +13,18 @@ import { diagnostic } from '../providers/diagnostic';
 import { color } from "../utils/themeColors";
 import { ScriptBlockData } from './scriptsBlocksData';
 import { getScriptBlockData, getVariantTree, getMainVariant, isScriptBlock } from './scriptsBlocksUtility';
-import { IndexRange, createIndexRange, replaceCommentsWithWhitespace } from '../utils/positions';
+import { createIndexRange, replaceCommentsWithWhitespace } from '../utils/positions';
 import { ScriptParameter } from './scriptsBlocksParameter';
-import { InputsItemParameter, InputsFluidParameter, InputsParameter } from './scriptsBlocksProperties';
+
+// special implementations
+import { DocumentBlock } from './blockTypes/document';
+
+
 
 /**
  * Represents a script block in a PZ script file. Handles nested blocks and diagnostics.
  */
-export class ScriptBlock {
+export class ScriptsBlock {
 // MEMBERS
     // extra
     document: vscode.TextDocument;
@@ -28,10 +32,10 @@ export class ScriptBlock {
     originalScriptBlock: string | null = null;
     
     // block data
-    parent: ScriptBlock | null = null; // the parent script block, if any
+    parent: ScriptsBlock | null = null; // the parent script block, if any
     scriptBlock: string = ""; // the type of the script block
     id: string | null = null; // the ID of the block, if any
-    children: ScriptBlock[] = []; // children script blocks
+    children: ScriptsBlock[] = []; // children script blocks
     parameters: ScriptParameter[] = []; // parameters of the block
     isTemplate: boolean = false; // whether this block is a template block
     isValid: boolean = true;
@@ -50,7 +54,7 @@ export class ScriptBlock {
     constructor(
         document: vscode.TextDocument,
         diagnostics: vscode.Diagnostic[] | undefined,
-        parent: ScriptBlock | null,
+        parent: ScriptsBlock | null,
         type: string,
         id: string | null,
         start: number,
@@ -287,8 +291,8 @@ export class ScriptBlock {
     }
 
 
-    protected findChildBlocks(): ScriptBlock[] {
-        const children: ScriptBlock[] = [];
+    protected findChildBlocks(): ScriptsBlock[] {
+        const children: ScriptsBlock[] = [];
 
         const document = this.document;
         const text = replaceCommentsWithWhitespace(
@@ -340,7 +344,7 @@ export class ScriptBlock {
             const blockEnd = i + 1; // position after the '}'
             const startOffset = braceStart + 1;
             const endOffset = blockEnd;
-            const blockClass = assignedClasses.get(blockType) || ScriptBlock;
+            const blockClass = assignedClasses.get(blockType) || ScriptsBlock;
             const childBlock = new blockClass(
                 document,
                 this.diagnostics,
@@ -716,43 +720,15 @@ export class ScriptBlock {
 }
 
 
-export class ItemBlock extends ScriptBlock {
-// CONSTRUCTOR
-    constructor(
-        document: vscode.TextDocument,
-        diagnostics: vscode.Diagnostic[] | undefined,
-        parent: ScriptBlock | null,
-        type: string,
-        id: string | null,
-        start: number,
-        end: number,
-        headerStart: number
-    ) {
-        super(document, diagnostics, parent, type, id, start, end, headerStart);
-    }
-
-    protected validateID(): boolean {
-        if (!super.validateID()) {
-            return false;
-        }
-
-        // check that the item has a translation entry in 
-        // TODO: to implement, needs a way to access the translation files
-
-        return true;
-    }
-}
-
-
 
 /**
- * A ScriptBlock that represents a 'component' block specifically.
+ * Utility class to deactivate any kind of validation and parsing for certain script blocks.
  */
-export class ComponentBlock extends ScriptBlock {
+export class IgnoreAll extends ScriptsBlock {
     constructor(
         document: vscode.TextDocument,
         diagnostics: vscode.Diagnostic[] | undefined,
-        parent: ScriptBlock | null,
+        parent: ScriptsBlock | null,
         type: string,
         id: string | null,
         start: number,
@@ -762,192 +738,7 @@ export class ComponentBlock extends ScriptBlock {
         super(document, diagnostics, parent, type, id, start, end, headerStart);
     }
 
-    // override isWord to check original script block since ID and scriptBlock are merged
-    public isWord(word: string): boolean {
-        return this.originalScriptBlock === word;
-    }
-}
-
-
-export class ItemMapperBlock extends ScriptBlock {
-    constructor(
-        document: vscode.TextDocument,
-        diagnostics: vscode.Diagnostic[] | undefined,
-        parent: ScriptBlock | null,
-        type: string,
-        id: string | null,
-        start: number,
-        end: number,
-        headerStart: number
-    ) {
-        super(document, diagnostics, parent, type, id, start, end, headerStart);
-    }
-
-    public canHaveParameter(name: string): boolean {
-        // TODO: to implement
-        // allow any parameter in itemMapper blocks for now
-        return true;
-    }
-}
-
-
-export class TemplateBlock extends ScriptBlock {
-    constructor(
-        document: vscode.TextDocument,
-        diagnostics: vscode.Diagnostic[] | undefined,
-        parent: ScriptBlock | null,
-        type: string,
-        id: string | null,
-        start: number,
-        end: number,
-        headerStart: number
-    ) {
-        const splittedID = id ? id.split(" ") : null;
-        if (splittedID) {
-            type = splittedID[0];
-            id = splittedID.slice(1).join(" ") || null;
-        }
-        
-        super(document, diagnostics, parent, type, id, start, end, headerStart);
-        this.isTemplate = true;
-    }
-}
-
-
-export class ImportsBlock extends ScriptBlock {
-    imports: string[] = [];
-
-    constructor(
-        document: vscode.TextDocument,
-        diagnostics: vscode.Diagnostic[] | undefined,
-        parent: ScriptBlock | null,
-        type: string,
-        id: string | null,
-        start: number,
-        end: number,
-        headerStart: number
-    ) {
-        super(document, diagnostics, parent, type, id, start, end, headerStart);
-    
-        this.findImports();
-    }
-
-    private findImports(): void {
-        const text = this.document.getText().slice(this.start, this.end);
-        
-        // split by whitespace
-        const parts = text.split(/\s+/);
-        
-        // filter out empty parts and add to imports
-        this.imports = parts.filter(part => part.trim() !== "");
-        //
-    }
-
-    public getImports(): string[] {
-        return this.imports;
-    }
-}
-
-
-export class InputsBlock extends ScriptBlock {
-    constructor(
-        document: vscode.TextDocument,
-        diagnostics: vscode.Diagnostic[] | undefined,
-        parent: ScriptBlock | null,
-        type: string,
-        id: string | null,
-        start: number,
-        end: number,
-        headerStart: number
-    ) {
-        super(document, diagnostics, parent, type, id, start, end, headerStart);
-    }
-
-    protected findParameters(): any[] {
-        const document = this.document;
-        const text = document.getText().slice(this.start, this.end);
-
-        const parameters: InputsParameter[] = [];
-
-        // identify the different inputs/outputs parameters
-        const matches = Array.from(text.matchAll(inputsOutputsRegex.main));
-
-        for (const match of matches) {
-            const groups = match.groups;
-            if (!groups) continue;
-            const fullMatch = match[0];
-            const name = groups.name.trim();
-            const amount = groups.amount.trim();
-            const values = groups.values;
-            const comma = groups.comma.trim();
-
-            const index = match.index!;
-
-            // retrieve the positions
-            const nameStart = this.start + index + fullMatch.indexOf(name);
-            const nameEnd = nameStart + name.length;
-            const nameRange: IndexRange = {start: nameStart, end: nameEnd};
-
-            const amountStart = this.start + index + fullMatch.indexOf(amount);
-            const amountEnd = amountStart + amount.length;
-            const amountRange: IndexRange = {start: amountStart, end: amountEnd};
-            
-            const valuesStart = this.start + index + fullMatch.indexOf(values);
-            const valuesEnd = valuesStart + values.length;
-            const valuesRange: IndexRange = {start: valuesStart, end: valuesEnd};
-
-            // verify it is within this block and not in a child block
-            if (!this.isIndexOf(nameStart) || !this.isIndexOf(valuesEnd - 1)) {
-                continue;
-            }
-
-            // determine parameter type
-            let parameterType;
-            if (name === "item") {
-                parameterType = InputsItemParameter;
-            } else if (name.includes("fluid")) {
-                parameterType = InputsFluidParameter;
-            } else {
-                // unknown parameter type
-                continue;
-            }
-
-            // create the parameter
-            const parameter = new parameterType(
-                document,
-                this,
-                this.diagnostics,
-                name,
-                values,
-                amount,
-                nameRange,
-                amountRange,
-                valuesRange,
-                comma
-            );
-
-            parameters.push(parameter);
-        } 
-
-        return parameters;
-    }
-}
-
-export class IgnoreAll extends ScriptBlock {
-    constructor(
-        document: vscode.TextDocument,
-        diagnostics: vscode.Diagnostic[] | undefined,
-        parent: ScriptBlock | null,
-        type: string,
-        id: string | null,
-        start: number,
-        end: number,
-        headerStart: number
-    ) {
-        super(document, diagnostics, parent, type, id, start, end, headerStart);
-    }
-
-    protected findChildBlocks(): ScriptBlock[] { 
+    protected findChildBlocks(): ScriptsBlock[] { 
         return []; 
     }
 
@@ -957,223 +748,18 @@ export class IgnoreAll extends ScriptBlock {
 }
 
 
-/**
- * A ScriptBlock that represents the entire document. This is more a convenience class to handle everything easily.
- */
-export class DocumentBlock extends ScriptBlock {
-    public static documentBlockCache: Map<string, DocumentBlock> = new Map();
-    public actions: [vscode.Range, vscode.Diagnostic, vscode.CodeAction][] = []; // [range, diagnostic, action]
 
-    constructor(document: vscode.TextDocument, diagnostics: vscode.Diagnostic[] | undefined, type: string) {
-        // Only document is provided
-        const parent = null;
-        const id = null;
-        const start = 0;
-        const end = document.getText().length;
-        super(document, diagnostics, parent, type, id, start, end, start);
-
-        // cache this document block
-        DocumentBlock.documentBlockCache.set(document.uri.toString(), this);
-
-        this.search(); // search for the blocks and parameters in the document
-    }
-
-
-// CACHE
-
-    // Static method to retrieve cached DocumentBlock
-    public static getDocumentBlock(document: vscode.TextDocument): DocumentBlock | undefined {
-        const documentBlock = DocumentBlock.documentBlockCache.get(document.uri.toString());
-        // if (!documentBlock) {
-        //     documentBlock = new DocumentBlock(document, []);
-        // }
-        return documentBlock;
-    }
-
-    public static clearCache(): void {
-        DocumentBlock.documentBlockCache.clear();
-    }
-
-    public static clearCacheForUri(uri: vscode.Uri): void {
-        DocumentBlock.documentBlockCache.delete(uri.toString());
-    }
-
-
-// ACTIONS
-
-    public addAction(range: vscode.Range, diagnostic: vscode.Diagnostic, action: vscode.CodeAction): void {
-        this.actions.push([range, diagnostic, action]);
-    }
-
-    public getActionsForRange(range: vscode.Range): [vscode.Range, vscode.Diagnostic, vscode.CodeAction][] {
-        const actions: [vscode.Range, vscode.Diagnostic, vscode.CodeAction][] = [];
-        for (const [actionRange, diagnostic, action] of this.actions) {
-            if (actionRange.contains(range)) {
-                actions.push([actionRange, diagnostic, action]);
-            }
-        }
-        return actions;
-    }
-
-
-// ACCESS
-
-    public static getAllDocumentBlocks(): DocumentBlock[] {
-        return Array.from(DocumentBlock.documentBlockCache.values());
-    }
-
-    public getBlock(index: number): ScriptBlock | null {
-        // check if index is within this document
-        if (index < this.headerStart || index >= this.end) {
-            return this;
-        }
-
-        // recursive search for the block containing the index
-        const searchBlock = (block: ScriptBlock, level: number = 0): ScriptBlock | null => {
-            for (const child of block.children) {
-                if (index >= child.headerStart && index < child.end) {
-                    // found a child containing the index, search deeper
-                    const found = searchBlock(child, level + 1);
-                    return found || child;
-                }
-            }
-            if (level === 0) {
-                // if we are at the top level and no child contains the index, return the document block
-                return this;
-            }
-            return null; // no child contains the index
-        }
-        return searchBlock(this);
-    }
-
-    public static findBlockFromFullType(
-        expectedBlock: string, modules: string[], id: string
-    ): ScriptBlock[] {
-        // expectedBlock is the type of block we are looking for (ex: "model")
-        // fullType is the module and ID of the block we are looking for (ex: ["Base", "WoodenTable"])
-
-        // search for the block with the expected type and full type
-        const foundBlocks: ScriptBlock[] = [];
-        for (const documentBlock of DocumentBlock.documentBlockCache.values()) {
-            const found = documentBlock.findBlockFromFullTypeInBlock(expectedBlock, modules, id);
-            if (found) {
-                foundBlocks.push(...found);
-            }
-        }
-        
-        return foundBlocks; // return all found blocks
-    }
-
-    public findBlockFromFullTypeInBlock(expectedBlock: string, modules: string[], id: string): ScriptBlock[] {
-        // in children, find a module block
-        let moduleBlock: ScriptBlock | null = null;
-        for (const child of this.children) {
-            if (child.scriptBlock === "module") {
-                const childId = child.id;
-                if (childId && modules.includes(childId)) {
-                    moduleBlock = child;
-                    break;
-                }
-            }
-        }
-
-        if (!moduleBlock) {
-            return []; // no module block found with the expected module name
-        }
-
-        // in the module block, find a block with the expected type and ID
-        const found: ScriptBlock[] = [];
-        for (const child of moduleBlock.children) {
-            if (child.scriptBlock === expectedBlock) {
-                if (child.id === id) {
-                    // found a block with the expected type and full type
-                    found.push(child);
-                }
-            }
-        }
-
-        return found; // return all found blocks
-    }
-
-
-    public getImports(): string[] {
-        // retrieve imports block modules
-        const imports: string[] = ['Base']; // Base is always implicitly imported
-        for (const child of this.children) {
-            if (child instanceof ImportsBlock) {
-                imports.push(...child.getImports());
-            }
-        }
-
-        // also consider direct module children as imports
-        for (const child of this.children) {
-            if (child.scriptBlock === "module" && child.id && !imports.includes(child.id)) {
-                imports.push(child.id);
-            }
-        }
-        return imports;
-    }
-
-
-// VALIDATORS
-    public static validateLaterDocuments(): void {
-        // run validateRecursiveLater on all cached document blocks
-        for (const documentBlock of DocumentBlock.documentBlockCache.values()) {
-            documentBlock.validateRecursiveLater();
-        }
-    }
-
-
-// OVERWRITES
-    // overwrite validates for this class since the rules aren't the same
-    protected validateBlock(): boolean { return true; }
-    // protected validateChildren(): boolean { return true; } // some documents might need children
-    protected validateID(): boolean { return true; }
-    // protected findParameters(): ScriptParameter[] { return []; }
-
-
-// EXPORTS
-    public gather_exports(): Record<string, unknown> {
-        const exports: Record<string, unknown> = {};
-        for (const child of this.children) {
-            if (child.id) {
-                exports[child.id] = child.export();
-            }
-        }
-        return exports;
-    }
-
-    public static exportAll(): Record<string, unknown> {
-        const allExports: Record<string, unknown> = {};
-        for (const documentBlock of DocumentBlock.documentBlockCache.values()) {
-            allExports[documentBlock.document.uri.toString()] = documentBlock.gather_exports();
-        }
-        return allExports;
-    }
-
-    public export(): Record<string, unknown> {
-        const baseExport = super.export();
-        baseExport["filePath"] = this.document.uri.fsPath;
-        return baseExport;
-    }
-}
 
 
 
 // ASSIGNED CLASSES FOR SCRIPT BLOCK TYPES
-const assignedClasses = new Map<string, typeof ScriptBlock>();
-assignedClasses.set("item", ItemBlock);
-assignedClasses.set("component", ComponentBlock);
-assignedClasses.set("template", TemplateBlock);
-assignedClasses.set("itemMapper", ItemMapperBlock);
-assignedClasses.set("imports", ImportsBlock);
-assignedClasses.set("inputs", InputsBlock);
+export const assignedClasses = new Map<string, typeof ScriptsBlock>();
 
-assignedClasses.set("table", IgnoreAll);
-assignedClasses.set("lua", IgnoreAll);
 
 // TODO: needs to implement properly, for now disable those
 // the items they refer to should be verified for existence and validity
+assignedClasses.set("table", IgnoreAll);
+assignedClasses.set("lua", IgnoreAll);
 assignedClasses.set("itemMapper", IgnoreAll);
 assignedClasses.set("overlayMapper", IgnoreAll);
 assignedClasses.set("components", IgnoreAll);

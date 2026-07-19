@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { ScriptBlock, DocumentBlock } from "./scriptsBlocks";
+import { ScriptsBlock, DocumentBlock } from "./scriptsBlocks";
 import { 
     ThemeColorType, 
     DiagnosticType, 
@@ -22,7 +22,7 @@ import { color } from "../utils/themeColors";
 import { IndexRange } from '../utils/positions'; 
 
 export interface ReferenceData {
-    blocks: ScriptBlock[];
+    blocks: ScriptsBlock[];
     expectedBlock: string;
 }
 
@@ -34,7 +34,7 @@ export class ScriptParameter {
     actions: vscode.CodeAction[] = [];
     
     // param data
-    parent: ScriptBlock;
+    parent: ScriptsBlock;
     parameter: string;
     value: string;
     comma: string;
@@ -50,7 +50,7 @@ export class ScriptParameter {
 // CONSTRUCTOR
     constructor(
         document: vscode.TextDocument,
-        parent: ScriptBlock,
+        parent: ScriptsBlock,
         diagnostics: vscode.Diagnostic[] | undefined,
         name: string,
         value: string,

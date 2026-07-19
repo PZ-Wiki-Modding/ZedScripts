@@ -9,7 +9,7 @@ import { itemCache } from "./providers/cache";
 import { loadEnvironment } from "./providers/libraries";
 import { fetchData } from "./utils/fetchData";
 import { DefaultText, LANG_ZEDSCRIPTS } from "./models/enums";
-import { DocumentBlock } from "./scriptsBlocks/scriptsBlocks";
+import { DocumentBlock } from "./scriptsBlocks/blockTypes/document";
 import { createReferenceDecoration } from './models/decorations';
 
 let debounceTimer: NodeJS.Timeout | undefined;

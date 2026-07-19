@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { ScriptBlock } from "./scriptsBlocks";
+import { ScriptsBlock } from "./scriptsBlocks";
 
 import { 
     ThemeColorType, 
@@ -29,7 +29,7 @@ export class InputsParameter {
     diagnostics: vscode.Diagnostic[] | undefined;
     
     // param data
-    parent: ScriptBlock;
+    parent: ScriptsBlock;
     parameter: string;
     values: string;
     comma: string;
@@ -45,7 +45,7 @@ export class InputsParameter {
 // CONSTRUCTOR
     constructor(
         document: vscode.TextDocument,
-        parent: ScriptBlock,
+        parent: ScriptsBlock,
         diagnostics: vscode.Diagnostic[] | undefined,
         parameter: string,
         values: string,
@@ -345,7 +345,7 @@ export class InputsItemParameter extends InputsParameter {
 // CONSTRUCTOR
     constructor(
         document: vscode.TextDocument,
-        parent: ScriptBlock,
+        parent: ScriptsBlock,
         diagnostics: vscode.Diagnostic[] | undefined,
         parameter: string,
         values: string,
@@ -570,7 +570,7 @@ export class InputsFluidParameter extends InputsParameter {
 // CONSTRUCTOR
     constructor(
         document: vscode.TextDocument,
-        parent: ScriptBlock,
+        parent: ScriptsBlock,
         diagnostics: vscode.Diagnostic[] | undefined,
         parameter: string,
         values: string,
