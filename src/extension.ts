@@ -5,7 +5,6 @@ import { provideDefinition } from "./providers/definition";
 import { provideDocumentFormattingEdits } from "./providers/editing";
 import { PZCompletionItemProvider } from "./providers/completion";
 import { PZHoverProvider } from "./providers/hover";
-import { itemCache } from "./providers/cache";
 import { loadEnvironment } from "./providers/libraries";
 import { fetchData } from "./utils/fetchData";
 import { DefaultText, LANG_ZEDSCRIPTS } from "./models/enums";
@@ -53,13 +52,8 @@ export async function activate(context: vscode.ExtensionContext) {
     }
 
     const watcher = vscode.workspace.createFileSystemWatcher("**/*.txt");
-    watcher.onDidChange((uri) => {
-        itemCache.clearForFile(uri.fsPath);
-        console.debug(`Invalidated cache for : ${uri.fsPath}`);
-    });
     
     watcher.onDidDelete((uri) => {
-        itemCache.clearForFile(uri.fsPath);
         DocumentBlock.clearCacheForUri(uri);
         console.debug(`Invalidated cache for : ${uri.fsPath}`);
     });

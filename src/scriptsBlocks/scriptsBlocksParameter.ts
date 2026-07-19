@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
-import { ScriptsBlock, DocumentBlock } from "./scriptsBlocks";
+import { ScriptsBlock } from "./scriptsBlocks";
+import { DocumentBlock } from "./blockTypes/document";
 import { 
     ThemeColorType, 
     DiagnosticType, 

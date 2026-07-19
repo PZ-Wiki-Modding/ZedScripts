@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 import { TextDocument, DiagnosticSeverity, Diagnostic, Range } from "vscode";
 
-import { DocumentBlock } from "../scriptsBlocks/scriptsBlocks";
+import { DocumentBlock } from "../scriptsBlocks/blockTypes/document";
 import { testForScriptRootFile, DEFAULT_ROOT_FILE } from "../scriptsBlocks/scriptsBlocksData";
 
 import { LANG_ZEDSCRIPTS, EXTENSION_ID, DiagnosticType, formatText } from "../models/enums";

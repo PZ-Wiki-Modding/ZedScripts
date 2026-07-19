@@ -13,7 +13,7 @@ import {
     shouldHaveID,
     listRequiredParameters,
 } from "../scriptsBlocks/scriptsBlocksUtility";
-import { DocumentBlock } from "../scriptsBlocks/scriptsBlocks";
+import { DocumentBlock } from "../scriptsBlocks/blockTypes/document";
 import { CompletionText, formatText } from "../models/enums";
 
 export class PZCompletionItemProvider implements vscode.CompletionItemProvider {

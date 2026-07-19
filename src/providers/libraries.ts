@@ -3,7 +3,6 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 import { DiagnosticProvider, updateDiagnostics, validateLaterDocuments } from './diagnostic';
-import { DocumentBlock } from '../scriptsBlocks/scriptsBlocks';
 import { LANG_ZEDSCRIPTS } from '../models/enums';
 import { testForScriptRootFile } from '../scriptsBlocks/scriptsBlocksData';
 

@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { setScriptsTypes, ScriptData } from '../scriptsBlocks/scriptsBlocksData';
-import { DocumentBlock } from '../scriptsBlocks/scriptsBlocks';
+import { DocumentBlock } from '../scriptsBlocks/blockTypes/document';
 import { 
     SCRIPT_DATA_LINK,
     CACHE_DURATION_MS 
