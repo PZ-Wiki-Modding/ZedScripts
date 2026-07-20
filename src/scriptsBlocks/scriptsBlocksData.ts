@@ -81,7 +81,7 @@ export interface ScriptBlockType {
 }
 
 export interface ParameterType {
-    main: "string" | "integer" | "float" | "boolean" | "array" | "object";
+    main: "string" | "integer" | "float" | "boolean" | "array" | "object" | "block" | "callback";
     array?: ArrayType;
     object?: ObjectType;
     block?: BlockType;

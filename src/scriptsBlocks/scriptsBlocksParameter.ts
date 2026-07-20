@@ -144,6 +144,17 @@ export class ScriptParameter {
                     // this is the object key-values separator
                     const separator = objectData.pairsSeparator;
                     parameter += ` (separator '${color(separator, ThemeColorType.TYPE)}')`;
+
+                // a block should show the expected block type and if it is a full type or not
+                } else if (typeMain === VALUE_TYPES.BLOCK) {
+                    const blockType = type.block;
+                    if (blockType) {
+                        const blockColor = this.parent.colorCode;
+                        const blockTypeName = blockType.name;
+                        const fullType = blockType.fullType;
+                        const blockTypeColored = `${color(blockTypeName, blockColor)}`;
+                        parameter += ` (${fullType ? "full" : "type only"} '${blockTypeColored}')`;
+                    }
                 }
             }
 
@@ -265,6 +276,10 @@ export class ScriptParameter {
         return parameterData?.description || DefaultText.PARAMETER_DESCRIPTION;
     }
 
+    public getExpectedType(): string {
+        return this.getParameterData()?.type?.main || VALUE_TYPES.STRING;
+    }
+
     public getTypeOfValue(expectedType: string | undefined = undefined): string {
         expectedType = expectedType || this.getParameterData()?.type?.main;
 
@@ -335,9 +350,9 @@ export class ScriptParameter {
             block = parts[0];
 
             // verify it's not an empty value
-            if (block === "") {
-                return null;
-            }
+            // if (block === "") {
+            //     return null;
+            // }
             return [null, block];
         }
         
