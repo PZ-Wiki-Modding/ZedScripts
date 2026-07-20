@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 
-import { ScriptsBlock, assignedClasses } from '../scriptsBlocks';
+import { ScriptsBlock } from '../scriptsBlocks';
 
 export class ImportsBlock extends ScriptsBlock {
     imports: string[] = [];
@@ -36,5 +36,3 @@ export class ImportsBlock extends ScriptsBlock {
     }
 }
 
-
-assignedClasses.set("imports", ImportsBlock);

@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 
-import { ScriptsBlock, assignedClasses } from '../scriptsBlocks';
+import { ScriptsBlock } from '../scriptsBlocks';
 
 export class TemplateBlock extends ScriptsBlock {
     constructor(
@@ -23,5 +23,3 @@ export class TemplateBlock extends ScriptsBlock {
         this.isTemplate = true;
     }
 }
-
-assignedClasses.set("template", TemplateBlock);

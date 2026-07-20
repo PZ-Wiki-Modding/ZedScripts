@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 
-import { ScriptsBlock, assignedClasses } from '../scriptsBlocks';
+import { ScriptsBlock } from '../scriptsBlocks';
 
 export class ItemMapperBlock extends ScriptsBlock {
     constructor(
@@ -22,5 +22,3 @@ export class ItemMapperBlock extends ScriptsBlock {
         return true;
     }
 }
-
-assignedClasses.set("itemMapper", ItemMapperBlock);

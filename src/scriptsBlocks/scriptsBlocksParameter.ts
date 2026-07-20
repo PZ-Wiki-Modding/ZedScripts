@@ -285,6 +285,14 @@ export class ScriptParameter {
         // so we need to force to string
         if (expectedType === VALUE_TYPES.STRING) {
             return VALUE_TYPES.STRING;
+            
+        // check if block: consider as type block directly
+        } else if (expectedType === VALUE_TYPES.BLOCK) {
+            return VALUE_TYPES.BLOCK;
+
+        // check if callback: consider as type callback directly
+        } else if (expectedType === VALUE_TYPES.CALLBACK) {
+            return VALUE_TYPES.CALLBACK;
         }
 
         // check if boolean
@@ -303,14 +311,6 @@ export class ScriptParameter {
             } else {
                 type = VALUE_TYPES.INT;
             }
-
-        // check if block: consider as type block directly
-        } else if (expectedType === VALUE_TYPES.BLOCK) {
-            type = VALUE_TYPES.BLOCK;
-
-        // check if callback: consider as type callback directly
-        } else if (expectedType === VALUE_TYPES.CALLBACK) {
-            type = VALUE_TYPES.CALLBACK;
 
         // default to string
         } else {
@@ -708,7 +708,48 @@ export class ScriptParameter {
                 return false;
             }
 
-            if (block === "") {
+            // not empty, then look for its reference
+            if (block !== "") {
+                // retrieve searchable modules
+                const documentBlock = this.getRoot();
+                if (!module) {
+                    var searchableModules = documentBlock.getImports();
+
+                // since the module is provided, only search in that specific module
+                } else {
+                    var searchableModules = [module];
+                }
+
+                const expectedBlock = blockType.name;
+                const refBlocks = DocumentBlock.findBlockFromFullType(expectedBlock, searchableModules, block);
+                if (refBlocks.length === 0) {
+                    this.diagnostic(
+                        DiagnosticType.INVALID_BLOCK_REF,
+                        { value: this.value, parameter: this.parameter },
+                        this.valueRange.start,
+                        this.valueRange.end,
+                        vscode.DiagnosticSeverity.Error
+                    );
+                    return false;
+                } else if (refBlocks.length > 1) {
+                    this.diagnostic(
+                        DiagnosticType.MULTIPLE_BLOCK_REFS,
+                        { value: this.value, parameter: this.parameter },
+                        this.valueRange.start,
+                        this.valueRange.end,
+                        vscode.DiagnosticSeverity.Warning
+                    );
+                    // return false;
+                }
+
+                // assign the reference to the parameter for later use in hovers and go to definition
+                this.ref = {
+                    blocks: refBlocks,
+                    expectedBlock: expectedBlock
+                };
+
+            // parameter cannot have an empty value
+            } else if (!this.canBeEmpty()) {
                 this.diagnostic(
                     DiagnosticType.NO_BLOCK_REF,
                     { value: this.value, parameter: this.parameter },
@@ -718,44 +759,6 @@ export class ScriptParameter {
                 );
                 return false;
             }
-
-            // retrieve searchable modules
-            const documentBlock = this.getRoot();
-            if (!module) {
-                var searchableModules = documentBlock.getImports();
-
-            // since the module is provided, only search in that specific module
-            } else {
-                var searchableModules = [module];
-            }
-
-            const expectedBlock = blockType.name;
-            const refBlocks = DocumentBlock.findBlockFromFullType(expectedBlock, searchableModules, block);
-            if (refBlocks.length === 0) {
-                this.diagnostic(
-                    DiagnosticType.INVALID_BLOCK_REF,
-                    { value: this.value, parameter: this.parameter },
-                    this.valueRange.start,
-                    this.valueRange.end,
-                    vscode.DiagnosticSeverity.Error
-                );
-                return false;
-            } else if (refBlocks.length > 1) {
-                this.diagnostic(
-                    DiagnosticType.MULTIPLE_BLOCK_REFS,
-                    { value: this.value, parameter: this.parameter },
-                    this.valueRange.start,
-                    this.valueRange.end,
-                    vscode.DiagnosticSeverity.Warning
-                );
-                // return false;
-            }
-
-            // assign the reference to the parameter for later use in hovers and go to definition
-            this.ref = {
-                blocks: refBlocks,
-                expectedBlock: expectedBlock
-            };
         }
 
         // validate dependent parameters based on 'needs' property

@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 
-import { ScriptsBlock, assignedClasses } from '../scriptsBlocks';
+import { ScriptsBlock } from '../scriptsBlocks';
 
 export class ItemBlock extends ScriptsBlock {
 // CONSTRUCTOR
@@ -28,5 +28,3 @@ export class ItemBlock extends ScriptsBlock {
         return true;
     }
 }
-
-assignedClasses.set("item", ItemBlock);

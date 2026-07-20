@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 
-import { ScriptsBlock, assignedClasses } from '../scriptsBlocks';
+import { ScriptsBlock } from '../scriptsBlocks';
 
 /**
  * A ScriptBlock that represents a 'component' block specifically.
@@ -24,5 +24,3 @@ export class ComponentBlock extends ScriptsBlock {
         return this.originalScriptBlock === word;
     }
 }
-
-assignedClasses.set("component", ComponentBlock);

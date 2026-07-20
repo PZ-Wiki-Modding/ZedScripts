@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 
 import { inputsOutputsRegex } from '../../models/regexPatterns';
-import { ScriptsBlock, assignedClasses } from '../scriptsBlocks';
+import { ScriptsBlock } from '../scriptsBlocks';
 import { InputsItemParameter, InputsFluidParameter, InputsParameter } from '../scriptsBlocksProperties';
 import { IndexRange } from '../../utils/positions';
 
@@ -88,5 +88,3 @@ export class InputsBlock extends ScriptsBlock {
         return parameters;
     }
 }
-
-assignedClasses.set("inputs", InputsBlock);

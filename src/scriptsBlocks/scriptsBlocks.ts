@@ -752,9 +752,23 @@ export class IgnoreAll extends ScriptsBlock {
 
 
 
-// ASSIGNED CLASSES FOR SCRIPT BLOCK TYPES
-export const assignedClasses = new Map<string, typeof ScriptsBlock>();
+// later load
+import { TemplateBlock } from './blockTypes/template';
+import { ComponentBlock } from './blockTypes/component';
+import { ImportsBlock } from './blockTypes/imports';
+import { InputsBlock } from './blockTypes/inputs';
+import { ItemBlock } from './blockTypes/item';
+// import { ItemMapperBlock } from './blockTypes/itemMapper';
 
+// ASSIGNED CLASSES FOR SCRIPT BLOCK TYPES
+const assignedClasses = new Map<string, typeof ScriptsBlock>();
+
+assignedClasses.set("template", TemplateBlock);
+assignedClasses.set("component", ComponentBlock);
+assignedClasses.set("imports", ImportsBlock);
+assignedClasses.set("inputs", InputsBlock);
+assignedClasses.set("item", ItemBlock);
+// assignedClasses.set("itemMapper", ItemMapperBlock);
 
 // TODO: needs to implement properly, for now disable those
 // the items they refer to should be verified for existence and validity
