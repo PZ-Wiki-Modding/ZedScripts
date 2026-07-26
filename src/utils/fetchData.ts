@@ -17,7 +17,7 @@ export async function fetchData(context: vscode.ExtensionContext, forceFetch: bo
     const config = vscode.workspace.getConfiguration("ZedScripts");
     const onlyUseLocalData: boolean = config.get("onlyUseLocalData", false);
     if (onlyUseLocalData) {
-        setScriptsTypes(require('../data/scriptBlocks.json'));
+        setScriptsTypes(require('../pz-scripts-data/out/scriptBlocks.json'));
         console.log("Using local data as per configuration.");
         return true;
     }
