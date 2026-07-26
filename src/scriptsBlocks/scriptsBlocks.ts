@@ -1,13 +1,15 @@
 import * as vscode from 'vscode';
 import { scriptBlockRegex, parameterRegex } from '../models/regexPatterns';
 import { 
-    DOCUMENT_IDENTIFIER, 
+    DOCUMENT_IDENTIFIER,
+    WIKI_LINK,
+    DOCS_LINK,
+} from '../project';
+import { 
     ThemeColorType, 
     DiagnosticType, 
-    DefaultText, 
-    WIKI_LINK,
+    DefaultText,
     formatText,
-    DOCS_LINK
 } from '../models/enums';
 import { diagnostic } from '../providers/diagnostic';
 import { color } from "../utils/themeColors";

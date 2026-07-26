@@ -4,7 +4,8 @@ import { TextDocument, DiagnosticSeverity, Diagnostic, Range } from "vscode";
 import { DocumentBlock } from "../scriptsBlocks/blockTypes/document";
 import { testForScriptRootFile, DEFAULT_ROOT_FILE } from "../scriptsBlocks/scriptsBlocksData";
 
-import { LANG_ZEDSCRIPTS, EXTENSION_ID, DiagnosticType, formatText } from "../models/enums";
+import { LANG_ZEDSCRIPTS, EXTENSION_ID } from "../project";
+import { DiagnosticType, formatText } from "../models/enums";
 import { handleOpenTextDocument } from "./libraries";
 
 

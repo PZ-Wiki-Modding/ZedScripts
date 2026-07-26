@@ -2,11 +2,7 @@ import * as vscode from 'vscode';
 import { ScriptsBlock } from "./scriptsBlocks";
 
 import { 
-    ThemeColorType, 
-    DiagnosticType, 
-    DefaultText, 
-    WIKI_LINK,
-    formatText,
+    DiagnosticType,
     formatList
 } from '../models/enums';
 import { inputsOutputsRegex } from '../models/regexPatterns';

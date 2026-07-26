@@ -3,8 +3,9 @@ import { setScriptsTypes, ScriptData } from '../scriptsBlocks/scriptsBlocksData'
 import { DocumentBlock } from '../scriptsBlocks/blockTypes/document';
 import { 
     SCRIPT_DATA_LINK,
-    CACHE_DURATION_MS 
-} from '../models/enums';
+    CACHE_DURATION_MS,
+    DEFAULT_SCRIPT_BLOCKS
+} from '../project';
 
 export async function fetchData(context: vscode.ExtensionContext, forceFetch: boolean = false): Promise<boolean> {
     console.log("Initializing script and translation blocks data...");
@@ -17,7 +18,7 @@ export async function fetchData(context: vscode.ExtensionContext, forceFetch: bo
     const config = vscode.workspace.getConfiguration("ZedScripts");
     const onlyUseLocalData: boolean = config.get("onlyUseLocalData", false);
     if (onlyUseLocalData) {
-        setScriptsTypes(require('../pz-scripts-data/out/scriptBlocks.json'));
+        setScriptsTypes(require('../' + DEFAULT_SCRIPT_BLOCKS));
         console.log("Using local data as per configuration.");
         return true;
     }
@@ -47,7 +48,7 @@ export async function fetchData(context: vscode.ExtensionContext, forceFetch: bo
         console.log("Fetched data successfully");
         return true;
     } catch (error) {
-        setScriptsTypes(cachedScriptsBlocks || require('../data/scriptBlocks.json'));
+        setScriptsTypes(cachedScriptsBlocks || require('../' + DEFAULT_SCRIPT_BLOCKS));
         console.warn("Failed to fetch data, using cached or local data.");
         return false;
     }

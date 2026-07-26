@@ -3,7 +3,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 import { DiagnosticProvider, updateDiagnostics, validateLaterDocuments } from './diagnostic';
-import { LANG_ZEDSCRIPTS } from '../models/enums';
+import { LANG_ZEDSCRIPTS } from '../project';
 import { testForScriptRootFile } from '../scriptsBlocks/scriptsBlocksData';
 
 

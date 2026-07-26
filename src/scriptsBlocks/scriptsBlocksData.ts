@@ -1,10 +1,11 @@
 import * as path from "path";
+import { DEFAULT_SCRIPT_BLOCKS} from '../project';
 
 export interface ScriptData {
     [key: string]: ScriptBlockData;
 }
 
-export let SCRIPTS_TYPES: ScriptData = require('../pz-scripts-data/out/scriptBlocks.json');
+export let SCRIPTS_TYPES: ScriptData = require('../' + DEFAULT_SCRIPT_BLOCKS);
 export enum VALUE_TYPES {
     STRING = "string",
     INT = "integer",

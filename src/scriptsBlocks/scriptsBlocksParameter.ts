@@ -1,11 +1,11 @@
 import * as vscode from 'vscode';
 import { ScriptsBlock } from "./scriptsBlocks";
 import { DocumentBlock } from "./blockTypes/document";
+import { WIKI_LINK } from '../project';
 import { 
     ThemeColorType, 
     DiagnosticType, 
     DefaultText, 
-    WIKI_LINK,
     formatText,
     formatList
 } from '../models/enums';

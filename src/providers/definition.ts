@@ -1,7 +1,7 @@
 import * as fs from "fs";
 import * as path from "path";
 import * as vscode from "vscode";
-import { DEFAULT_DIR } from "../models/enums";
+import { DEFAULT_DIR } from "../project";
 
 import { DocumentBlock } from "../scriptsBlocks/blockTypes/document";
 

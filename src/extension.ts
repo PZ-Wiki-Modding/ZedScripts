@@ -1,5 +1,6 @@
 import * as vscode from "vscode";
 import * as path from "path";
+import { LANG_ZEDSCRIPTS } from "./project";
 import { diagnosticNonLibrary, DIAGNOSTIC_PROVIDER } from "./providers/diagnostic";
 import { provideDefinition } from "./providers/definition";
 import { provideDocumentFormattingEdits } from "./providers/editing";
@@ -7,7 +8,7 @@ import { PZCompletionItemProvider } from "./providers/completion";
 import { PZHoverProvider } from "./providers/hover";
 import { loadEnvironment } from "./providers/libraries";
 import { fetchData } from "./utils/fetchData";
-import { DefaultText, LANG_ZEDSCRIPTS } from "./models/enums";
+import { DefaultText } from "./models/enums";
 import { DocumentBlock } from "./scriptsBlocks/blockTypes/document";
 import { createReferenceDecoration } from './models/decorations';
 
