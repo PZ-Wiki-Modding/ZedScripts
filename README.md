@@ -1,3 +1,7 @@
+[![Visual Studio Marketplace](https://img.shields.io/badge/Visual%20Studio%20Marketplace-Available-blue?style=for-the-badge&logo=visual-studio-code)](https://marketplace.visualstudio.com/items?itemName=SimKDT.project-zomboid-scripts)
+[![OpenVSX Registry](https://img.shields.io/open-vsx/dt/simkdt/project-zomboid-scripts?color=purple&label=OpenVSX%20Downloads&style=for-the-badge)](https://open-vsx.org/extension/SimKDT/project-zomboid-scripts)
+[![License](https://img.shields.io/github/license/PZ-Wiki-Modding/ZedScripts?style=for-the-badge)](https://github.com/PZ-Wiki-Modding/ZedScripts/blob/main/LICENSE)
+
 # ZedScripts
 
 This VS Code extension provides comprehensive support for Project Zomboid's [scripts](https://pzwiki.net/wiki/Scripts), also known as ZedScripts, including syntax highlighting, auto-formatting, and diagnostics for items, recipes, and other script blocks. This extension is a fork of [pz-syntax-extension](https://github.com/cyberbobjr/pz-syntax-extension) with an almost complete rewrite and many added features, notably the usage of a common data repository.
@@ -28,17 +32,19 @@ This VS Code extension provides comprehensive support for Project Zomboid's [scr
 - Install the extension from the VS Code Marketplace.
 - Open a `.txt` script file.
 - Press Ctrl + Shift + P and select "Change Language Mode".
-- Choose from the list one of the following languages:
-  - "ZedScripts" for scripts files
-  - "TranslationScripts" for translation files
+- Choose "ZedScripts".
 
 You can set the extension to automatically downloads the latest script data from the [pz-scripts-data](https://github.com/pz-wiki-modding/pz-scripts-data) repository via the extension settings, it will cache the data for 12 hours, which it will fetch once more after this time. If it doesn't manage to fetch this data, it will fall back to the bundled data with the extension, which may get outdated until the next update.
 
 You can fetch data manually by running the command "ZedScripts: Force fetch Scripts Data" from the Command Palette (Ctrl + Shift + P). This won't directly update the diagnostics (due to a bug to fix, see [issue #2](https://github.com/pz-wiki-modding/ZedScripts/issues/2)) so you will have to restart VSCode.
 
-## Configuration
-By default the Project Zomboid directory is `C:\Program Files (x86)\Steam\steamapps\common\ProjectZomboid\media\scripts`, but you can change this in the settings of the extension. The extension automatically retrieves the vanilla item scripts. However this is a part of the old code I've yet to touch, so I do not know how well it works.
+## Configurations
+### Libraries
+You can provide a path to a set of libraries that contain scripts to provide as references for ZedScripts. These libraries will be parsed when launching the extension, and will provide access to blocks that are referenced to.
 
+By default, the extension sets the default Project Zomboid install directory on a Windows system as a library, which is `C:\Program Files (x86)\Steam\steamapps\common\ProjectZomboid\media\scripts`. If on a different OS or installed elsewhere, you must provide the path to your Project Zomboid install directory.
+
+### Diagnostics
 You can disable a specific diagnostic by adding its ID to the `zedScripts.disabledDiagnostics` setting. Alternatively, you can disable all diagnostics via the `zedScripts.disableAllDiagnostics` setting. Below are all the available diagnostics for scripts:
 
 | ID | Description |
@@ -103,7 +109,7 @@ make build
 ```
 
 ## License
-This project is licensed under the MIT License. See the LICENSE file for details.
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
 ## Changelog
 With each update, the extension fetches the latest data from the pz-scripts-data repository and make a local copy of it. If you're having issues, it might be because of outdated data, so make sure to fetch the latest data.
