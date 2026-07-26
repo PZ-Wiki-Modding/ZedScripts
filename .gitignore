@@ -1,6 +1,9 @@
+# workspace
+.vscode
+
+# build
 out
 node_modules
-.vscode
 *.vsix
 __snapshots__
 .vscode-test

@@ -1,4 +1,4 @@
 [submodule "external/pz-scripts-data"]
-	path = external/pz-scripts-data
+	path = src/pz-scripts-data
 	url = https://github.com/PZ-Wiki-Modding/pz-scripts-data
 	branch = dev

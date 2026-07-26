@@ -4,7 +4,7 @@ export interface ScriptData {
     [key: string]: ScriptBlockData;
 }
 
-export let SCRIPTS_TYPES: ScriptData = require('../data/scriptBlocks.json');
+export let SCRIPTS_TYPES: ScriptData = require('../pz-scripts-data/scriptBlocks.json');
 export enum VALUE_TYPES {
     STRING = "string",
     INT = "integer",

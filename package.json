@@ -66,14 +66,14 @@
           "ZedScripts",
           "pz-scripts"
         ],
-        "configuration": "./language/ZedScripts-configuration.json"
+        "configuration": "./src/language/ZedScripts.configuration.json"
       }
     ],
     "grammars": [
       {
         "language": "ZedScripts",
         "scopeName": "source.pz-script",
-        "path": "./syntaxes/ZedScripts.tmLanguage.json"
+        "path": "./src/language/ZedScripts.tmLanguage.json"
       }
     ],
     "semanticTokenScopes": [
@@ -112,6 +112,7 @@
     ]
   },
   "scripts": {
+    "prebuild": "git submodule update --init --recursive",
     "postinstall": "node ./node_modules/vscode/bin/install",
     "test": "@vscode/test-cli",
     "test:jest": "jest tests",
