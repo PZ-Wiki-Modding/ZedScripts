@@ -52,19 +52,12 @@ export async function activate(context: vscode.ExtensionContext) {
         loadDecorations(vscode.window.activeTextEditor.document);
     }
 
+    // implement a file watcher to clear the cache of a DocumentBlock when a .txt file is deleted
     const watcher = vscode.workspace.createFileSystemWatcher("**/*.txt");
-    
     watcher.onDidDelete((uri) => {
         DocumentBlock.clearCacheForUri(uri);
         console.debug(`Invalidated cache for : ${uri.fsPath}`);
     });
-    
-    if (vscode.window.activeTextEditor) {
-        diagnosticNonLibrary(
-            vscode.window.activeTextEditor.document,
-            DIAGNOSTIC_PROVIDER
-        );
-    }
     
     context.subscriptions.push(
         watcher,
