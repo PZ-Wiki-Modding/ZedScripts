@@ -2,10 +2,13 @@ import * as vscode from 'vscode';
 
 import { inputsOutputsRegex } from '../../models/regexPatterns';
 import { ScriptsBlock } from '../scriptsBlocks';
+import { ScriptParameter } from '../scriptsBlocksParameter';
 import { InputsItemParameter, InputsFluidParameter, InputsParameter } from '../scriptsBlocksProperties';
 import { IndexRange } from '../../utils/positions';
 
 export class InputsBlock extends ScriptsBlock {
+    properties: InputsParameter[] = [];
+
     constructor(
         document: vscode.TextDocument,
         diagnostics: vscode.Diagnostic[] | undefined,
@@ -19,7 +22,14 @@ export class InputsBlock extends ScriptsBlock {
         super(document, diagnostics, parent, type, id, start, end, headerStart);
     }
 
-    protected findParameters(): any[] {
+    public search(): void {
+        super.search(); // find child blocks and parameters
+        this.properties = this.findProperties();
+    }
+
+    protected findParameters(): ScriptParameter[] { return []; }
+
+    protected findProperties(): InputsParameter[] {
         const document = this.document;
         const text = document.getText().slice(this.start, this.end);
 

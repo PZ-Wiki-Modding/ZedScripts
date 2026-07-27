@@ -71,14 +71,6 @@ export class ScriptParameter {
 
         this.parameterRange = parameterRange;
         this.valueRange = valueRange;
-    
-        try {
-            this.validateParameter();
-        } catch (error) {
-            console.error(`Error validating parameter later: ${error}`);
-        }
-
-        // this.highlightPositions();
     }
 
     private getLineEnd(): number {
@@ -476,7 +468,7 @@ export class ScriptParameter {
      * This function will validate the parameter-value pair by verifying different conditions.
      * If something is wrong, it adds a diagnostic and, if possible, a quick fix to solve the issue.
      */
-    protected validateParameter(): boolean {
+    public validate(): boolean {
         if (this.diagnostics === undefined) { return true }
 
         const name = this.parameter;
@@ -592,7 +584,13 @@ export class ScriptParameter {
             if (invalidTypeValues.length > 0) {
                 if (this.diagnostic(
                     DiagnosticType.INVALID_TYPE_FOR_VALUES_OBJECT,
-                    { parameter: name, invalidTypeValues: formatList(invalidTypeValues), keyType: keyType, valueType: valueType, keyValueSeparator: keyValueSeparator },
+                    { 
+                        parameter: name, 
+                        invalidTypeValues: formatList(invalidTypeValues), 
+                        keyType: keyType, 
+                        valueType: valueType, 
+                        keyValueSeparator: keyValueSeparator 
+                    },
                     this.valueRange.start,
                     this.valueRange.end
                 )) {
@@ -678,14 +676,6 @@ export class ScriptParameter {
                 );
             }
         }
-
-        return true;
-    }
-
-    public validateLater(): boolean {
-        if (this.diagnostics === undefined) { return true }
-
-        const parameterData = this.getParameterData();
 
         // verify the block reference if any
         // this needs to be ran after all blocks from libs have been

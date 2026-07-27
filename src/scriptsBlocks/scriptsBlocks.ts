@@ -40,7 +40,7 @@ export class ScriptsBlock {
     children: ScriptsBlock[] = []; // children script blocks
     parameters: ScriptParameter[] = []; // parameters of the block
     isTemplate: boolean = false; // whether this block is a template block
-    isValid: boolean = true;
+    isValid: boolean = true; // whether this block passed the validation checks
 
     // positions
     start: number = 0;
@@ -73,15 +73,6 @@ export class ScriptsBlock {
         this.headerStart = headerStart;
         this.lineStart = document.positionAt(this.start).line;
         this.lineEnd = document.positionAt(this.end).line;
-
-        try {
-        if (!this.validateBlock()) {
-                this.isValid = false;
-            }
-        } catch (error) {
-            console.error(`Error validating block: ${error}`);
-            this.isValid = false; // mark as not valid
-        }
     }
 
     /** A document root will always be found */
@@ -288,7 +279,6 @@ export class ScriptsBlock {
 
     public search(): void {
         this.children = this.findChildBlocks();
-        this.validateChildren();
         this.parameters = this.findParameters();
     }
 
@@ -473,9 +463,18 @@ export class ScriptsBlock {
             // return false;
         }
 
+        // verify children blocks
+        if (!this.validateChildren()) {
+            // return false;
+        }
+
         return true;
     }
 
+
+    /**
+     * Validates the current relationship between this block and its parent block, if any.
+     */
     protected validateParent(): boolean {
         if (!this.shouldValidate()) { return true; }
 
@@ -529,6 +528,9 @@ export class ScriptsBlock {
         return true;
     }
 
+    /**
+     * Validates the relationship between this block and its children blocks, if any.
+     */
     protected validateChildren(): boolean {
         if (!this.shouldValidate()) { return true; }
 
@@ -664,18 +666,33 @@ export class ScriptsBlock {
         return true;
     }
 
-    public validateRecursiveLater(): void {
-        // recursively run validate later on children parameters
-        for (const child of this.children) {
-            for (const parameter of child.parameters) {
-                try {
-                    parameter.validateLater();
-                } catch (error) {
-                    console.error(`Error validating parameter: ${error}`);
-                }
-            }
+    public validateRecursive(): void {
+        // skip validation if diagnostics are not enabled
+        if (!this.shouldValidate()) { return; }
 
-            child.validateRecursiveLater();
+        // validate itself
+        try {
+            if (!this.validateBlock()) {
+                this.isValid = false;
+            }
+        } catch (error) {
+            const position = `${this.lineStart}:${this.lineEnd}`;
+            console.error(`Error validating block (${this.scriptBlock}, ${this.id}, ${position}): ${error}`);
+        }
+
+        // validate parameters
+        for (const parameter of this.parameters) {
+            try {
+                parameter.validate();
+            } catch (error) {
+                const position = `${parameter.parameterRange.start}:${parameter.parameterRange.end}`;
+                console.error(`Error validating parameter (${this.scriptBlock}, ${this.id}, ${parameter.parameter}, ${position}): ${error}`);
+            }
+        }
+
+        // recursively run validate later on children blocks
+        for (const child of this.children) {
+            child.validateRecursive();
         }
     }
 

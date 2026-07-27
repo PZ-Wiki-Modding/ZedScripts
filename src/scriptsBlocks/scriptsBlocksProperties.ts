@@ -366,7 +366,7 @@ export class InputsItemParameter extends InputsParameter {
         this.amount = this.handleAmount(amount);
         this.getParameterInformation(values);
 
-        this.validateProperties();
+        this.validate();
     }
 
 // INITIALIZERS
@@ -410,7 +410,7 @@ export class InputsItemParameter extends InputsParameter {
 
 // CHECKERS
 
-    protected validateProperties(): boolean {
+    protected validate(): boolean {
         if (!this.shouldValidate()) { return true; }
 
         const parameterData = this.getParameterData(this.parameter);

@@ -13,7 +13,7 @@ export function diagnosticNonLibrary(document: TextDocument, diagnosticProvider:
     handleOpenTextDocument(document);
     const block = diagnosticProvider.updateDiagnostics(document);
     if (block instanceof DocumentBlock) {
-        block.validateRecursiveLater();
+        block.validateRecursive();
         // set diagnostics after validateRecursiveLater completes so validateLater diagnostics are included
         const diagnostics = block.diagnostics;
         if (diagnostics) {
@@ -126,7 +126,7 @@ export function diagnostic(
 export function validateLaterDocuments(): void {
     // run validateRecursiveLater on all cached document blocks
     for (const documentBlock of DocumentBlock.documentBlockCache.values()) {
-        documentBlock.validateRecursiveLater();
+        documentBlock.validateRecursive();
         const document = documentBlock.document;
         const diagnostics = documentBlock.diagnostics;
         if (diagnostics) {

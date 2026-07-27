@@ -165,7 +165,7 @@ export class DocumentBlock extends ScriptsBlock {
     public static validateLaterDocuments(): void {
         // run validateRecursiveLater on all cached document blocks
         for (const documentBlock of DocumentBlock.documentBlockCache.values()) {
-            documentBlock.validateRecursiveLater();
+            documentBlock.validateRecursive();
         }
     }
 
