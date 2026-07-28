@@ -14,7 +14,7 @@ import {
     listRequiredParameters,
 } from "../scriptsBlocks/scriptsBlocksUtility";
 import { DocumentBlock } from "../scriptsBlocks/blockTypes/document";
-import { formatText } from "../utils/format";
+import { formatText, getIndentation } from "../utils/format";
 import { CompletionText } from "../models/CompletionText";
 
 export class PZCompletionItemProvider implements vscode.CompletionItemProvider {
@@ -42,9 +42,12 @@ export class PZCompletionItemProvider implements vscode.CompletionItemProvider {
             if (canDuplicate || !parentBlock.isParameterOf(paramName)) {
                 const item = new CompletionItem(paramName, CompletionItemKind.Field);
                 item.detail = param.description;
-                item.insertText = new SnippetString(formatText(
-                    CompletionText.PARAMETER_AUTO, { parameter: paramName }
-                ));
+                const snippetStr = formatText(
+                    CompletionText.PARAMETER_AUTO, { parameter: paramName },
+                    '<', '>'
+                );
+                console.log(`Adding completion for parameter: ${paramName} with snippet: ${snippetStr}`);
+                item.insertText = new SnippetString(snippetStr);
                 completion.push(item);
             }
         }
@@ -58,7 +61,8 @@ export class PZCompletionItemProvider implements vscode.CompletionItemProvider {
                 continue;
             }
 
-            const snippetStr = this.formatBlock(blockName, parentBlock.scriptBlock);
+            const snippetStr = this.formatBlock(document, blockName, parentBlock.scriptBlock);
+            console.log(`Adding completion for block: ${blockName} with snippet: ${snippetStr}`);
             item.insertText = new SnippetString(snippetStr);
 
             item.detail = blockData.description;
@@ -68,10 +72,10 @@ export class PZCompletionItemProvider implements vscode.CompletionItemProvider {
         return completion;
     }
 
-    private formatBlock(blockType: string, parentType: string, level: number=0): string {
+    private formatBlock(document: TextDocument, blockType: string, parentType: string, level: number=0): string {
         const blockData = getScriptBlockData(blockType);
 
-        const tabs = '\t'.repeat(level);
+        const tabs = getIndentation(document).repeat(level);
 
         // should have ID ?
         const mainID = this.formatID(blockType, parentType);
@@ -79,11 +83,9 @@ export class PZCompletionItemProvider implements vscode.CompletionItemProvider {
             CompletionText.BLOCK,
             {
                 scriptBlock: blockType,
-                id: formatText(mainID, { level: (level + 1).toString() }),
-            }
+                id: formatText(mainID, { level: (level + 1).toString() }, '<', '>'),
+            }, '<', '>'
         )
-
-        // middle part
 
         // add required parameter
         const requiredParams = listRequiredParameters(blockType);
@@ -95,7 +97,7 @@ export class PZCompletionItemProvider implements vscode.CompletionItemProvider {
         const needsChildren = blockData.needsChildren || null;
         if (needsChildren) {
             for (const childBlock of needsChildren) {
-                snippetStr += this.formatBlock(childBlock, blockType, level + 1) + '\n';
+                snippetStr += this.formatBlock(document, childBlock, blockType, level + 1) + '\n';
             }
         } //else {
             // snippetStr += `${tabs}` + CompletionText.MIDDLE;
@@ -124,7 +126,7 @@ export class PZCompletionItemProvider implements vscode.CompletionItemProvider {
             {
                 parameter: name,
                 value: defaultValue.toString(),
-            }
+            }, '<', '>'
         );
     }
 }

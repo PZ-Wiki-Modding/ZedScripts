@@ -5,7 +5,7 @@ import { WIKI_LINK } from '../project';
 import { 
     formatText,
     formatList,
-    DEFAULT_INDENT
+    getIndentation
 } from '../utils/format';
 import { DefaultText } from '../models/DefaultText';
 import { ThemeColorType } from "../models/ThemeColorType";
@@ -479,7 +479,8 @@ export class ScriptParameter {
     public getFormattingEdit(): vscode.TextEdit {
         // get indentation level by finding depth level
         const depthLevel = this.parent.getDepthLevel()+1;
-        const indentation = " ".repeat(DEFAULT_INDENT).repeat(depthLevel);
+        const indentBase = getIndentation(this.document);
+        const indentation = indentBase.repeat(depthLevel);
 
         // retrieve the maximum parameter length in this block to align the equal signs properly
         const maxParameterLength = this.parent.getMaxParameterLength();

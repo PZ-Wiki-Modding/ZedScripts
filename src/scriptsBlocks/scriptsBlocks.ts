@@ -5,7 +5,7 @@ import {
     WIKI_LINK,
     DOCS_LINK,
 } from '../project';
-import { formatText, DEFAULT_INDENT } from '../utils/format';
+import { formatText, getIndentation } from '../utils/format';
 import { DefaultText } from '../models/DefaultText';
 import { ThemeColorType } from "../models/ThemeColorType";
 import { DiagnosticType } from "../models/DiagnosticType";
@@ -310,7 +310,8 @@ export class ScriptsBlock {
     public getHeaderEdits(edits: vscode.TextEdit[]): void {
         // get indentation level by finding depth level
         const depthLevel = this.getDepthLevel();
-        const indentation = " ".repeat(DEFAULT_INDENT).repeat(depthLevel);
+        const indentBase = getIndentation(this.document);
+        const indentation = indentBase.repeat(depthLevel);
 
         // get header position
         const lineStartNumber = this.document.positionAt(this.headerStart).line;

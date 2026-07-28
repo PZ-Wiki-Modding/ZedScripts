@@ -160,7 +160,7 @@ export async function activate(context: vscode.ExtensionContext) {
             new PZCompletionItemProvider(),
             ".",
             " ",
-            "\t" // Déclencheurs de complétion
+            "\t"
         ),
 
         // handle mouse hover words
