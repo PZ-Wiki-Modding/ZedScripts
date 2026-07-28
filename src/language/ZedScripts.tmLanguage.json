@@ -3,7 +3,7 @@
   "patterns": [
     {
       "name": "entity.name.recipe.pz",
-      "match": "^\\s*(\\w+)\\s+(|[\\w !*.:\/]+)(?:\\s*{|\\s*)$",
+      "match": "^\\s*(\\w+)\\s+(|[\\w !*.:\/]+)(?:\\s*{|)\\s*$",
       "captures": {
         "1": { "name": "keyword.control" },
         "2": { "name": "entity.name.class" }
