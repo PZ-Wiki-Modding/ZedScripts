@@ -5,7 +5,7 @@ import {
     WIKI_LINK,
     DOCS_LINK,
 } from '../project';
-import { formatText } from '../utils/format';
+import { formatText, DEFAULT_INDENT } from '../utils/format';
 import { DefaultText } from '../models/DefaultText';
 import { ThemeColorType } from "../models/ThemeColorType";
 import { DiagnosticType } from "../models/DiagnosticType";
@@ -277,7 +277,6 @@ export class ScriptsBlock {
                 const startPos = this.document.positionAt(valueRange.start);
                 const endPos = this.document.positionAt(valueRange.end);
 
-                const expectedBlock = param.ref.expectedBlock;
                 const referencedBlocks = param.ref.blocks;
                 for (const refBlock of referencedBlocks) {
                     if (!refs.has(refBlock)) {
@@ -306,30 +305,71 @@ export class ScriptsBlock {
             }
             refs.get(expectedBlock)!.push(...ranges);
         }
+    }
 
+    public getHeaderEdits(edits: vscode.TextEdit[]): void {
+        // get indentation level by finding depth level
+        const depthLevel = this.getDepthLevel();
+        const indentation = " ".repeat(DEFAULT_INDENT).repeat(depthLevel);
 
-        // // collect references from parameters
-        // for (const param of this.parameters) {
-        //     if (param.ref) {
-        //         // get position
-        //         const valueRange = param.valueRange;
-        //         const startPos = this.document.positionAt(valueRange.start);
-        //         const endPos = this.document.positionAt(valueRange.end);
+        // get header position
+        const lineStartNumber = this.document.positionAt(this.headerStart).line;
+        const lineStart = this.document.lineAt(lineStartNumber).range.start;
 
-        //         const expectedBlock = param.ref.expectedBlock;
+        // retrieve block edits, that is the scriptBlock + ID
+        // then the opening brace, then the closing brace
+        const blockHeader = `${indentation}${this.scriptBlock}${this.id ? " " + this.id : ""} {`;
+        const currentHeaderRange = new vscode.Range(
+            lineStart,
+            this.document.positionAt(this.start)
+        );
+        const headerEdit = vscode.TextEdit.replace(currentHeaderRange, blockHeader);
+        edits.push(headerEdit);
 
-        //         if (!refs.has(expectedBlock)) {
-        //             refs.set(expectedBlock, []);
-        //         }
+        // add edit for the closing brace
+        const closingBraceLine = this.document.lineAt(this.lineEnd);
+        const closingBraceRange = new vscode.Range(
+            closingBraceLine.range.start,
+            closingBraceLine.range.end
+        );
+        const closingBraceEdit = vscode.TextEdit.replace(closingBraceRange, `${indentation}}`);
+        edits.push(closingBraceEdit);
+    }
 
-        //         refs.get(expectedBlock)!.push(new vscode.Range(startPos, endPos));
-        //     }
-        // }
+    public getFormattingEdits(edits: vscode.TextEdit[]): void {
+        // retrieve parameter edits
+        for (const param of this.parameters) {
+            const edit = param.getFormattingEdit();
+            edits.push(edit);
+        }
 
-        // // collect references from children blocks
-        // for (const child of this.children) {
-        //     child.collectReferences(refs);
-        // }
+        this.getHeaderEdits(edits);
+
+        // get children edits recursively
+        for (const child of this.children) {
+            child.getFormattingEdits(edits);
+        }
+    }
+
+    public getDepthLevel(): number {
+        let depth = -1; // -1 since final parent is always the document block
+        let current = this.parent;
+        while (current) {
+            depth++;
+            current = current.parent;
+        }
+        console.log(`Depth of block ${this.scriptBlock} (${this.id}): ${depth}`);
+        return depth;
+    }
+
+    public getMaxParameterLength(): number {
+        let maxLength = 0;
+        for (const param of this.parameters) {
+            if (param.parameter.length > maxLength) {
+                maxLength = param.parameter.length;
+            }
+        }
+        return maxLength;
     }
 
 

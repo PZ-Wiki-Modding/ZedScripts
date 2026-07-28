@@ -4,7 +4,8 @@ import { DocumentBlock } from "./blockTypes/document";
 import { WIKI_LINK } from '../project';
 import { 
     formatText,
-    formatList
+    formatList,
+    DEFAULT_INDENT
 } from '../utils/format';
 import { DefaultText } from '../models/DefaultText';
 import { ThemeColorType } from "../models/ThemeColorType";
@@ -460,6 +461,41 @@ export class ScriptParameter {
         }
         return false;
     }
+
+
+// EDITS
+    // utility providers of editing the document to format it
+
+    /**
+     * Example result:
+     * ```ts
+     * param = value,
+     * block {
+     *     param1     = valueLong1,
+     *     paramLong2 = value2,
+     * }
+     * ```
+     */
+    public getFormattingEdit(): vscode.TextEdit {
+        // get indentation level by finding depth level
+        const depthLevel = this.parent.getDepthLevel()+1;
+        const indentation = " ".repeat(DEFAULT_INDENT).repeat(depthLevel);
+
+        // retrieve the maximum parameter length in this block to align the equal signs properly
+        const maxParameterLength = this.parent.getMaxParameterLength();
+
+        // format the parameter-value pair with proper indentation and alignment
+        const formattedParameter = `${indentation}${this.parameter.padEnd(maxParameterLength)} = ${this.value}${this.comma}`;
+        
+        const lineStartNumber = this.document.positionAt(this.parameterRange.start).line;
+        const lineStart = this.document.lineAt(lineStartNumber).range.start;
+        const lineEnd = this.document.positionAt(this.valueRange.end + this.comma.length);
+        return vscode.TextEdit.replace(
+            new vscode.Range(lineStart, lineEnd), 
+            formattedParameter
+        );
+    }
+
 
 
 // CHECKERS

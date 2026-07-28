@@ -61,6 +61,8 @@ export class DocumentBlock extends ScriptsBlock {
         return actions;
     }
 
+    public getHeaderEdits(edits: vscode.TextEdit[]): void {}
+
 
 // ACCESS
 
