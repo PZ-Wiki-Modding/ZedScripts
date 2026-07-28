@@ -114,6 +114,18 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 ## Changelog
 With each update, the extension fetches the latest data from the pz-scripts-data repository and make a local copy of it. If you're having issues, it might be because of outdated data, so make sure to fetch the latest data.
 
+1.11.0:
+- cleanup README, [CONTRIBUTING](CONTRIBUTING.md) and [LICENSE](LICENSE) files
+- reordered files for easier management and expansion
+- cleanup some outdated files and improve data access to not require a pre-commit anymore
+- fixed npm install process
+- validation now happens AFTER data parsing
+- added noAutoImport property of script parameters type
+- fixed workspace parsing to only include valid script files and manually set files to ZedScripts. Should make load time faster
+- definitions access of script blocks towards parameters that reference them (ctrl + left click on ID or block name)
+- added quick fix for missing ID
+- reworked formatter ([#17](https://github.com/PZ-Wiki-Modding/ZedScripts/issues/17))
+
 1.10.11:
 - hotfixes
 - fixed decorations not being properly updated when swapping file
