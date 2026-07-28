@@ -41,7 +41,7 @@ export async function loadEnvironment(diagnosticProvider: DiagnosticProvider): P
 
 
     // get workspace files
-    const workspaceFiles = await getTxtFiles(validWorkspaceDirs);
+    const workspaceFiles = await getTxtFiles(validWorkspaceDirs, true);
 
     // get library files
     const libraryFiles = await getTxtFiles(validLibraryDirs);
@@ -97,15 +97,34 @@ export function filterDirs(dirs: string[]): string[] {
     });
 }
 
-async function getTxtFiles(dirs: string[]): Promise<vscode.Uri[]> {
-    const files: vscode.Uri[] = [];
+async function getTxtFiles(dirs: string[], acceptManual: boolean = false): Promise<vscode.Uri[]> {
+    const files: Map<string, vscode.Uri> = new Map();
     for (const dir of dirs) {
         const dirFiles = await vscode.workspace.findFiles(
             new vscode.RelativePattern(dir, "**/*.txt")
         );
-        files.push(...dirFiles);
+        for (const file of dirFiles) {
+            files.set(file.fsPath, file);
+        }
     }
-    return files;
+
+    const allFiles = Array.from(files.values());
+
+    // filter out files inside the following folders by checking if they are valid script files
+    const filteredFiles: vscode.Uri[] = [];
+    for (const file of allFiles) {
+        const filePath = file.fsPath;
+        const document = await vscode.workspace.openTextDocument(filePath);
+        if (acceptManual && document.languageId === LANG_ZEDSCRIPTS) {
+            filteredFiles.push(file);
+            continue;
+        }
+        if (testForScriptRootFile(filePath) !== null) {
+            filteredFiles.push(file);
+        }
+    }
+
+    return filteredFiles;
 }
 
 /**
