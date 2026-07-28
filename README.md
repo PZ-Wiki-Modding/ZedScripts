@@ -11,7 +11,6 @@ This VS Code extension provides comprehensive support for Project Zomboid's [scr
 
 ## Features
 - Syntax highlighting for Project Zomboid script files.
-- Auto-formatting of script files to maintain consistent style.
 - Diagnostics for:
   - Common errors in script definitions;
   - Mandatory, wrong, deprecated parameters;
@@ -20,13 +19,14 @@ This VS Code extension provides comprehensive support for Project Zomboid's [scr
   - And more!
 - Hovering tooltips with additional information about script elements.
 - Auto-completion for script elements based on the Project Zomboid data (automatic mandatory parameters and subblocks).
-- Detection for script blocks used in wrong parent blocks.
-- Missing IDs detection.
-- Last updated Scripts data via the [pz-scripts-data](https://github.com/pz-wiki-modding/pz-scripts-data) repository, which is automatically fetched every 12 hours and cached. Currently needs to be manually actived in the extension settings.
+- Auto-formatting script files to maintain consistent style. (Ctrl + Shift + I or right-click and select "Format Document")
 
+Syntax highlight:
 ![ZedScripts syntax highlighting preview in VS Code](images/ZedScripts_preview1.png)
-![ZedScripts parameter hovering preview in VS Code](images/ZedScripts_preview2.png)
+Diagnostics:
 ![ZedScripts diagnostics preview in VS Code](images/ZedScripts_preview3.png)
+Parameter hovering:
+![ZedScripts parameter hovering preview in VS Code](images/ZedScripts_preview2.png)
 
 ## Usage
 - Install the extension from the VSCode Marketplace. The extension can take a few seconds to load the library data when you launch a VSCode instance.
@@ -36,6 +36,12 @@ This VS Code extension provides comprehensive support for Project Zomboid's [scr
 If your file isn't recognized as a Project Zomboid script file, it means it doesn't follow any of the currently [documented root files](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts.html#root-files) conditions. You can still manually set the language mode to "ZedScripts" which will default the root file type to [ROOT-Scripts](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/roots/scripts.html):
 - Press Ctrl + Shift + P and select "Change Language Mode".
 - Choose "ZedScripts".
+
+When anywhere in a script file, you press Ctrl + Space to show the auto-completion suggestions which will list all the possible script blocks and parameters within a specific block. 
+
+You can hover different elements with your mouse to show additional information about them, including a link to the [ScriptsDocs](https://pzwiki.net/wiki/ScriptsDocs) page for that element.
+
+When an error or warning appears, you can right click on it and select "Quick Fix" to see if a quick fix is available for that specific diagnostic.
 
 ## Configurations
 ### Libraries
