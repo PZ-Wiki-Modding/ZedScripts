@@ -29,14 +29,13 @@ This VS Code extension provides comprehensive support for Project Zomboid's [scr
 ![ZedScripts diagnostics preview in VS Code](images/ZedScripts_preview3.png)
 
 ## Usage
-- Install the extension from the VS Code Marketplace.
+- Install the extension from the VSCode Marketplace. The extension can take a few seconds to load the library data when you launch a VSCode instance.
 - Open a `.txt` script file.
+- The file should automatically be recognized as a Project Zomboid script file and diagnostics should be provided.
+
+If your file isn't recognized as a Project Zomboid script file, it means it doesn't follow any of the currently [documented root files](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts.html#root-files) conditions. You can still manually set the language mode to "ZedScripts" which will default the root file type to [ROOT-Scripts](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/roots/scripts.html):
 - Press Ctrl + Shift + P and select "Change Language Mode".
 - Choose "ZedScripts".
-
-You can set the extension to automatically downloads the latest script data from the [pz-scripts-data](https://github.com/pz-wiki-modding/pz-scripts-data) repository via the extension settings, it will cache the data for 12 hours, which it will fetch once more after this time. If it doesn't manage to fetch this data, it will fall back to the bundled data with the extension, which may get outdated until the next update.
-
-You can fetch data manually by running the command "ZedScripts: Force fetch Scripts Data" from the Command Palette (Ctrl + Shift + P). This won't directly update the diagnostics (due to a bug to fix, see [issue #2](https://github.com/pz-wiki-modding/ZedScripts/issues/2)) so you will have to restart VSCode.
 
 ## Configurations
 ### Libraries
@@ -45,57 +44,68 @@ You can provide a path to a set of libraries that contain scripts to provide as 
 By default, the extension sets the default Project Zomboid install directory on a Windows system as a library, which is `C:\Program Files (x86)\Steam\steamapps\common\ProjectZomboid\media\scripts`. If on a different OS or installed elsewhere, you must provide the path to your Project Zomboid install directory.
 
 ### Diagnostics
-You can disable a specific diagnostic by adding its ID to the `zedScripts.disabledDiagnostics` setting. Alternatively, you can disable all diagnostics via the `zedScripts.disableAllDiagnostics` setting. Below are all the available diagnostics for scripts:
+You can disable a specific diagnostic entirely by adding its ID to the `zedScripts.disabledDiagnostics` setting. Alternatively, you can disable all diagnostics via the `zedScripts.disableAllDiagnostics` setting. Below are all the available diagnostics for scripts:
 
-| ID | Description |
-|---|---|
-| `MISSING_COMMA` | Missing comma. |
-| `INVALID_COMMA` | Invalid comma. |
-| `UNMATCHED_BRACE` | Missing closing bracket '}' for '{scriptBlock}' block. |
-| `NOT_VALID_BLOCK` | '{scriptBlock}' is an unknown script block. |
-| `MISSING_PARENT_BLOCK` | '{scriptBlock}' block must be inside a valid parent block: {parentBlocks}. |
-| `HAS_PARENT_BLOCK` | '{scriptBlock}' block cannot be inside any parent block. |
-| `WRONG_PARENT_BLOCK` | '{scriptBlock}' block cannot be inside parent block '{parentBlock}'. Valid parent blocks are: {parentBlocks}. |
-| `MISSING_CHILD_BLOCK` | '{scriptBlock}' block must have child blocks: {childBlocks}. This might be intentional for soft overrides of an existing block. |
-| `MISSING_ID` | '{scriptBlock}' block is missing an ID. |
-| `HAS_ID` | '{scriptBlock}' block cannot have an ID. |
-| `INVALID_ID` | '{scriptBlock}' block has an invalid ID '{id}'. Valid IDs are: {validIDs}. |
-| `HAS_ID_IN_PARENT` | '{scriptBlock}' block cannot have an ID when inside parent block '{parentBlock}', only for: {invalidBlocks}. |
-| `ID_CANNOT_CONTAIN_SPACES` | ID '{id}' of '{scriptBlock}' block cannot contain spaces. |
-| `UNKNOWN_PARAMETER` | '{parameter}' is an unknown parameter for '{scriptBlock}' block. [WIP: not every parameters are documented yet] |
-| `MISSING_PARAMETER` | '{scriptBlock}' block is missing required parameter(s): {parameters}. |
-| `DUPLICATE_PARAMETER` | '{parameter}' is defined multiple times in '{scriptBlock}' block. |
-| `MISSING_VALUE` | Missing a value. |
-| `INVALID_PARAMETER_VALUE` | '{parameter}' has an invalid value '{value}'. |
-| `DEPRECATED_PARAMETER` | '{parameter}' parameter in '{scriptBlock}' block is deprecated. |
-| `WRONG_VALUE` | '{value}' is not a valid value for parameter '{parameter}'. Valid values are: {validValues}. |
-| `WRONG_VALUES` | Invalid values for parameter '{parameter}' ({invalidValues}). Valid values are: {validValues}. |
-| `MISSING_DEPENDENT_PARAMETER` | '{parameter}' parameter requires dependent parameter '{dependentParameter}' to be present. |
-| `DEPENDENT_PARAMETER_WRONG_VALUE` | '{parameter}' requires dependent parameter '{dependentParameter}' to have a valid value. Current value is '{value}' but valid values are: {dependentValues}. |
-| `INVALID_TYPE_FOR_VALUE` | Type '{type}' of '{parameter}' is invalid for value '{value}'. Expected type is '{expectedType}'. |
-| `INVALID_TYPE_FOR_VALUES_OBJECT` | Values {invalidTypeValues} of '{parameter}' don't have a valid type. Expected types are '{keyType}' for keys and '{valueType}' for values, with '{keyValueSeparator}' as separator. |
-| `INVALID_OBJECT_FORMAT` | Values {values} for parameter '{parameter}' do not follow the expected 'key{keyValueSeparator}value' format. |
-| `NO_BLOCK_REF` | No block reference found in value '{value}' for parameter '{parameter}'. Something might be wrong with the value or the parameter data definition. |
-| `CANNOT_PROVIDE_MODULE` | Referencing a block cannot be done with the full type ('module.block') for '{parameter}'. Make sure the value only contains the ID of the block to reference. This usually means the game defaults to a 'Base' module. |
-| `INVALID_BLOCK_REF` | The block reference '{value}' for parameter '{parameter}' does not match any existing block. Make sure the referenced block exists and is correctly spelled ('module.id'). |
-| `MULTIPLE_BLOCK_REFS` | Multiple block references found for '{value}' for parameter '{parameter}'. Make sure duplicate block references ('module.id') are not present. |
-| `INVALID_AMOUNT` | '{amount}' is not a valid amount for '{type}'. |
-| `INTEGER_AMOUNT` | '{amount}' should be an integer for '{type}'. |
-| `DUPLICATE_PROPERTY` | '{property}' is provided multiple times. |
-| `MISSING_ONEOF_PROPERTY` | '{type}' is missing at least one of the following properties: {properties}. |
-| `NO_DOTS_ITEM` | An item type (ID) cannot have dots '.' in its name. ({value}) |
-| `MISSING_MODULE` | The provided item type (ID) is missing its module part: 'module.type'. ({value}) |
-| `ALL_WITH_OTHERS` | '*' was provided along with other item types. '*' must be used alone. |
-| `SPACES_IN_ITEM` | An item full type (module and ID) cannot contain spaces. ({value}) |
-| `INVALID_VALUE` | '{value}' is not a valid value for '{property}'. Valid values are: {validValues}. |
-| `UNMATCHED_CODE` | Unmatched language code between folder name '{folderCode}' and file name '{fileCode}'. They should be the same. |
-| `NON_EXISTENT_CODE` | The language code '{code}' does not exist. Valid codes are: {validCodes}. |
-| `IN_FIRST_LINE` | Translation key-value pairs cannot be in the first line of the file as it is not parsed. |
-| `UNECESSARY_COMMA` | Unnecessary comma. Translation files do not need a comma compared to script files. |
-| `INVALID_FILE_PREFIX` | The file '{filePrefix}' is not a valid translation file prefix. Make sure to separate the language code and prefix with an underscore. Valid prefixes are: {validPrefixes}. |
-| `MISSING_QUOTES` | Missing quotes around value. |
-| `MISSING_PREFIX` | Missing prefix {prefix} for key '{key}'. |
-| `_DEBUG` | This is a debug diagnostic with value: {value}. |
+| ID                                | Description                                                                                                                                                                                                                          |
+| --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `MISSING_COMMA`                   | Missing comma.                                                                                                                                                                                                                       |
+| `INVALID_COMMA`                   | Invalid comma.                                                                                                                                                                                                                       |
+| `UNMATCHED_BRACE`                 | Missing closing bracket '}' for '{scriptBlock}' block.                                                                                                                                                                               |
+| `NOT_VALID_BLOCK`                 | '{scriptBlock}' is an unknown script block.                                                                                                                                                                                          |
+| `MISSING_PARENT_BLOCK`            | '{scriptBlock}' block must be inside a valid parent block: {parentBlocks}.                                                                                                                                                           |
+| `HAS_PARENT_BLOCK`                | '{scriptBlock}' block cannot be inside any parent block.                                                                                                                                                                             |
+| `WRONG_PARENT_BLOCK`              | '{scriptBlock}' block cannot be inside parent block '{parentBlock}'. Valid parent blocks are: {parentBlocks}.                                                                                                                        |
+| `MISSING_CHILD_BLOCK`             | '{scriptBlock}' block must have child blocks: {childBlocks}. This might be intentional for soft overrides of an existing block.                                                                                                      |
+| `MISSING_ID`                      | '{scriptBlock}' block is missing an ID.                                                                                                                                                                                              |
+| `HAS_ID`                          | '{scriptBlock}' block cannot have an ID.                                                                                                                                                                                             |
+| `INVALID_ID`                      | '{scriptBlock}' block has an invalid ID '{id}'. Valid IDs are: {validIDs}.                                                                                                                                                           |
+| `HAS_ID_IN_PARENT`                | '{scriptBlock}' block cannot have an ID when inside parent block '{parentBlock}', only for: {invalidBlocks}.                                                                                                                         |
+| `ID_CANNOT_CONTAIN_SPACES`        | ID '{id}' of '{scriptBlock}' block cannot contain spaces.                                                                                                                                                                            |
+| `UNKNOWN_PARAMETER`               | '{parameter}' is an unknown parameter for '{scriptBlock}' block.                                                                                                                                                                     |
+| `MISSING_PARAMETER`               | '{scriptBlock}' block is missing required parameter(s): {parameters}.                                                                                                                                                                |
+| `DUPLICATE_PARAMETER`             | '{parameter}' is defined multiple times in '{scriptBlock}' block.                                                                                                                                                                    |
+| `MISSING_VALUE`                   | Missing a value.                                                                                                                                                                                                                     |
+| `INVALID_PARAMETER_VALUE`         | '{parameter}' has an invalid value '{value}'.                                                                                                                                                                                        |
+| `DEPRECATED_PARAMETER`            | '{parameter}' parameter in '{scriptBlock}' block is deprecated.                                                                                                                                                                      |
+| `WRONG_VALUE`                     | '{value}' is not a valid value for parameter '{parameter}'. Valid values are: {validValues}.                                                                                                                                         |
+| `WRONG_VALUES`                    | Invalid values for parameter '{parameter}' ({invalidValues}). Valid values are: {validValues}.                                                                                                                                       |
+| `MISSING_DEPENDENT_PARAMETER`     | '{parameter}' parameter requires dependent parameter '{dependentParameter}' to be present.                                                                                                                                           |
+| `DEPENDENT_PARAMETER_WRONG_VALUE` | '{parameter}' requires dependent parameter '{dependentParameter}' to have a valid value. Current value is '{value}' but valid values are: {dependentValues}.                                                                         |
+| `INVALID_TYPE_FOR_VALUE`          | Type '{type}' of '{parameter}' is invalid for value '{value}'. Expected type is '{expectedType}'.                                                                                                                                    |
+| `INVALID_TYPE_FOR_VALUES_OBJECT`  | Values {invalidTypeValues} of '{parameter}' don't have a valid type. Expected types are '{keyType}' for keys and '{valueType}' for values, with '{keyValueSeparator}' as separator.                                                  |
+| `INVALID_OBJECT_FORMAT`           | Values {values} for parameter '{parameter}' do not follow the expected 'key{keyValueSeparator}value' format.                                                                                                                         |
+| `NO_BLOCK_REF`                    | No block reference found in value '{value}' for parameter '{parameter}'. Something might be wrong with the value.                                                                                                                    |
+| `CANNOT_PROVIDE_MODULE`           | Referencing a block cannot be done with the full type ('module.block') for '{parameter}'. Make sure the value only contains the ID of the block to reference. This usually means the game defaults to a 'Base' module.               |
+| `INVALID_BLOCK_REF`               | The block reference '{value}' for parameter '{parameter}' does not match any existing block. Make sure the referenced block exists.                                                                                                  |
+| `INVALID_BLOCK_REF_NO_AUTO`       | The block reference '{value}' for parameter '{parameter}' does not match any existing block. Make sure the referenced block exists. If you try to reference a block in the same parent module, you can't do that for this parameter. |
+| `MULTIPLE_BLOCK_REFS`             | Multiple block references found for '{value}' for parameter '{parameter}'. Make sure duplicate block references are not present.                                                                                                     |
+| `INVALID_AMOUNT`                  | '{amount}' is not a valid amount for '{type}'.                                                                                                                                                                                       |
+| `INTEGER_AMOUNT`                  | '{amount}' should be an integer for '{type}'.                                                                                                                                                                                        |
+| `DUPLICATE_PROPERTY`              | '{property}' is provided multiple times.                                                                                                                                                                                             |
+| `MISSING_ONEOF_PROPERTY`          | '{type}' is missing at least one of the following properties: {properties}.                                                                                                                                                          |
+| `NO_DOTS_ITEM`                    | An item type (ID) cannot have dots '.' in its name. ({value})                                                                                                                                                                        |
+| `MISSING_MODULE`                  | The provided item type (ID) is missing its module part: 'module.type'. ({value})                                                                                                                                                     |
+| `ALL_WITH_OTHERS`                 | '*' was provided along with other item types. '*' must be used alone.                                                                                                                                                                |
+| `SPACES_IN_ITEM`                  | An item full type (module and ID) cannot contain spaces. ({value})                                                                                                                                                                   |
+| `INVALID_VALUE`                   | '{value}' is not a valid value for '{property}'. Valid values are: {validValues}.                                                                                                                                                    |
+| `UNMATCHED_CODE`                  | Unmatched language code between folder name '{folderCode}' and file name '{fileCode}'. They should be the same.                                                                                                                      |
+| `NON_EXISTENT_CODE`               | The language code '{code}' does not exist. Valid codes are: {validCodes}.                                                                                                                                                            |
+| `IN_FIRST_LINE`                   | Translation key-value pairs cannot be in the first line of the file as it is not parsed.                                                                                                                                             |
+| `UNECESSARY_COMMA`                | Unnecessary comma. Translation files do not need a comma compared to script files.                                                                                                                                                   |
+| `INVALID_FILE_PREFIX`             | The file '{filePrefix}' is not a valid translation file prefix. Make sure to separate the language code and prefix with an underscore. Valid prefixes are: {validPrefixes}.                                                          |
+| `MISSING_QUOTES`                  | Missing quotes around value.                                                                                                                                                                                                         |
+| `MISSING_PREFIX`                  | Missing prefix {prefix} for key '{key}'.                                                                                                                                                                                             |
+| `_DEBUG`                          | This is a debug diagnostic with value: {value}.                                                                                                                                                                                      |
+
+### Data Sources
+> [!CAUTION]
+> This is an advanced feature which can affect the behavior of the extension.
+
+The extension uses the [pz-scripts-data](https://github.com/pz-wiki-modding/pz-scripts-data) dataset to provide the latest information about Project Zomboid scripts. By default, a bundled version of the data is included with the extension, but you can also activate the automatic fetching of the latest data from the repository via the extension settings.
+
+The data is cached for 12 hours, after which it will be fetched again. If the fetch fails, the extension will fall back to the bundled data. This could prove unstable if the dataset format changes.
+
+You can fetch the data manually by running the command "ZedScripts: Force fetch Scripts Data" from the Command Palette (Ctrl + Shift + P). This won't directly update the diagnostics (due to a bug to fix, see [#2](https://github.com/pz-wiki-modding/ZedScripts/issues/2)) so you will have to restart VSCode.
 
 ## Build
 To build the extension, run the following command in the terminal:

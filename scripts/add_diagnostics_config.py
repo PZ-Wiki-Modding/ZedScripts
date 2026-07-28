@@ -44,7 +44,7 @@ def extract_diagnostic_type_enum(file_path: str) -> dict:
 def main(script_dir: Path):
     """Main function."""
     # Get the path to enums.ts
-    enums_file = script_dir.parent / 'src' / 'models' / 'enums.ts'
+    enums_file = script_dir.parent / 'src' / 'models' / 'DiagnosticType.ts'
     
     if not enums_file.exists():
         raise FileNotFoundError(f"enums.ts not found at {enums_file}")
