@@ -715,27 +715,47 @@ export class ScriptParameter {
 
             // not empty, then look for its reference
             if (block !== "") {
+                const noAutoImport = blockType.noAutoImport;
+
                 // retrieve searchable modules
                 const documentBlock = this.getRoot();
                 if (!module) {
                     var searchableModules = documentBlock.getImports();
-
-                // since the module is provided, only search in that specific module
                 } else {
-                    var searchableModules = [module];
+                    var searchableModules: string[] = [];
                 }
 
+                // add own module to search into and if allowed
+                if (module) {
+                    searchableModules.push(module);
+                }
+
+                // if noAutoImport is false, then we can also search into the parent block module
+                if (!noAutoImport) {
+                    const parentModule = this.parent.getModule();
+                    const id = parentModule?.id;
+                    if (parentModule && id && !searchableModules.includes(id)) {
+                        searchableModules.push(id);
+                    }
+                }
+
+                // search the block reference in the provided modules
                 const expectedBlock = blockType.name;
                 const refBlocks = DocumentBlock.findBlockFromFullType(expectedBlock, searchableModules, block);
+                
+                // no references found
                 if (refBlocks.length === 0) {
+                    const diagType = noAutoImport ? DiagnosticType.INVALID_BLOCK_REF_NO_AUTO : DiagnosticType.INVALID_BLOCK_REF;
                     this.diagnostic(
-                        DiagnosticType.INVALID_BLOCK_REF,
+                        diagType,
                         { value: this.value, parameter: this.parameter },
                         this.valueRange.start,
                         this.valueRange.end,
                         vscode.DiagnosticSeverity.Error
                     );
                     return false;
+
+                // duplicate block references
                 } else if (refBlocks.length > 1) {
                     this.diagnostic(
                         DiagnosticType.MULTIPLE_BLOCK_REFS,
@@ -744,7 +764,7 @@ export class ScriptParameter {
                         this.valueRange.end,
                         vscode.DiagnosticSeverity.Warning
                     );
-                    // return false;
+                    // no return, this still counts as valid
                 }
 
                 // assign the reference to the parameter for later use in hovers and go to definition

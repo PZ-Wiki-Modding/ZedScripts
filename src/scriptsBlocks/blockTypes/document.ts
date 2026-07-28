@@ -141,7 +141,6 @@ export class DocumentBlock extends ScriptsBlock {
         return found; // return all found blocks
     }
 
-
     public getImports(): string[] {
         // retrieve imports block modules
         const imports: string[] = ['Base']; // Base is always implicitly imported
@@ -151,12 +150,12 @@ export class DocumentBlock extends ScriptsBlock {
             }
         }
 
-        // also consider direct module children as imports
-        for (const child of this.children) {
-            if (child.scriptBlock === "module" && child.id && !imports.includes(child.id)) {
-                imports.push(child.id);
-            }
-        }
+        // // also consider direct module children as imports
+        // for (const child of this.children) {
+        //     if (child.scriptBlock === "module" && child.id && !imports.includes(child.id)) {
+        //         imports.push(child.id);
+        //     }
+        // }
         return imports;
     }
 

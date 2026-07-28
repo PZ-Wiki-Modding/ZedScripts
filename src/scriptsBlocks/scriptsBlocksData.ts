@@ -61,7 +61,8 @@ export interface ScriptBlockParameter {
 // TYPINGS
 export interface BlockType {
     name: string; // the block type (e.g. "sound", "item", "model"...)
-    fullType: boolean; // if true, this should use the module to reference the block
+    fullType?: boolean; // if true, this should use the module to reference the block
+    noAutoImport?: boolean; // if true, this will not automatically check its own parent block module when fullType is set to true
 }
 
 export interface ArrayType {

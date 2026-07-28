@@ -249,6 +249,18 @@ export class ScriptsBlock {
     }
     
 
+    public getModule(): ScriptsBlock | null {
+        // find the module block by checking parents
+        let currentBlock: ScriptsBlock = this;
+        while (currentBlock.parent) {
+            currentBlock = currentBlock.parent;
+            if (currentBlock.scriptBlock === "module") {
+                return currentBlock;
+            }
+        }
+        return null; // no module block found in parents
+    }
+
     public collectReferences(refs: Map<string, vscode.Range[]>): void {
         // collect references from parameters
         for (const param of this.parameters) {

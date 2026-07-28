@@ -73,6 +73,7 @@ export enum DiagnosticType {
     NO_BLOCK_REF = "No block reference found in value '{value}' for parameter '{parameter}'. Something might be wrong with the value.",
     CANNOT_PROVIDE_MODULE = "Referencing a block cannot be done with the full type ('module.block') for '{parameter}'. Make sure the value only contains the ID of the block to reference. This usually means the game defaults to a 'Base' module.",
     INVALID_BLOCK_REF = "The block reference '{value}' for parameter '{parameter}' does not match any existing block. Make sure the referenced block exists.",
+    INVALID_BLOCK_REF_NO_AUTO = "The block reference '{value}' for parameter '{parameter}' does not match any existing block. Make sure the referenced block exists. If you try to reference a block in the same parent module, you can't do that for this parameter.",
     MULTIPLE_BLOCK_REFS = "Multiple block references found for '{value}' for parameter '{parameter}'. Make sure duplicate block references are not present.",
 
     // craftRecipe related diagnostics
@@ -105,31 +106,11 @@ export enum DiagnosticType {
 
 
 
-// Diagnostic helpers
+// helpers
 export function formatText(message: string, params: Record<string, string>): string {
     return message.replace(/{([^}]+)}/g, (_, key) => params[key] ?? "");
 }
 
 export function formatList(values: any[], sep: string = ", "): string {
     return values.filter(v => v != null && v !== '').map(v => `'${v}'`).join(sep);
-}
-
-export function diagnostic(
-    document: TextDocument,
-    diagnostics: Diagnostic[],
-    type: DiagnosticType,
-    params: Record<string, string>,
-    index_start: number, index_end: number = index_start,
-    severity: DiagnosticSeverity = DiagnosticSeverity.Error
-): void {
-    const positionStart = document.positionAt(index_start);
-    const positionEnd = document.positionAt(index_end);
-    const message = formatText(type, params);
-    const diagnostic = new Diagnostic(
-        new Range(positionStart, positionEnd),
-        message,
-        severity
-    );
-    diagnostics.push(diagnostic);
-    // console.warn(message);
 }
