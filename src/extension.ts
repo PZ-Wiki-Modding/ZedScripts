@@ -24,7 +24,7 @@ function loadDecorations(document: vscode.TextDocument) {
     const documentBlock = DocumentBlock.getDocumentBlock(document);
     if (documentBlock) {
         const references: Map<string, vscode.Range[]> = new Map();
-        documentBlock.collectReferences(references);
+        documentBlock.collectReferencesPerType(references);
 
         // for each references, create a decoration
         for (const [refType, ranges] of references) {

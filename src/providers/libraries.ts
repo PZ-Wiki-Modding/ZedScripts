@@ -128,7 +128,7 @@ async function getTxtFiles(dirs: string[], acceptManual: boolean = false): Promi
 }
 
 /**
- * Parse all .txt files in the given directory and its subdirectories
+ * Parse all script files in the given directory and its subdirectories
  */
 export async function parseFiles(files: vscode.Uri[], diagnosticProvider?: DiagnosticProvider): Promise<void> {
     // parse each file

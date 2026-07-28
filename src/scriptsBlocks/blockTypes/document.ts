@@ -149,14 +149,16 @@ export class DocumentBlock extends ScriptsBlock {
                 imports.push(...child.getImports());
             }
         }
-
-        // // also consider direct module children as imports
-        // for (const child of this.children) {
-        //     if (child.scriptBlock === "module" && child.id && !imports.includes(child.id)) {
-        //         imports.push(child.id);
-        //     }
-        // }
         return imports;
+    }
+
+    public static getAllReferences(): Map<ScriptsBlock, vscode.Range[]> {
+        const documents = DocumentBlock.getAllDocumentBlocks();
+        const allReferences: Map<ScriptsBlock, vscode.Range[]> = new Map();
+        for (const document of documents) {
+            document.collectReferencedToBlocks(allReferences);
+        }
+        return allReferences;
     }
 
 
@@ -178,7 +180,7 @@ export class DocumentBlock extends ScriptsBlock {
 
 
 // EXPORTS
-    public gather_exports(): Record<string, unknown> {
+    public gatherExports(): Record<string, unknown> {
         const exports: Record<string, unknown> = {};
         for (const child of this.children) {
             if (child.id) {
@@ -191,7 +193,7 @@ export class DocumentBlock extends ScriptsBlock {
     public static exportAll(): Record<string, unknown> {
         const allExports: Record<string, unknown> = {};
         for (const documentBlock of DocumentBlock.documentBlockCache.values()) {
-            allExports[documentBlock.document.uri.toString()] = documentBlock.gather_exports();
+            allExports[documentBlock.document.uri.toString()] = documentBlock.gatherExports();
         }
         return allExports;
     }

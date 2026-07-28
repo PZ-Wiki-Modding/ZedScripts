@@ -98,6 +98,14 @@ export class ScriptsBlock {
         return this.scriptBlock.toLowerCase() === word.toLowerCase();
     }
 
+    public isID(word: string): string | null {
+        const lowerWord = word.toLowerCase();
+        if (this.id && this.id.toLowerCase() === lowerWord) {
+            return this.id;
+        }
+        return null;
+    }
+
     public isIndexOf(index: number): boolean {
         // check if in main block
         if (index < this.start || index >= this.end) {
@@ -261,7 +269,7 @@ export class ScriptsBlock {
         return null; // no module block found in parents
     }
 
-    public collectReferences(refs: Map<string, vscode.Range[]>): void {
+    public collectReferencedToBlocks(refs: Map<ScriptsBlock, vscode.Range[]>): void {
         // collect references from parameters
         for (const param of this.parameters) {
             if (param.ref) {
@@ -271,19 +279,58 @@ export class ScriptsBlock {
                 const endPos = this.document.positionAt(valueRange.end);
 
                 const expectedBlock = param.ref.expectedBlock;
+                const referencedBlocks = param.ref.blocks;
+                for (const refBlock of referencedBlocks) {
+                    if (!refs.has(refBlock)) {
+                        refs.set(refBlock, []);
+                    }
 
-                if (!refs.has(expectedBlock)) {
-                    refs.set(expectedBlock, []);
+                    refs.get(refBlock)!.push(new vscode.Range(startPos, endPos));
                 }
-
-                refs.get(expectedBlock)!.push(new vscode.Range(startPos, endPos));
             }
         }
 
         // collect references from children blocks
         for (const child of this.children) {
-            child.collectReferences(refs);
+            child.collectReferencedToBlocks(refs);
         }
+    }
+
+    public collectReferencesPerType(refs: Map<string, vscode.Range[]>): void {
+        const refBlocks = new Map<ScriptsBlock, vscode.Range[]>();
+        this.collectReferencedToBlocks(refBlocks);
+
+        for (const [refBlock, ranges] of refBlocks) {
+            const expectedBlock = refBlock.scriptBlock;
+            if (!refs.has(expectedBlock)) {
+                refs.set(expectedBlock, []);
+            }
+            refs.get(expectedBlock)!.push(...ranges);
+        }
+
+
+        // // collect references from parameters
+        // for (const param of this.parameters) {
+        //     if (param.ref) {
+        //         // get position
+        //         const valueRange = param.valueRange;
+        //         const startPos = this.document.positionAt(valueRange.start);
+        //         const endPos = this.document.positionAt(valueRange.end);
+
+        //         const expectedBlock = param.ref.expectedBlock;
+
+        //         if (!refs.has(expectedBlock)) {
+        //             refs.set(expectedBlock, []);
+        //         }
+
+        //         refs.get(expectedBlock)!.push(new vscode.Range(startPos, endPos));
+        //     }
+        // }
+
+        // // collect references from children blocks
+        // for (const child of this.children) {
+        //     child.collectReferences(refs);
+        // }
     }
 
 
