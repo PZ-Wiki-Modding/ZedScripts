@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 
+import { DiagnosticType } from '../../models/DiagnosticType';
 import { ScriptsBlock } from '../scriptsBlocks';
 import { ImportsBlock } from './imports';
 
@@ -175,7 +176,32 @@ export class DocumentBlock extends ScriptsBlock {
 
 // OVERWRITES
     // overwrite validates for this class since the rules aren't the same
-    protected validateBlock(): boolean { return true; }
+    protected validateBlock(): boolean { 
+        // count { } pairs to catch extra ones
+        let count = 0;
+        for (let i = this.start; i < this.end; i++) {
+            const char = this.document.getText(new vscode.Range(this.document.positionAt(i), this.document.positionAt(i + 1)));
+            if (char === '{') {
+                count++;
+            } else if (char === '}') {
+                count--;
+                if (count < 0) {
+                    // found a closing bracket without an opening one
+                    this.diagnostic(
+                        DiagnosticType.UNEXPECTED_CLOSING_BRACKET,
+                        {},
+                        i,
+                        i + 1,
+                        vscode.DiagnosticSeverity.Error
+                    );
+                }
+            }
+        }
+
+        if (count < 0) { return false; } // already reported an error
+
+        return true; 
+    }
     // protected validateChildren(): boolean { return true; } // some documents might need children
     protected validateID(): boolean { return true; }
     // protected findParameters(): ScriptParameter[] { return []; }

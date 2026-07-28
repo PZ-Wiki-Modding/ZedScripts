@@ -3,6 +3,7 @@ export enum DiagnosticType {
     MISSING_COMMA = "Missing comma.",
     INVALID_COMMA = "Invalid comma.",
     UNMATCHED_BRACE = "Missing closing bracket '}' for '{scriptBlock}' block.",
+    UNEXPECTED_CLOSING_BRACKET = "Unexpected extra closing bracket '}'.",
     NOT_VALID_BLOCK = "'{scriptBlock}' is an unknown script block.",
     
     // parent/child block related diagnostics
