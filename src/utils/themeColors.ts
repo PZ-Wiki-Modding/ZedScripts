@@ -1,6 +1,6 @@
 import { extensions, workspace } from "vscode";
 import path from "path";
-import { ThemeColorType } from "../models/enums";
+import { ThemeColorType } from "../models/ThemeColorType";
 import { colorText } from './htmlFormat';
 
 const TokenColorsCache = new Map<string, (token: string) => any>();

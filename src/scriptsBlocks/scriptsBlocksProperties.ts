@@ -2,9 +2,9 @@ import * as vscode from 'vscode';
 import { ScriptsBlock } from "./scriptsBlocks";
 
 import { 
-    DiagnosticType,
     formatList
-} from '../models/enums';
+} from '../utils/format';
+import { DiagnosticType } from "../models/DiagnosticType";
 import { inputsOutputsRegex } from '../models/regexPatterns';
 
 import { IndexRange } from '../utils/positions';

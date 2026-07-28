@@ -5,12 +5,10 @@ import {
     WIKI_LINK,
     DOCS_LINK,
 } from '../project';
-import { 
-    ThemeColorType, 
-    DiagnosticType, 
-    DefaultText,
-    formatText,
-} from '../models/enums';
+import { formatText } from '../utils/format';
+import { DefaultText } from '../models/DefaultText';
+import { ThemeColorType } from "../models/ThemeColorType";
+import { DiagnosticType } from "../models/DiagnosticType";
 import { diagnostic } from '../providers/diagnostic';
 import { registerActionTextReplace } from '../providers/actions';
 import { color } from "../utils/themeColors";

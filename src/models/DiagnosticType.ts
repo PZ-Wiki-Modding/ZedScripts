@@ -1,40 +1,3 @@
-import { TextDocument, DiagnosticSeverity, Diagnostic, Range } from "vscode";
-
-export enum ThemeColorType {
-    ID = "entity.name.class",
-    SCRIPT_BLOCK = "keyword.control",
-    BOOLEAN = "constant.language.boolean",
-    PARAMETER = "variable.parameter",
-    NUMBER = "constant.numeric",
-    STRING = "string.quoted.double",
-    FULLTYPE = "string.quoted.double",
-    TYPE = "entity.name.class",
-    OPERATOR = "keyword.operator.assignment",
-}
-
-export enum DefaultText {
-    SCRIPT_BLOCK_DESCRIPTION = "No description available for this script block.",
-    PARAMETER_DESCRIPTION = "No description available for this parameter.",
-    MORE_INFORMATION = "*For more information, visit the [wiki page]({wikiPage}) or the [documentation]({scriptsDoc}).*",
-
-    DEPRECATION_REPLACEMENT = "This parameter is deprecated and replaced by '{replacement}'.",
-    DEPRECATION_REPLACEMENT_VERSION = "This parameter is deprecated since version '{version}' and replaced by '{replacement}'.",
-    DEPRECATION_VERSION = "This parameter is deprecated since version '{version}'.",
-
-    CACHE_RESET = "Script data cache has been reset.",
-    CACHE_RESET_FAILED = "Project Zomboid Scripts Data fetch failed, using cached or default extension data. Information might be outdated.",
-}
-
-export enum CompletionText {
-    BLOCK = `{scriptBlock} {id}{\n`,
-    // MIDDLE = '',
-    END = '}',
-    ID = `\${{level}:id} `,
-
-    PARAMETER_AUTO = `{parameter} = \${1:value},`,
-    PARAMETER = `\t{parameter} = {value},\n`,
-}
-
 export enum DiagnosticType {
     // formatting related diagnostics
     MISSING_COMMA = "Missing comma.",
@@ -98,19 +61,4 @@ export enum DiagnosticType {
     MISSING_PREFIX = "Missing prefix {prefix} for key '{key}'.",
 
     _DEBUG = "This is a debug diagnostic with value: {value}.",
-}
-
-
-
-
-
-
-
-// helpers
-export function formatText(message: string, params: Record<string, string>): string {
-    return message.replace(/{([^}]+)}/g, (_, key) => params[key] ?? "");
-}
-
-export function formatList(values: any[], sep: string = ", "): string {
-    return values.filter(v => v != null && v !== '').map(v => `'${v}'`).join(sep);
 }

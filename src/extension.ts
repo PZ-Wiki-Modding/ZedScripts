@@ -8,7 +8,7 @@ import { PZCompletionItemProvider } from "./providers/completion";
 import { PZHoverProvider } from "./providers/hover";
 import { loadEnvironment } from "./providers/libraries";
 import { fetchData } from "./utils/fetchData";
-import { DefaultText } from "./models/enums";
+import { DefaultText } from "./models/DefaultText";
 import { DocumentBlock } from "./scriptsBlocks/blockTypes/document";
 import { createReferenceDecoration } from './models/decorations';
 

@@ -14,7 +14,8 @@ import {
     listRequiredParameters,
 } from "../scriptsBlocks/scriptsBlocksUtility";
 import { DocumentBlock } from "../scriptsBlocks/blockTypes/document";
-import { CompletionText, formatText } from "../models/enums";
+import { formatText } from "../utils/format";
+import { CompletionText } from "../models/CompletionText";
 
 export class PZCompletionItemProvider implements vscode.CompletionItemProvider {
     provideCompletionItems(

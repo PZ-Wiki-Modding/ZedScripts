@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 
 import { color, getColor } from "../utils/themeColors";
-import { ThemeColorType } from "./enums";
+import { ThemeColorType } from "./ThemeColorType";
 
 const cachedDecorations = new Map<string, vscode.TextEditorDecorationType>();
 
