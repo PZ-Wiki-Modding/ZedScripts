@@ -206,7 +206,7 @@ export class ScriptsBlock {
         markdown.appendMarkdown('\n\n' + formatText(
             DefaultText.MORE_INFORMATION, 
             { 
-                wikiPage: this.getWikiPage(),
+                // wikiPage: this.getWikiPage(),
                 scriptsDoc: this.getScriptsDocPage()
             }
         ));
@@ -359,7 +359,6 @@ export class ScriptsBlock {
             depth++;
             current = current.parent;
         }
-        console.log(`Depth of block ${this.scriptBlock} (${this.id}): ${depth}`);
         return depth;
     }
 

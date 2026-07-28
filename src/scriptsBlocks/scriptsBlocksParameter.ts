@@ -224,7 +224,7 @@ export class ScriptParameter {
             markdown.appendMarkdown('\n\n' + formatText(
                 DefaultText.MORE_INFORMATION, 
                 { 
-                    wikiPage: this.getWikiPage(),
+                    // wikiPage: this.getWikiPage(),
                     scriptsDoc: this.getScriptsDocPage()
                 }
             ));

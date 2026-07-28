@@ -1,7 +1,7 @@
 export enum DefaultText {
     SCRIPT_BLOCK_DESCRIPTION = "No description available for this script block.",
     PARAMETER_DESCRIPTION = "No description available for this parameter.",
-    MORE_INFORMATION = "*For more information, visit the [wiki page]({wikiPage}) or the [documentation]({scriptsDoc}).*",
+    MORE_INFORMATION = "*For more information, visit the [ScriptsDocs]({scriptsDoc}).*",
 
     DEPRECATION_REPLACEMENT = "This parameter is deprecated and replaced by '{replacement}'.",
     DEPRECATION_REPLACEMENT_VERSION = "This parameter is deprecated since version '{version}' and replaced by '{replacement}'.",
