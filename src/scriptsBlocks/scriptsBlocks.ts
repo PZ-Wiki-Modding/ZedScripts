@@ -12,6 +12,7 @@ import {
     formatText,
 } from '../models/enums';
 import { diagnostic } from '../providers/diagnostic';
+import { registerActionTextReplace } from '../providers/actions';
 import { color } from "../utils/themeColors";
 import { ScriptBlockData } from './scriptsBlocksData';
 import { getScriptBlockData, getVariantTree, getMainVariant, isScriptBlock } from './scriptsBlocksUtility';
@@ -662,11 +663,27 @@ export class ScriptsBlock {
 
         // should have an ID
         if (!hasID && shouldHaveIDfromParent) {
-            if (this.diagnostic(
+            const diagnosticOutput = this.diagnostic(
                 DiagnosticType.MISSING_ID,
                 { scriptBlock: this.scriptBlock }, 
                 this.headerStart
-            )) {
+            );
+            
+            if (diagnosticOutput) {
+                const newID = "yourID"; // placeholder text for the ID
+                const fix = registerActionTextReplace(
+                    this.document,
+                    new vscode.Range(
+                        this.document.positionAt(this.headerStart),
+                        this.document.positionAt(this.headerStart)
+                    ),
+                    `${this.scriptBlock} ${newID}`, // placeholder text for the ID
+                    "Add an ID to the script block"
+                );
+                this.registerFix(fix, diagnosticOutput, new vscode.Range(
+                    this.document.positionAt(this.headerStart),
+                    this.document.positionAt(this.headerStart)
+                ));
                 return false;
             }
         }
@@ -757,6 +774,13 @@ export class ScriptsBlock {
 
 
 // DIAGNOSTICS HELPERS
+
+    private registerFix(
+        fix: vscode.CodeAction, diagnostic: vscode.Diagnostic, range: vscode.Range
+    ): void {
+        const documentBlock = this.getRoot();
+        documentBlock.addAction(range, diagnostic, fix);
+    }
 
     protected diagnostic(
         type: DiagnosticType,

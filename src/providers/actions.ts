@@ -1,5 +1,13 @@
 import * as vscode from 'vscode';
 
+/**
+ * 
+ * @param document The text document in which the edit is applied.
+ * @param replaceRange The range of text to replace.
+ * @param newText The new text to insert.
+ * @param reason The reason for the action, displayed to the user.
+ * @returns A vscode.CodeAction representing the text replacement.
+ */
 export function registerActionTextReplace(
     document: vscode.TextDocument,
     replaceRange: vscode.Range,

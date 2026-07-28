@@ -602,7 +602,7 @@ export class ScriptParameter {
         // check if missing comma at the end
         if (this.parent.shouldParameterHaveComma()) {
             if (this.comma === "") {
-                const diagnostic = this.diagnostic(
+                const diagnosticOutput = this.diagnostic(
                     DiagnosticType.MISSING_COMMA,
                     {},
                     this.parameterRange.start,
@@ -610,7 +610,7 @@ export class ScriptParameter {
                 );
 
                 // provide quick fix by replacing the value with the value + comma
-                if (diagnostic) {
+                if (diagnosticOutput) {
                     const fix = registerActionTextReplace(
                         this.document,
                         new vscode.Range(
@@ -620,7 +620,7 @@ export class ScriptParameter {
                         this.value + ",",
                         `Add missing comma for parameter-value pair`
                     );
-                    this.registerFix(fix, diagnostic, new vscode.Range(
+                    this.registerFix(fix, diagnosticOutput, new vscode.Range(
                         this.document.positionAt(this.parameterRange.start),
                         this.document.positionAt(this.valueRange.end)
                     ));
@@ -628,13 +628,13 @@ export class ScriptParameter {
                 }
             } 
             if (this.comma !== ",") {
-                const diagnostic = this.diagnostic(
+                const diagnosticOutput = this.diagnostic(
                     DiagnosticType.INVALID_COMMA,
                     {},
                     this.parameterRange.start,
                     this.valueRange.end + this.comma.length
                 );
-                if (diagnostic) {
+                if (diagnosticOutput) {
                     // provide quick fix by replacing the invalid comma with a correct one
                     const fix = registerActionTextReplace(
                         this.document,
@@ -645,7 +645,7 @@ export class ScriptParameter {
                         ",",
                         `Replace invalid comma with a correct one`
                     );
-                    this.registerFix(fix, diagnostic, new vscode.Range(
+                    this.registerFix(fix, diagnosticOutput, new vscode.Range(
                         this.document.positionAt(this.parameterRange.start),
                         this.document.positionAt(this.valueRange.end + this.comma.length)
                     ));
