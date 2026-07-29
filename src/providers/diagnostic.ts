@@ -2,15 +2,33 @@ import * as vscode from "vscode";
 import { TextDocument, DiagnosticSeverity, Diagnostic, Range } from "vscode";
 
 import { DocumentBlock } from "../scriptsBlocks/blockTypes/document";
-import { testForScriptRootFile, DEFAULT_ROOT_FILE } from "../scriptsBlocks/scriptsBlocksData";
 
-import { LANG_ZEDSCRIPTS, EXTENSION_ID } from "../project";
+import { EXTENSION_ID } from "../project";
 import { formatText } from "../utils/format";
 import { DiagnosticType } from "../models/DiagnosticType";
 import { handleOpenTextDocument } from "./libraries";
 
+import { PZWorkspace } from "../workspace/workspace";
 
-export function diagnosticNonLibrary(document: TextDocument, diagnosticProvider: DiagnosticProvider): void {
+
+
+export async function diagnosticNonLibrary(document: TextDocument, diagnosticProvider: DiagnosticProvider) {
+    // const documentBlock = await PZWorkspace.update(document, diagnosticProvider);
+    // // PZWorkspace.validateAll();
+    // if (documentBlock) {
+    //     documentBlock.validateRecursive();
+    //     // set diagnostics after validateRecursiveLater completes so validateLater diagnostics are included
+    //     const diagnostics = documentBlock.diagnostics;
+    //     if (diagnostics) {
+    //         diagnosticProvider.diagnosticCollection.set(document.uri, diagnostics);
+    //     }
+    // }
+    await diagnosticProvider.updateDiagnostics(document);
+}
+
+
+
+export function diagnosticNonLibraryOld(document: TextDocument, diagnosticProvider: DiagnosticProvider): void {
     handleOpenTextDocument(document);
     const block = diagnosticProvider.updateDiagnostics(document);
     if (block instanceof DocumentBlock) {
@@ -32,9 +50,10 @@ export class DiagnosticProvider {
         this.diagnosticCollection = vscode.languages.createDiagnosticCollection(EXTENSION_ID);
     }
     
-    public updateDiagnostics(document: vscode.TextDocument): DocumentBlock | void {
+    public async updateDiagnostics(document: vscode.TextDocument): Promise<DocumentBlock | void> {
     // console.debug(`Updating diagnostics for document: ${document.fileName}`);
-        return updateDiagnostics(document, this);
+        // return updateDiagnostics(document, this);
+        return await PZWorkspace.update(document, this);
     }
 
     public dispose(): void {
@@ -43,35 +62,35 @@ export class DiagnosticProvider {
 }
 export const DIAGNOSTIC_PROVIDER = new DiagnosticProvider();
 
-/**
- * Updates diagnostics for a given document. If the document is of the correct language, it creates a DocumentBlock
- * and validates it, which will populate the diagnostics. If the document is not of the correct language,
- * it clears any existing diagnostics for that document.
- * 
- * If no diagnosticProvider is provided, it will not store any diagnostics
- * but will still parse the document
- */
-export function updateDiagnostics(
-    document: vscode.TextDocument, 
-    diagnosticProvider: DiagnosticProvider|undefined = undefined
-): DocumentBlock | void {
-    if (document.languageId === LANG_ZEDSCRIPTS) {
-        const diagnostics: vscode.Diagnostic[] | undefined = diagnosticProvider ? [] : undefined;
+// /**
+//  * Updates diagnostics for a given document. If the document is of the correct language, it creates a DocumentBlock
+//  * and validates it, which will populate the diagnostics. If the document is not of the correct language,
+//  * it clears any existing diagnostics for that document.
+//  * 
+//  * If no diagnosticProvider is provided, it will not store any diagnostics
+//  * but will still parse the document
+//  */
+// export function updateDiagnostics(
+//     document: vscode.TextDocument, 
+//     diagnosticProvider: DiagnosticProvider|undefined = undefined
+// ): DocumentBlock | void {
+//     if (document.languageId === LANG_ZEDSCRIPTS) {
+//         const diagnostics: vscode.Diagnostic[] | undefined = diagnosticProvider ? [] : undefined;
 
-        const path = document.fileName;
-        const type = testForScriptRootFile(path) || DEFAULT_ROOT_FILE;
+//         const path = document.fileName;
+//         const type = testForScriptRootFile(path) || DEFAULT_ROOT_FILE;
 
-        const block = new DocumentBlock(document, diagnostics, type);
-        if (diagnostics) {
-            diagnosticProvider?.diagnosticCollection.set(document.uri, diagnostics);
-        }
-        return block;
-    } else {
-        // Clear diagnostics for unsupported languages
-        diagnosticProvider?.diagnosticCollection.delete(document.uri);
-    }
-    return;
-}
+//         const block = new DocumentBlock(document, diagnostics, type);
+//         if (diagnostics) {
+//             diagnosticProvider?.diagnosticCollection.set(document.uri, diagnostics);
+//         }
+//         return block;
+//     } else {
+//         // Clear diagnostics for unsupported languages
+//         diagnosticProvider?.diagnosticCollection.delete(document.uri);
+//     }
+//     return;
+// }
 
 
 

@@ -3,21 +3,27 @@ import * as vscode from 'vscode';
 import { DiagnosticType } from '../../models/DiagnosticType';
 import { ScriptsBlock } from '../scriptsBlocks';
 import { ImportsBlock } from './imports';
+import { PZWorkspace } from '../../workspace/workspace';
 
 /**
  * A ScriptBlock that represents the entire document. This is more a convenience class to handle everything easily.
  */
 export class DocumentBlock extends ScriptsBlock {
+// MEMBERS
     public static documentBlockCache: Map<string, DocumentBlock> = new Map();
-    public actions: [vscode.Range, vscode.Diagnostic, vscode.CodeAction][] = []; // [range, diagnostic, action]
 
-    constructor(document: vscode.TextDocument, diagnostics: vscode.Diagnostic[] | undefined, type: string) {
+    actions: [vscode.Range, vscode.Diagnostic, vscode.CodeAction][] = []; // [range, diagnostic, action]
+    workspace: PZWorkspace;
+
+    constructor(document: vscode.TextDocument, diagnostics: vscode.Diagnostic[] | undefined, type: string, workspace: PZWorkspace) {
         // Only document is provided
         const parent = null;
         const id = null;
         const start = 0;
         const end = document.getText().length;
         super(document, diagnostics, parent, type, id, start, end, start);
+
+        this.workspace = workspace;
 
         // cache this document block
         DocumentBlock.documentBlockCache.set(document.uri.toString(), this);
@@ -31,9 +37,6 @@ export class DocumentBlock extends ScriptsBlock {
     // Static method to retrieve cached DocumentBlock
     public static getDocumentBlock(document: vscode.TextDocument): DocumentBlock | undefined {
         const documentBlock = DocumentBlock.documentBlockCache.get(document.uri.toString());
-        // if (!documentBlock) {
-        //     documentBlock = new DocumentBlock(document, []);
-        // }
         return documentBlock;
     }
 
@@ -173,8 +176,6 @@ export class DocumentBlock extends ScriptsBlock {
         }
     }
 
-
-// OVERWRITES
     // overwrite validates for this class since the rules aren't the same
     protected validateBlock(): boolean { 
         // count { } pairs to catch extra ones

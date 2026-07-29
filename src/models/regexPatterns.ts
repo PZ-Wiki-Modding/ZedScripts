@@ -64,3 +64,5 @@ export const inputsOutputsRegex = {
     // output properties
     singleValue: /(?:^|\s)(?<value>.+?)(?:$|\s)/g,
 }
+
+export const scriptFileVersionCatcher = /\w+\/(?:(?<version>(?:4\d(?:\.\d+)*)|common)\/)?(?:(?<media>media)|(?<modinfo>mod\.info))/gm;
