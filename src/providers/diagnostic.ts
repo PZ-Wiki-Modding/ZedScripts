@@ -23,23 +23,30 @@ export async function diagnosticNonLibrary(document: TextDocument, diagnosticPro
     //         diagnosticProvider.diagnosticCollection.set(document.uri, diagnostics);
     //     }
     // }
-    await diagnosticProvider.updateDiagnostics(document);
-}
-
-
-
-export function diagnosticNonLibraryOld(document: TextDocument, diagnosticProvider: DiagnosticProvider): void {
-    handleOpenTextDocument(document);
-    const block = diagnosticProvider.updateDiagnostics(document);
-    if (block instanceof DocumentBlock) {
-        block.validateRecursive();
-        // set diagnostics after validateRecursiveLater completes so validateLater diagnostics are included
-        const diagnostics = block.diagnostics;
+    const documentBlock = await diagnosticProvider.updateDiagnostics(document);
+    if (documentBlock) {
+        documentBlock.validateRecursive();
+        const diagnostics = documentBlock.diagnostics;
         if (diagnostics) {
             diagnosticProvider.diagnosticCollection.set(document.uri, diagnostics);
         }
     }
 }
+
+
+
+// export function diagnosticNonLibraryOld(document: TextDocument, diagnosticProvider: DiagnosticProvider): void {
+//     handleOpenTextDocument(document);
+//     const block = diagnosticProvider.updateDiagnostics(document);
+//     if (block instanceof DocumentBlock) {
+//         block.validateRecursive();
+//         // set diagnostics after validateRecursiveLater completes so validateLater diagnostics are included
+//         const diagnostics = block.diagnostics;
+//         if (diagnostics) {
+//             diagnosticProvider.diagnosticCollection.set(document.uri, diagnostics);
+//         }
+//     }
+// }
 
 
 export class DiagnosticProvider {
@@ -141,16 +148,4 @@ export function diagnostic(
     diagnostics.push(diagnostic);
     // console.warn(message);
     return diagnostic;
-}
-
-export function validateLaterDocuments(): void {
-    // run validateRecursiveLater on all cached document blocks
-    for (const documentBlock of DocumentBlock.documentBlockCache.values()) {
-        documentBlock.validateRecursive();
-        const document = documentBlock.document;
-        const diagnostics = documentBlock.diagnostics;
-        if (diagnostics) {
-            DIAGNOSTIC_PROVIDER.diagnosticCollection.set(document.uri, diagnostics);
-        }
-    }
 }

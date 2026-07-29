@@ -146,10 +146,6 @@ export class PZWorkspace {
         // cache the document to workspace mapping for easy access later
         PZWorkspace.docToWorkspaceMap.set(filePath, this);
 
-        if (diagnostics) {
-            this.diagnosticProvider?.diagnosticCollection.set(document.uri, diagnostics);
-        }
-
         return documentBlock;
     }
 
@@ -221,6 +217,10 @@ export class PZWorkspace {
         for (const documentBlocks of this.versions.values()) {
             for (const documentBlock of documentBlocks) {
                 documentBlock.validateRecursive();
+                const diagnostics = documentBlock.diagnostics;
+                if (diagnostics) {
+                    this.diagnosticProvider?.diagnosticCollection.set(documentBlock.document.uri, diagnostics);
+                }
             }
         }
     }

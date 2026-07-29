@@ -376,8 +376,8 @@ export class ScriptsBlock {
 // SEARCHERS
 
     public search(): void {
-        this.parameters = this.findParameters();
         this.children = this.findChildBlocks();
+        this.parameters = this.findParameters();
     }
 
 
