@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import fs from 'fs';
 import * as path from 'path';
 
 import { scriptFileVersionCatcher } from '../models/regexPatterns';
@@ -7,13 +8,15 @@ export enum VersionType {
     PRE_42 = "pre_42",
     POST_42 = "post_42",
     COMMON = "common",
-    ANY = "any"
+    ANY = "any",
+    BASE_GAME = "base_game",
 }
 
 export class Version {
     static COMMON = new Version(VersionType.COMMON);
     static ANY = new Version(VersionType.ANY);
     static PRE_42 = new Version(VersionType.PRE_42);
+    static BASE_GAME = new Version(VersionType.BASE_GAME);
 
     source: string;
     type: VersionType = VersionType.ANY;
@@ -32,6 +35,8 @@ export class Version {
             return Version.ANY;
         } else if (versionStr === VersionType.PRE_42) {
             return Version.PRE_42;
+        } else if (versionStr === VersionType.BASE_GAME) {
+            return Version.BASE_GAME;
         }
         return new Version(versionStr);
     }
@@ -106,6 +111,25 @@ export function findWorkspaceVersion(pathStr: string): Version {
         const version = match.groups['version'];
         if (version) {
             return Version.fromString(version);
+        }
+
+        // verify if it is the PZ source folder which doesn't use versioning folders
+        // linux uses projectzomboid while windows uses ProjectZomboid
+        const base = match.groups['base'];
+        if (base === 'projectzomboid' || base === 'ProjectZomboid') {
+            // we can check that in the base folder there is a `projectzomboid.jar` file
+            // which would mean it is B42
+            console.debug(`Found base game folder: ${base}, checking for projectzomboid.jar...`);
+
+            // using the match, we can retrieve the path of the base
+            const basePath = pathStr.substring(0, match.index + base.length);
+            console.debug(`Base path: ${basePath}`);
+            const jarPath = path.join(basePath, 'projectzomboid.jar');
+            const jarExists = fs.existsSync(jarPath) && fs.statSync(jarPath).isFile();
+            if (jarExists) {
+                console.debug(`Found projectzomboid.jar at ${jarPath}, this is the base game folder.`);
+                return Version.BASE_GAME;
+            }
         }
 
         // else, we see if this is a B41 file

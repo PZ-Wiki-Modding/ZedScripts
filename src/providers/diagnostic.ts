@@ -6,7 +6,6 @@ import { DocumentBlock } from "../scriptsBlocks/blockTypes/document";
 import { EXTENSION_ID } from "../project";
 import { formatText } from "../utils/format";
 import { DiagnosticType } from "../models/DiagnosticType";
-import { handleOpenTextDocument } from "./libraries";
 
 import { PZWorkspace } from "../workspace/workspace";
 

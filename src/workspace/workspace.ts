@@ -6,7 +6,6 @@ import { findWorkspaceVersion, Version, VersionType } from './version';
 import { LANG_ZEDSCRIPTS } from '../project';
 import { testForScriptRootFile, DEFAULT_ROOT_FILE } from "../scriptsBlocks/scriptsBlocksData";
 import { DocumentBlock } from '../scriptsBlocks/blockTypes/document';
-import { handleOpenTextDocument } from '../providers/libraries';
 
 
 function preparePath(filePath: string): string {
@@ -94,9 +93,9 @@ export class PZWorkspace {
 
     public async loadFile(file: vscode.Uri): Promise<void> {
         const document = await vscode.workspace.openTextDocument(file);
-        const result = handleOpenTextDocument(document);
-        const resolvedDocument = result instanceof Promise ? await result : result;
-        await this.loadDocument(resolvedDocument);
+        // const result = handleOpenTextDocument(document);
+        // const resolvedDocument = result instanceof Promise ? await result : result;
+        await this.loadDocument(document);
     }
 
     public reopenFile(document: vscode.TextDocument): Thenable<vscode.TextDocument> {
