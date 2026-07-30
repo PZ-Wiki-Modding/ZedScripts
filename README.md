@@ -114,6 +114,11 @@ The data is cached for 12 hours, after which it will be fetched again. If the fe
 You can fetch the data manually by running the command "ZedScripts: Force fetch Scripts Data" from the Command Palette (Ctrl + Shift + P). This won't directly update the diagnostics (due to a bug to fix, see [#2](https://github.com/pz-wiki-modding/ZedScripts/issues/2)) so you will have to restart VSCode.
 
 ## Build
+First setup the project by installing the dependencies:
+```bash
+npm install
+```
+
 To build the extension, run the following command in the terminal:
 ```bash
 npm run build
