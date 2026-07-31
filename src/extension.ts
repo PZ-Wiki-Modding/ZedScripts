@@ -36,7 +36,7 @@ function loadDecorations(document: vscode.TextDocument) {
 }
 
 export async function activate(context: vscode.ExtensionContext) {
-    console.debug('Activating extension "pz-syntax-extension"...');
+    console.debug('Activating extension "project-zomboid-scripts"...');
     ZSEnv = new ZedScriptsEnvironment(context, DIAGNOSTIC_PROVIDER);
     
     // show status bar
@@ -44,19 +44,45 @@ export async function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(ZSEnv.statusBar);
 
     // load libraries and the workspace
-    await ZSEnv.load()
+    await ZSEnv.load();
 
 
+    subscribe(context);
+
+    // // handle the initially active document on startup
+    // if (vscode.window.activeTextEditor) {
+    //     diagnosticFile(
+    //         vscode.window.activeTextEditor.document,
+    //         DIAGNOSTIC_PROVIDER
+    //     );
+    //     loadDecorations(vscode.window.activeTextEditor.document);
+    // }
+
+    console.log('Extension "project-zomboid-scripts" is now active!');
+}
+
+export function deactivate() {
+    console.debug('Extension "project-zomboid-scripts" is now deactivated.');
+}
+
+
+
+
+
+function subscribe(context: vscode.ExtensionContext) {
     // implement a file watcher to clear the cache of a DocumentBlock when a .txt file is deleted
     const watcher = vscode.workspace.createFileSystemWatcher("**/*.txt");
     watcher.onDidDelete((uri) => {
-        DocumentBlock.clearCacheForUri(uri);
+        ZSEnv.clearCacheForUri(uri);
         console.debug(`Invalidated cache for : ${uri.fsPath}`);
     });
     
     // register commands and event listeners
     context.subscriptions.push(
         watcher,
+
+
+    // COMMANDS
 
         // add a force reset cache function
         vscode.commands.registerCommand(
@@ -109,6 +135,9 @@ export async function activate(context: vscode.ExtensionContext) {
         ),
 
 
+    // ON DOCUMENT CHANGES
+
+        // triggers anytime we open a text document, or swap active document editor
         vscode.window.onDidChangeActiveTextEditor((editor) => {
             // console.debug(`Active editor changed: ${editor?.document.fileName}`);
             if (!editor) { return; }
@@ -116,11 +145,14 @@ export async function activate(context: vscode.ExtensionContext) {
             loadDecorations(editor.document);
         }),
 
-        // diagnostics
-        vscode.workspace.onDidOpenTextDocument((document) => {
-            diagnosticFile(document, DIAGNOSTIC_PROVIDER);
-            loadDecorations(document);
-        }),
+        // this one triggers when we open a new document
+        // not needed since we already handle the active editor change above
+        // vscode.workspace.onDidOpenTextDocument((document) => {
+        //     diagnosticFile(document, DIAGNOSTIC_PROVIDER);
+        //     loadDecorations(document);
+        // }),
+
+        // triggers when we type in the document
         vscode.workspace.onDidChangeTextDocument((event) => {
             // debounce to avoid too many diagnostics on fast typing
             if (debounceTimer) {
@@ -132,6 +164,8 @@ export async function activate(context: vscode.ExtensionContext) {
             }, 500);
         }),
 
+
+    // HELPERS
 
         vscode.languages.registerCodeActionsProvider(
             LANG_ZEDSCRIPTS,
@@ -155,7 +189,6 @@ export async function activate(context: vscode.ExtensionContext) {
                 return actions;
             }}
         ),
-
 
         // extra handlers
         vscode.languages.registerCompletionItemProvider(
@@ -183,19 +216,10 @@ export async function activate(context: vscode.ExtensionContext) {
             provideDefinition,
         })
     );
-
-    // // handle the initially active document on startup
-    // if (vscode.window.activeTextEditor) {
-    //     diagnosticFile(
-    //         vscode.window.activeTextEditor.document,
-    //         DIAGNOSTIC_PROVIDER
-    //     );
-    //     loadDecorations(vscode.window.activeTextEditor.document);
-    // }
-
-    console.log('Extension "pz-syntax-extension" is now active!');
 }
 
-export function deactivate() {
-    console.debug('Extension "pz-syntax-extension" is now deactivated.');
-}
+
+
+
+
+

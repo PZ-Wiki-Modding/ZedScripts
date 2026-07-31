@@ -33,21 +33,6 @@ export async function diagnosticFile(document: TextDocument, diagnosticProvider:
 }
 
 
-
-// export function diagnosticNonLibraryOld(document: TextDocument, diagnosticProvider: DiagnosticProvider): void {
-//     handleOpenTextDocument(document);
-//     const block = diagnosticProvider.updateDiagnostics(document);
-//     if (block instanceof DocumentBlock) {
-//         block.validateRecursive();
-//         // set diagnostics after validateRecursiveLater completes so validateLater diagnostics are included
-//         const diagnostics = block.diagnostics;
-//         if (diagnostics) {
-//             diagnosticProvider.diagnosticCollection.set(document.uri, diagnostics);
-//         }
-//     }
-// }
-
-
 export class DiagnosticProvider {
     // Static cache for DocumentBlock instances
     public diagnosticCollection: vscode.DiagnosticCollection;
@@ -67,41 +52,6 @@ export class DiagnosticProvider {
     }
 }
 export const DIAGNOSTIC_PROVIDER = new DiagnosticProvider();
-
-// /**
-//  * Updates diagnostics for a given document. If the document is of the correct language, it creates a DocumentBlock
-//  * and validates it, which will populate the diagnostics. If the document is not of the correct language,
-//  * it clears any existing diagnostics for that document.
-//  * 
-//  * If no diagnosticProvider is provided, it will not store any diagnostics
-//  * but will still parse the document
-//  */
-// export function updateDiagnostics(
-//     document: vscode.TextDocument, 
-//     diagnosticProvider: DiagnosticProvider|undefined = undefined
-// ): DocumentBlock | void {
-//     if (document.languageId === LANG_ZEDSCRIPTS) {
-//         const diagnostics: vscode.Diagnostic[] | undefined = diagnosticProvider ? [] : undefined;
-
-//         const path = document.fileName;
-//         const type = testForScriptRootFile(path) || DEFAULT_ROOT_FILE;
-
-//         const block = new DocumentBlock(document, diagnostics, type);
-//         if (diagnostics) {
-//             diagnosticProvider?.diagnosticCollection.set(document.uri, diagnostics);
-//         }
-//         return block;
-//     } else {
-//         // Clear diagnostics for unsupported languages
-//         diagnosticProvider?.diagnosticCollection.delete(document.uri);
-//     }
-//     return;
-// }
-
-
-
-
-
 
 
 

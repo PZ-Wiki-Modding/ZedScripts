@@ -7,6 +7,7 @@ import { fetchData } from '../providers/fetchData';
 import { DiagnosticProvider } from '../providers/diagnostic';
 import { PZWorkspace, WorkspaceType } from './workspace';
 import { formatText } from '../utils/format';
+import { DocumentBlock } from '../scriptsBlocks/blockTypes/document';
 
 
 
@@ -39,12 +40,33 @@ export class ZedScriptsEnvironment {
         this.statusBar = this.initializeStatusBar();
     }
 
+
+// LOAD PROJECT
+
     public async load(): Promise<void> {
-        // try to fetch the latest scriptBlocks.json from the GitHub repository
+        await this.loadData(true);
+        await this.loadLibraries(true);
+        await this.loadWorkspace(true);
+        this.validateWorkspace();
+    }
+
+    /**
+     * Load the scripts data.
+     */
+    public async loadData(skip_final_state: boolean = false): Promise<boolean> {
         console.debug("Loading dataset...");
         this.setState(State.LOADING_DATA);
-        await fetchData(this.context);
+        const result = await fetchData(this.context);
+        if (!skip_final_state) {
+            this.setState(State.RUNNING);
+        }
+        return result;
+    }
 
+    /**
+     * Load the libraries from the configured directories.
+     */
+    public async loadLibraries(skip_final_state: boolean = false): Promise<void> {
         console.debug("Loading libraries and workspace...");
         this.setState(State.LOADING_LIBRARIES);
 
@@ -60,8 +82,12 @@ export class ZedScriptsEnvironment {
             const workspace = new PZWorkspace(uri, WorkspaceType.LIBRARY);
             await workspace.load();
         }
+        if (!skip_final_state) {
+            this.setState(State.RUNNING);
+        }
+    }
 
-
+    public async loadWorkspace(skip_final_state: boolean = false): Promise<void> {
         this.setState(State.LOADING_WORKSPACE);
         // list the folders of the workspace
         const workspaceFolders = vscode.workspace.workspaceFolders || [];
@@ -75,20 +101,32 @@ export class ZedScriptsEnvironment {
             const workspace = new PZWorkspace(folder.uri, WorkspaceType.WORKSPACE, this.diagnosticProvider);
             await workspace.load();
         }
+        if (!skip_final_state) {
+            this.setState(State.RUNNING);
+        }
+    }
 
-        // validate workspace files
+    public validateWorkspace(skip_final_state: boolean = false): void {
         this.setState(State.VALIDATING);
         PZWorkspace.validateAll();
-
-        // done
-        this.setState(State.RUNNING);
+        if (!skip_final_state) {
+            this.setState(State.RUNNING);
+        }
     }
+
+    public clearCacheForUri(uri: vscode.Uri): void {
+        PZWorkspace.clearCacheForUri(uri);
+    }
+
+
+
+
+// STATUS BAR MANAGEMENT
 
     public setState(newState: State): void {
         this.state = newState;
         this.updateStatusBar();
     }
-
 
     public initializeStatusBar(): vscode.StatusBarItem {
         const statusBar = vscode.window.createStatusBarItem(

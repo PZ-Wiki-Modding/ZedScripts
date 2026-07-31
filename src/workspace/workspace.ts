@@ -8,26 +8,13 @@ import { testForScriptRootFile, DEFAULT_ROOT_FILE } from "../scriptsBlocks/scrip
 
 import { ScriptsBlock } from '../scriptsBlocks/scriptsBlocks';
 import { DocumentBlock } from '../scriptsBlocks/blockTypes/document';
+import { testForZedScripts, ResultResolvedDocument } from '../scriptsBlocks/scriptsBlocksUtility';
 
 
 function preparePath(filePath: string): string {
     const normalizedPath = filePath.replace(/\\/g, '/'); // normalize to unix-style path
     return path.posix.normalize(normalizedPath); // resolve relative segments
 }
-
-// function handleOpenTextDocument(document: vscode.TextDocument): Thenable<vscode.TextDocument> | vscode.TextDocument {
-//     // skip if already a ZedScripts document
-//     if (document.languageId === LANG_ZEDSCRIPTS) { return document; }
-
-//     const filePath = path.posix.normalize(document.fileName);
-
-//     if (testForScriptRootFile(filePath)) {        
-//         // set the file to ZedScripts
-//         return vscode.languages.setTextDocumentLanguage(document, LANG_ZEDSCRIPTS);
-//     }
-
-//     return document;
-// }
 
 export enum WorkspaceType {
     LIBRARY = "library",
@@ -117,115 +104,96 @@ export class PZWorkspace {
         await this.loadDocument(document);
     }
 
-    public reopenFile(document: vscode.TextDocument): Thenable<vscode.TextDocument> {
-        return vscode.languages.setTextDocumentLanguage(document, LANG_ZEDSCRIPTS);
-    }
-
     public async loadDocument(document: vscode.TextDocument): Promise<DocumentBlock | void> {
-        const filePath = preparePath(document.fileName); // unix-style path
+        const result = await testForZedScripts(document);
+        if (!result) { return; }
 
-        // retrieve the type of root file
-        let type = testForScriptRootFile(filePath);
-
-        // if no type is found, check if the document is forced to be ZedScripts
-        const isZedScripts = document.languageId === LANG_ZEDSCRIPTS;
-        if (!type && isZedScripts) {
-            type = DEFAULT_ROOT_FILE;
-        }
-
-        // skip non-script files
-        if (!type) { return; }
-
-        // reopen file as ZedScripts
-        let resolvedDocument = document;
-        if (!isZedScripts) {
-            const newDoc = this.reopenFile(document);
-            resolvedDocument = await newDoc;
-
-            // TODO: REMOVE DEBUG
-            if (path.basename(filePath) === "food_models.txt") {
-                const isZedScripts2 = resolvedDocument.languageId === LANG_ZEDSCRIPTS;
-                console.debug(`Reopened ${filePath} as ZedScripts`);
-            }
-        }
-
-        return this.addDocument(resolvedDocument, filePath, type);
+        return this.addDocument(result);
     }
 
-    public addDocument(document: vscode.TextDocument, filePath: string, type: string): DocumentBlock | void {
+    public addDocument(result: ResultResolvedDocument): DocumentBlock | void {
         // retrieve the version and pass if B41, they are not supported
-        const version = findWorkspaceVersion(filePath);
+        const version = findWorkspaceVersion(result.path);
         if (version.type === VersionType.PRE_42) { return; }
 
         // retrieve the diagnostics to add
         const diagnostics: vscode.Diagnostic[] | undefined = this.diagnosticProvider ? [] : undefined;
 
         // create a DocumentBlock which will parse this file for script blocks and parameters
-        const documentBlock = new DocumentBlock(document, diagnostics, type, this, version);
+        const documentBlock = new DocumentBlock(result.document, diagnostics, result.type, this, version);
         if (!this.versions.has(version)) {
             this.versions.set(version, new Map());
         }
-        this.versions.get(version)?.set(filePath, documentBlock);
+        this.versions.get(version)?.set(result.path, documentBlock);
 
         // cache the document to workspace mapping for easy access later
-        PZWorkspace.fileToWorkspaceMap.set(filePath, this);
+        PZWorkspace.fileToWorkspaceMap.set(result.path, this);
 
         return documentBlock;
     }
 
     /** Solitary documents are documents that are not part of a workspace */
-    public static addNewSolitaryDocument(document: vscode.TextDocument): DocumentBlock | void {
-        const filePath = preparePath(document.fileName); // unix-style path
-
-        // retrieve the type of root file
-        let type = testForScriptRootFile(filePath);
-
-        // if no type is found, check if the document is forced to be ZedScripts
-        if (!type && document.languageId === LANG_ZEDSCRIPTS) {
-            type = DEFAULT_ROOT_FILE;
-        }
-
-        // skip non-script files
-        if (!type) { return; }
-
+    public static addNewSolitaryDocument(result: ResultResolvedDocument): DocumentBlock | void {
         // add the document to the solitary workspace
-        return PZWorkspace.solitaryWorkspace.addDocument(document, filePath, type);
+        return PZWorkspace.solitaryWorkspace.addDocument(result);
     }
 
     /** Find the workspace handling the given document */
     public static get(document: vscode.TextDocument): PZWorkspace | undefined {
         const filePath = preparePath(document.fileName);
+        const existing = PZWorkspace.fileToWorkspaceMap.get(filePath);
+        if (existing) {
+            return existing;
+        }
+
+        // if no workspace is found, check if the document is part of a workspace folder
+        const workspaceFolder = vscode.workspace.getWorkspaceFolder(document.uri);
+        if (workspaceFolder) {
+            const typeMap = PZWorkspace.workspaceCache.get(WorkspaceType.WORKSPACE);
+            if (typeMap) {
+                return typeMap.get(workspaceFolder.uri.toString());
+            }
+        }
+
         return PZWorkspace.fileToWorkspaceMap.get(filePath);
     }
 
-    /** If no workspace is handling this document, it is probably a solitary file */
-    public static async getOrCreate(document: vscode.TextDocument): Promise<DocumentBlock | void> {
-        const workspace = PZWorkspace.get(document);
-        
-        // if no workspace is handling this file, we try to mark it as a solitary file
-        if (!workspace) {
-            return PZWorkspace.addNewSolitaryDocument(document);
-        }
-
-        // if a workspace is found, we add the document to it
-        return await workspace.loadDocument(document);
-    }
-
     /**
-     * Update a specific document's diagnostics and return the corresponding DocumentBlock if applicable.
+     * Try to open the document as a ZedScripts document
+     * If that doesn't work, we skip it
      * @param document
      * @param diagnosticProvider
      * @returns The corresponding DocumentBlock if applicable, otherwise void.
      */
     public static async update(document: vscode.TextDocument, diagnosticProvider?: DiagnosticProvider): Promise<DocumentBlock | void> {
-        if (document.languageId === LANG_ZEDSCRIPTS) {
-            const documentBlock = await PZWorkspace.getOrCreate(document);
-            return documentBlock;
+        // check if the document is a ZedScripts document
+        const result = await testForZedScripts(document);
+        if (!result) {
+            // clear diagnostics in case this file had been previously recognized as a ZedScripts document
+            diagnosticProvider?.diagnosticCollection.delete(document.uri); 
+            return; 
         }
 
-        // clear diagnostics for unsupported languages
-        diagnosticProvider?.diagnosticCollection.delete(document.uri);
+        // try to retrieve the workspace of this document
+        const resolvedDocument = result.document;
+        const workspace = PZWorkspace.get(resolvedDocument);
+        
+        // if no workspace is handling this file, we try to mark it as a solitary file
+        let documentBlock: DocumentBlock | void;
+        if (!workspace) {
+            documentBlock = PZWorkspace.addNewSolitaryDocument(result);
+        } else {
+            documentBlock = workspace.addDocument(result);
+        }
+
+        // run diagnostics of the document
+        documentBlock?.validateRecursive();
+
+        return documentBlock;
     }
+
+
+// WORKSPACE MANAGEMENT
 
     /**
      * Retrieve the workspace associated with a given document, if any
@@ -253,6 +221,22 @@ export class PZWorkspace {
             }
         }
         return result;
+    }
+
+    public static clearCacheForUri(uri: vscode.Uri): void {
+        const filePath = preparePath(uri.fsPath);
+        const workspace = PZWorkspace.fileToWorkspaceMap.get(filePath);
+        if (workspace) {
+            const versions = Array.from(workspace.versions.values());
+            for (const documentBlocks of versions) {
+                documentBlocks.delete(filePath);
+            }
+            if (workspace.diagnosticProvider) {
+                workspace.diagnosticProvider.diagnosticCollection.delete(uri);
+            }
+        }
+        PZWorkspace.fileToWorkspaceMap.delete(filePath);
+        DocumentBlock.clearCacheForUri(uri);
     }
 
 

@@ -1,4 +1,9 @@
-import { ScriptBlockData, ScriptBlockParameter, SCRIPTS_TYPES_LOWER } from "./scriptsBlocksData";
+import * as vscode from "vscode";
+
+import { testForScriptRootFile } from "./scriptsBlocksData";
+import { DEFAULT_ROOT_FILE, ScriptBlockData, ScriptBlockParameter, SCRIPTS_TYPES_LOWER } from "./scriptsBlocksData";
+import { preparePath } from "../utils/paths";
+import { LANG_ZEDSCRIPTS } from "../project";
 
 
 export function isScriptBlock(word: string): boolean {
@@ -85,4 +90,47 @@ export function getVariantTree(blockType: string): string[] {
     tree.push(blockType);
     
     return tree;
+}
+
+
+
+
+// document handler
+
+export interface ResultResolvedDocument {
+    document: vscode.TextDocument;
+    type: string;
+    path: string;
+}
+
+
+export function reopenFile(document: vscode.TextDocument): Thenable<vscode.TextDocument> {
+    return vscode.languages.setTextDocumentLanguage(document, LANG_ZEDSCRIPTS);
+}
+
+export async function testForZedScripts(document: vscode.TextDocument): 
+    Promise<ResultResolvedDocument | null> 
+{
+    const filePath = preparePath(document.fileName); // unix-style path
+    
+    // retrieve the type of root file
+    let type = testForScriptRootFile(filePath);
+
+    // if no type is found, check if the document is forced to be ZedScripts
+    const isZedScripts = document.languageId === LANG_ZEDSCRIPTS;
+    if (!type && isZedScripts) {
+        type = DEFAULT_ROOT_FILE;
+    }
+
+    // skip non-script files
+    if (!type) { return null; }
+
+    // reopen file as ZedScripts if needed
+    let resolvedDocument = document;
+    if (!isZedScripts) {
+        const newDoc = reopenFile(document);
+        resolvedDocument = await newDoc;
+    }
+
+    return { document: resolvedDocument, type, path: filePath };
 }
