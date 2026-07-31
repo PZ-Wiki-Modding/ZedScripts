@@ -1,11 +1,6 @@
 // Modification pour capturer item avec ses éventuels sous-blocs component et Fluids
 export const itemBlockRegex = /\s*item\s+(\w+)\s*\{((?:[^{}]*|\{(?:[^{}]*|\{(?:[^{}]*|\{[^{}]*\})*\})*\})*)\}/g;
 
-
-// Script file identifier
-export const SCRIPT_FILE_REGEX = /\/media\/scripts\/[\/\w\s]*\.txt/;
-
-
 /**
  * Matches script block headers.
  * 
@@ -65,4 +60,4 @@ export const inputsOutputsRegex = {
     singleValue: /(?:^|\s)(?<value>.+?)(?:$|\s)/g,
 }
 
-export const scriptFileVersionCatcher = /(?:(?<base>\w+))\/(?:(?<version>(?:4\d(?:\.\d+)*)|common)\/)?(?:(?<media>media)|(?<modinfo>mod\.info))/gm;
+export const scriptFileVersionCatcher = /(?:(?<base>\w+))\/(?:(?<version>(?:4\d(?:\.\d+)*)|common)\/)?(?:(?<media>media)|(?<modinfo>mod\.info))/;

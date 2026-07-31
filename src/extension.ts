@@ -39,6 +39,14 @@ export async function activate(context: vscode.ExtensionContext) {
     console.debug('Activating extension "pz-syntax-extension"...');
     ZSEnv = new ZedScriptsEnvironment(context, DIAGNOSTIC_PROVIDER);
     
+    // show status bar
+    ZSEnv.updateStatusBar();
+    context.subscriptions.push(ZSEnv.statusBar);
+
+    // load libraries and the workspace
+    await ZSEnv.load()
+
+
     // implement a file watcher to clear the cache of a DocumentBlock when a .txt file is deleted
     const watcher = vscode.workspace.createFileSystemWatcher("**/*.txt");
     watcher.onDidDelete((uri) => {
@@ -175,13 +183,6 @@ export async function activate(context: vscode.ExtensionContext) {
             provideDefinition,
         })
     );
-
-    // show status bar
-    ZSEnv.updateStatusBar();
-    context.subscriptions.push(ZSEnv.statusBar);
-
-    // load libraries and the workspace
-    await ZSEnv.load()
 
     // // handle the initially active document on startup
     // if (vscode.window.activeTextEditor) {

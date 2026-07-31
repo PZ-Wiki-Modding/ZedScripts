@@ -4,6 +4,7 @@ import { DiagnosticType } from '../../models/DiagnosticType';
 import { ScriptsBlock } from '../scriptsBlocks';
 import { ImportsBlock } from './imports';
 import { PZWorkspace } from '../../workspace/workspace';
+import { Version } from '../../workspace/version';
 
 /**
  * A ScriptBlock that represents the entire document. This is more a convenience class to handle everything easily.
@@ -14,8 +15,15 @@ export class DocumentBlock extends ScriptsBlock {
 
     actions: [vscode.Range, vscode.Diagnostic, vscode.CodeAction][] = []; // [range, diagnostic, action]
     workspace: PZWorkspace;
+    version: Version;
 
-    constructor(document: vscode.TextDocument, diagnostics: vscode.Diagnostic[] | undefined, type: string, workspace: PZWorkspace) {
+    constructor(
+        document: vscode.TextDocument, 
+        diagnostics: vscode.Diagnostic[] | undefined, 
+        type: string, 
+        workspace: PZWorkspace,
+        version: Version
+    ) {
         // Only document is provided
         const parent = null;
         const id = null;
@@ -24,6 +32,7 @@ export class DocumentBlock extends ScriptsBlock {
         super(document, diagnostics, parent, type, id, start, end, start);
 
         this.workspace = workspace;
+        this.version = version;
 
         // cache this document block
         DocumentBlock.documentBlockCache.set(document.uri.toString(), this);
@@ -98,26 +107,35 @@ export class DocumentBlock extends ScriptsBlock {
         return searchBlock(this);
     }
 
-    public static findBlockFromFullType(
+    /**
+     * Returns all blocks with the expected type (ID) in provided modules in the workspace.
+     * @param expectedBlock Expected block type (ex: "model")
+     * @param modules Modules we can search in
+     * @param id ID of the block we are looking for
+     * @returns 
+     */
+    public findBlockFromFullType(
         expectedBlock: string, modules: string[], id: string
     ): ScriptsBlock[] {
         // expectedBlock is the type of block we are looking for (ex: "model")
-        // fullType is the module and ID of the block we are looking for (ex: ["Base", "WoodenTable"])
 
-        // search for the block with the expected type and full type
-        const foundBlocks: ScriptsBlock[] = [];
-        for (const documentBlock of DocumentBlock.documentBlockCache.values()) {
-            const found = documentBlock.findBlockFromFullTypeInBlock(expectedBlock, modules, id);
-            if (found) {
-                foundBlocks.push(...found);
-            }
-        }
+        const foundBlocks = this.workspace.findBlockFromFullType(this.version, expectedBlock, modules, id);
+
+        // // search for the block with the expected type and full type
+        // const foundBlocks: ScriptsBlock[] = [];
+        // for (const documentBlock of DocumentBlock.documentBlockCache.values()) {
+        //     const found = documentBlock.findBlockFromFullTypeInBlock(expectedBlock, modules, id);
+        //     if (found) {
+        //         foundBlocks.push(...found);
+        //     }
+        // }
         
         return foundBlocks; // return all found blocks
     }
 
     public findBlockFromFullTypeInBlock(expectedBlock: string, modules: string[], id: string): ScriptsBlock[] {
         // in children, find a module block
+        // in theory, it should be unique
         let moduleBlock: ScriptsBlock | null = null;
         for (const child of this.children) {
             if (child.scriptBlock === "module") {
@@ -169,12 +187,6 @@ export class DocumentBlock extends ScriptsBlock {
 
 
 // VALIDATORS
-    public static validateLaterDocuments(): void {
-        // run validateRecursiveLater on all cached document blocks
-        for (const documentBlock of DocumentBlock.documentBlockCache.values()) {
-            documentBlock.validateRecursive();
-        }
-    }
 
     // overwrite validates for this class since the rules aren't the same
     protected validateBlock(): boolean { 

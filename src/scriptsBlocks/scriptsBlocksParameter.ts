@@ -778,7 +778,7 @@ export class ScriptParameter {
 
                 // search the block reference in the provided modules
                 const expectedBlock = blockType.name;
-                const refBlocks = DocumentBlock.findBlockFromFullType(expectedBlock, searchableModules, block);
+                const refBlocks = this.parent.getRoot().findBlockFromFullType(expectedBlock, searchableModules, block);
                 
                 // no references found
                 if (refBlocks.length === 0) {
