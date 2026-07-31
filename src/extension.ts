@@ -1,18 +1,19 @@
 import * as vscode from "vscode";
 import * as path from "path";
 import { LANG_ZEDSCRIPTS } from "./project";
-import { diagnosticNonLibrary, DIAGNOSTIC_PROVIDER } from "./providers/diagnostic";
+import { diagnosticFile, DIAGNOSTIC_PROVIDER } from "./providers/diagnostic";
 import { provideDefinition } from "./providers/definition";
 import { provideDocumentFormattingEdits } from "./providers/editing";
 import { PZCompletionItemProvider } from "./providers/completion";
 import { PZHoverProvider } from "./providers/hover";
-import { loadEnvironment } from "./providers/libraries";
-import { fetchData } from "./utils/fetchData";
+import { ZedScriptsEnvironment } from "./workspace/environment";
 import { DefaultText } from "./models/DefaultText";
 import { DocumentBlock } from "./scriptsBlocks/blockTypes/document";
 import { createReferenceDecoration } from './models/decorations';
+import { fetchData } from './providers/fetchData';
 
 let debounceTimer: NodeJS.Timeout | undefined;
+let ZSEnv: ZedScriptsEnvironment;
 
 function loadDecorations(document: vscode.TextDocument) {
     const editor = vscode.window.activeTextEditor;
@@ -36,22 +37,8 @@ function loadDecorations(document: vscode.TextDocument) {
 
 export async function activate(context: vscode.ExtensionContext) {
     console.debug('Activating extension "pz-syntax-extension"...');
-
-    // try to fetch the latest scriptBlocks.json from the GitHub repository
-    await fetchData(context);
-
-    // load libraries and the workspace
-    await loadEnvironment(DIAGNOSTIC_PROVIDER);
-
-    // handle the initially active document on startup
-    if (vscode.window.activeTextEditor) {
-        diagnosticNonLibrary(
-            vscode.window.activeTextEditor.document,
-            DIAGNOSTIC_PROVIDER
-        );
-        loadDecorations(vscode.window.activeTextEditor.document);
-    }
-
+    ZSEnv = new ZedScriptsEnvironment(context, DIAGNOSTIC_PROVIDER);
+    
     // implement a file watcher to clear the cache of a DocumentBlock when a .txt file is deleted
     const watcher = vscode.workspace.createFileSystemWatcher("**/*.txt");
     watcher.onDidDelete((uri) => {
@@ -59,6 +46,7 @@ export async function activate(context: vscode.ExtensionContext) {
         console.debug(`Invalidated cache for : ${uri.fsPath}`);
     });
     
+    // register commands and event listeners
     context.subscriptions.push(
         watcher,
 
@@ -105,17 +93,24 @@ export async function activate(context: vscode.ExtensionContext) {
             }
         ),
 
+        vscode.commands.registerCommand(
+            "ZedScripts.showInfo",
+            () => {
+                vscode.window.showInformationMessage("Hello!");
+            }
+        ),
+
 
         vscode.window.onDidChangeActiveTextEditor((editor) => {
             // console.debug(`Active editor changed: ${editor?.document.fileName}`);
             if (!editor) { return; }
-            diagnosticNonLibrary(editor.document, DIAGNOSTIC_PROVIDER);
+            diagnosticFile(editor.document, DIAGNOSTIC_PROVIDER);
             loadDecorations(editor.document);
         }),
 
         // diagnostics
         vscode.workspace.onDidOpenTextDocument((document) => {
-            diagnosticNonLibrary(document, DIAGNOSTIC_PROVIDER);
+            diagnosticFile(document, DIAGNOSTIC_PROVIDER);
             loadDecorations(document);
         }),
         vscode.workspace.onDidChangeTextDocument((event) => {
@@ -124,7 +119,7 @@ export async function activate(context: vscode.ExtensionContext) {
                 clearTimeout(debounceTimer);
             }
             debounceTimer = setTimeout(() => {
-                diagnosticNonLibrary(event.document, DIAGNOSTIC_PROVIDER);
+                diagnosticFile(event.document, DIAGNOSTIC_PROVIDER);
                 loadDecorations(event.document);
             }, 500);
         }),
@@ -180,6 +175,22 @@ export async function activate(context: vscode.ExtensionContext) {
             provideDefinition,
         })
     );
+
+    // show status bar
+    ZSEnv.updateStatusBar();
+    context.subscriptions.push(ZSEnv.statusBar);
+
+    // load libraries and the workspace
+    await ZSEnv.load()
+
+    // // handle the initially active document on startup
+    // if (vscode.window.activeTextEditor) {
+    //     diagnosticFile(
+    //         vscode.window.activeTextEditor.document,
+    //         DIAGNOSTIC_PROVIDER
+    //     );
+    //     loadDecorations(vscode.window.activeTextEditor.document);
+    // }
 
     console.log('Extension "pz-syntax-extension" is now active!');
 }

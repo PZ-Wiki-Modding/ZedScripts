@@ -33,12 +33,14 @@ export class PZWorkspace {
     /** Cache of workspaces by folder path */
     static workspaceCache: Map<WorkspaceType, Map<string, PZWorkspace>> = new Map();
     /** Maps document file paths to their corresponding workspace for easy access */
-    static docToWorkspaceMap: Map<string, PZWorkspace> = new Map();
+    static fileToWorkspaceMap: Map<string, PZWorkspace> = new Map();
     
     /** Workspace instance for solitary files, the uri is a placeholder */
     static solitaryWorkspace = new PZWorkspace(vscode.Uri.file("solitary"), WorkspaceType.SOLITARY);
 
+
 // CONSTRUCTOR
+
     constructor(folder: vscode.Uri, type: WorkspaceType, diagnosticProvider?: DiagnosticProvider) {
         this.folder = folder;
         this.type = type;
@@ -55,7 +57,9 @@ export class PZWorkspace {
         PZWorkspace.workspaceCache.get(type)?.set(folder.toString(), this);
     }
 
-// WORKSPACE GETTERS/SETTERS
+
+// WORKSPACE LOADERS
+
     public async load(): Promise<void> {
         // solitary workspaces should not load anything since the folder is a placeholder
         if (this.type === WorkspaceType.SOLITARY) {
@@ -143,11 +147,12 @@ export class PZWorkspace {
         this.versions.get(version)?.push(documentBlock);
 
         // cache the document to workspace mapping for easy access later
-        PZWorkspace.docToWorkspaceMap.set(filePath, this);
+        PZWorkspace.fileToWorkspaceMap.set(filePath, this);
 
         return documentBlock;
     }
 
+    /** Solitary documents are documents that are not part of a workspace */
     public static addNewSolitaryDocument(document: vscode.TextDocument): DocumentBlock | void {
         const filePath = preparePath(document.fileName); // unix-style path
 
@@ -169,7 +174,7 @@ export class PZWorkspace {
     /** Find the workspace handling the given document */
     public static get(document: vscode.TextDocument): PZWorkspace | undefined {
         const filePath = preparePath(document.fileName);
-        return PZWorkspace.docToWorkspaceMap.get(filePath);
+        return PZWorkspace.fileToWorkspaceMap.get(filePath);
     }
 
     /** If no workspace is handling this document, it is probably a solitary file */
@@ -185,7 +190,12 @@ export class PZWorkspace {
         return await workspace.loadDocument(document);
     }
 
-
+    /**
+     * Update a specific document's diagnostics and return the corresponding DocumentBlock if applicable.
+     * @param document
+     * @param diagnosticProvider
+     * @returns The corresponding DocumentBlock if applicable, otherwise void.
+     */
     public static async update(document: vscode.TextDocument, diagnosticProvider?: DiagnosticProvider): Promise<DocumentBlock | void> {
         if (document.languageId === LANG_ZEDSCRIPTS) {
             const documentBlock = await PZWorkspace.getOrCreate(document);
@@ -196,16 +206,19 @@ export class PZWorkspace {
         diagnosticProvider?.diagnosticCollection.delete(document.uri);
     }
 
-    // public static getAllDocumentBlocks(version: Version): DocumentBlock[] {
-        
-    // }
-
+    /**
+     * Retrieve the workspace associated with a given document, if any
+     * @param document
+     * @returns The corresponding PZWorkspace if found, otherwise undefined.
+     */
     public static getWorkspaceForDocument(document: vscode.TextDocument): PZWorkspace | undefined {
         const filePath = preparePath(document.fileName);
-        return PZWorkspace.docToWorkspaceMap.get(filePath);
+        return PZWorkspace.fileToWorkspaceMap.get(filePath);
     }
 
+
 // VALIDATORS
+
     public validate(): void {
         // only validate workspace type
         if (this.type !== WorkspaceType.WORKSPACE) {

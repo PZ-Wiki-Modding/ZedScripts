@@ -11,7 +11,7 @@ import { PZWorkspace } from "../workspace/workspace";
 
 
 
-export async function diagnosticNonLibrary(document: TextDocument, diagnosticProvider: DiagnosticProvider) {
+export async function diagnosticFile(document: TextDocument, diagnosticProvider: DiagnosticProvider) {
     // const documentBlock = await PZWorkspace.update(document, diagnosticProvider);
     // // PZWorkspace.validateAll();
     // if (documentBlock) {

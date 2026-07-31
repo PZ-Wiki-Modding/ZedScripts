@@ -58,6 +58,9 @@ export class Version {
         } else if (this.source === VersionType.PRE_42) {
             this.type = VersionType.PRE_42;
             return;
+        } else if (this.source === VersionType.BASE_GAME) {
+            this.type = VersionType.BASE_GAME;
+            return;
         }
 
         // split by `.`
@@ -106,40 +109,36 @@ export function findWorkspaceVersion(pathStr: string): Version {
 
     // fetch information from path
     const match = scriptFileVersionCatcher.exec(pathStr);
-    if (match && match.groups) {
-        // find 42+ versioning
-        const version = match.groups['version'];
-        if (version) {
-            return Version.fromString(version);
-        }
+    if (!match || !match.groups) { return Version.ANY; }
 
-        // verify if it is the PZ source folder which doesn't use versioning folders
-        // linux uses projectzomboid while windows uses ProjectZomboid
-        const base = match.groups['base'];
-        if (base === 'projectzomboid' || base === 'ProjectZomboid') {
-            // we can check that in the base folder there is a `projectzomboid.jar` file
-            // which would mean it is B42
-            console.debug(`Found base game folder: ${base}, checking for projectzomboid.jar...`);
+    // find 42+ versioning
+    const version = match.groups['version'];
+    if (version) {
+        return Version.fromString(version);
+    }
 
-            // using the match, we can retrieve the path of the base
-            const basePath = pathStr.substring(0, match.index + base.length);
-            console.debug(`Base path: ${basePath}`);
-            const jarPath = path.join(basePath, 'projectzomboid.jar');
-            const jarExists = fs.existsSync(jarPath) && fs.statSync(jarPath).isFile();
-            if (jarExists) {
-                console.debug(`Found projectzomboid.jar at ${jarPath}, this is the base game folder.`);
-                return Version.BASE_GAME;
-            }
+    // verify if it is the PZ source folder which doesn't use versioning folders
+    // linux uses projectzomboid while windows uses ProjectZomboid
+    const base = match.groups['base'];
+    if (base === 'projectzomboid' || base === 'ProjectZomboid') {
+        // we can check that in the base folder there is a `projectzomboid.jar` file
+        // which would mean it is B42
+        // using the match, we can retrieve the path of the base
+        const basePath = pathStr.substring(0, match.index + base.length);
+        const jarPath = path.join(basePath, 'projectzomboid.jar');
+        const jarExists = fs.existsSync(jarPath) && fs.statSync(jarPath).isFile();
+        if (jarExists) {
+            return Version.BASE_GAME;
         }
+    }
 
-        // else, we see if this is a B41 file
-        const media = match.groups['media'];
-        const modinfo = match.groups['modinfo'];
-        if (media || modinfo) {
-            // it has a media but no versioning, so it must be a B41 file
-            // we also identify stranded mod.info files as B41 files
-            return Version.PRE_42;
-        }
+    // else, we see if this is a B41 file
+    const media = match.groups['media'];
+    const modinfo = match.groups['modinfo'];
+    if (media || modinfo) {
+        // it has a media but no versioning, so it must be a B41 file
+        // we also identify stranded mod.info files as B41 files
+        return Version.PRE_42;
     }
 
     // we default to not having any versioning

@@ -9,4 +9,7 @@ export enum DefaultText {
 
     CACHE_RESET = "Script data cache has been reset.",
     CACHE_RESET_FAILED = "Project Zomboid Scripts Data fetch failed, using cached or default extension data. Information might be outdated.",
+
+    LIBRARY_LOAD_FAILED = "Library folder does not exist or is not accessible: {folder}",
+    WORKSPACE_LOAD_FAILED = "Workspace folder does not exist or is not accessible: {folder}",
 }
