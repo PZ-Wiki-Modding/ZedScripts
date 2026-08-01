@@ -22,6 +22,7 @@ export enum VALUE_TYPES {
 export interface ScriptBlockData {
     name: string;
     description: string;
+    shortDescription?: string;
     shouldHaveParent: boolean;
     needsChildren?: string[];
     parents: string[];

@@ -18,6 +18,9 @@ import { formatText, getIndentation } from "../utils/format";
 import { CompletionText } from "../models/CompletionText";
 
 export class PZCompletionItemProvider implements vscode.CompletionItemProvider {
+    completionLevel: number = 0;
+    indentLevel: number = 0;
+
     provideCompletionItems(
         document: TextDocument,
         position: Position
@@ -34,6 +37,10 @@ export class PZCompletionItemProvider implements vscode.CompletionItemProvider {
             parentBlock = documentBlock;
         }
 
+        // reset completion level and indent level
+        this.completionLevel = 0;
+        this.indentLevel = 0;
+
         // parameter completion
         const blockData = getScriptBlockData(parentBlock.scriptBlock);
         for (const paramName in blockData.parameters || {}) {
@@ -42,10 +49,8 @@ export class PZCompletionItemProvider implements vscode.CompletionItemProvider {
             if (canDuplicate || !parentBlock.isParameterOf(paramName)) {
                 const item = new CompletionItem(paramName, CompletionItemKind.Field);
                 item.detail = param.description;
-                const snippetStr = formatText(
-                    CompletionText.PARAMETER_AUTO, { parameter: paramName },
-                    '<', '>'
-                );
+                this.completionLevel++;
+                const snippetStr = this.formatParameter(param, this.completionLevel, getIndentation(document).repeat(this.indentLevel));
                 item.insertText = new SnippetString(snippetStr);
                 completion.push(item);
             }
@@ -53,68 +58,84 @@ export class PZCompletionItemProvider implements vscode.CompletionItemProvider {
 
         // script block completion
         for (const blockName of BLOCK_NAMES) {
-            const item = new CompletionItem(blockName, CompletionItemKind.Keyword);
             const blockData = getScriptBlockData(blockName);
             if (!canHaveParent(blockName, parentBlock.scriptBlock)) {
                 // skip blocks that cannot be children of the current block
                 continue;
             }
 
+            // create completion item
+            const item = new CompletionItem(blockName, CompletionItemKind.Keyword);
+
+            // retrieve block formatting
             const snippetStr = this.formatBlock(document, blockName, parentBlock.scriptBlock);
             item.insertText = new SnippetString(snippetStr);
+            item.detail = blockData.shortDescription;
 
-            item.detail = blockData.description;
             completion.push(item);
         }
 
         return completion;
     }
 
-    private formatBlock(document: TextDocument, blockType: string, parentType: string, level: number=0): string {
+    private formatBlock(document: TextDocument, blockType: string, parentType: string): string {
         const blockData = getScriptBlockData(blockType);
 
-        const tabs = getIndentation(document).repeat(level);
+        // init necessary indentations
+        const defaultTabs = getIndentation(document);
+        const tabs = defaultTabs.repeat(this.indentLevel);
+        const parameterTabs = defaultTabs.repeat(this.indentLevel + 1);
 
         // should have ID ?
-        const mainID = this.formatID(blockType, parentType);
-        let snippetStr = `${tabs}` + formatText(
+        const id = this.formatID(blockType, parentType, this.completionLevel);
+
+        // format block
+        let snippetStr = tabs + formatText(
             CompletionText.BLOCK,
             {
                 scriptBlock: blockType,
-                id: formatText(mainID, { level: (level + 1).toString() }, '<', '>'),
+                id: id,
             }, '<', '>'
         )
 
         // add required parameter
         const requiredParams = listRequiredParameters(blockType);
         for (const param of requiredParams) {
-            snippetStr += `${tabs}` + this.formatParameter(param);
+            this.completionLevel++;
+            snippetStr += this.formatParameter(param, this.completionLevel, parameterTabs) + '\n';
         }
-        
+
         // add required children blocks
         const needsChildren = blockData.needsChildren || null;
-        if (needsChildren) {
+        if (needsChildren && needsChildren.length > 0) {
+            this.indentLevel++;
             for (const childBlock of needsChildren) {
-                snippetStr += this.formatBlock(document, childBlock, blockType, level + 1) + '\n';
+                this.completionLevel++;
+                snippetStr += this.formatBlock(document, childBlock, blockType) + '\n';
             }
-        } //else {
-            // snippetStr += `${tabs}` + CompletionText.MIDDLE;
-        //}
+        }
 
         // ending
-        snippetStr += `${tabs}` + CompletionText.END;
+        snippetStr += tabs + CompletionText.END;
 
         return snippetStr;
     }
 
-    private formatID(blockType: string, parentType: string): string {
+    private formatID(blockType: string, parentType: string, completionLevel: number): string {
         const childShouldHaveID = shouldHaveID(blockType, parentType);
-        return childShouldHaveID ? CompletionText.ID : '';
+        if (!childShouldHaveID) {
+            return '';
+        }
+        return formatText(
+            CompletionText.ID,
+            { completionLevel: completionLevel.toString() },
+            '<', '>'
+        );
     }
 
-    private formatParameter(param: ScriptBlockParameter): string {
+    private formatParameter(param: ScriptBlockParameter, completionLevel: number, tabs: string): string {
         const name = param.name;
-        let defaultValue = param.default || 'id';
+        let defaultValue = param.default || 'value';
         if (param.type?.main === VALUE_TYPES.ARRAY) {
             const separator = param.type.array?.separator;
             defaultValue = (param.default as string[] || ['list']).join(separator);
@@ -122,6 +143,8 @@ export class PZCompletionItemProvider implements vscode.CompletionItemProvider {
         return formatText(
             CompletionText.PARAMETER,
             {
+                completionLevel: completionLevel.toString(),
+                tabs: tabs,
                 parameter: name,
                 value: defaultValue.toString(),
             }, '<', '>'
