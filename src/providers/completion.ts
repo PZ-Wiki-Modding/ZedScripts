@@ -1,11 +1,5 @@
-import {
-    TextDocument,
-    Position,
-    CompletionItem,
-    CompletionItemKind,
-    SnippetString,
-} from "vscode";
 import * as vscode from "vscode";
+
 import { VALUE_TYPES, ScriptBlockParameter, BLOCK_NAMES } from "../scriptsBlocks/scriptsBlocksData";
 import {
     getScriptBlockData, 
@@ -14,18 +8,22 @@ import {
     listRequiredParameters,
 } from "../scriptsBlocks/scriptsBlocksUtility";
 import { DocumentBlock } from "../scriptsBlocks/blockTypes/document";
-import { formatText, getIndentation } from "../utils/format";
+
 import { CompletionText } from "../models/CompletionText";
+
+import { formatText, getIndentation } from "../utils/format";
+
+
 
 export class PZCompletionItemProvider implements vscode.CompletionItemProvider {
     completionLevel: number = 0;
     indentLevel: number = 0;
 
     provideCompletionItems(
-        document: TextDocument,
-        position: Position
-    ): vscode.ProviderResult<CompletionItem[]> {
-        const completion: CompletionItem[] = [];
+        document: vscode.TextDocument,
+        position: vscode.Position
+    ): vscode.ProviderResult<vscode.CompletionItem[]> {
+        const completion: vscode.CompletionItem[] = [];
 
         // the document has been diagnosed and parsed
         const documentBlock = DocumentBlock.getDocumentBlock(document);
@@ -47,11 +45,11 @@ export class PZCompletionItemProvider implements vscode.CompletionItemProvider {
             const param = blockData.parameters[paramName];
             const canDuplicate = param.allowedDuplicate || false;
             if (canDuplicate || !parentBlock.isParameterOf(paramName)) {
-                const item = new CompletionItem(paramName, CompletionItemKind.Field);
+                const item = new vscode.CompletionItem(paramName, vscode.CompletionItemKind.Field);
                 item.detail = param.description;
                 this.completionLevel++;
                 const snippetStr = this.formatParameter(param, this.completionLevel, getIndentation(document).repeat(this.indentLevel));
-                item.insertText = new SnippetString(snippetStr);
+                item.insertText = new vscode.SnippetString(snippetStr);
                 completion.push(item);
             }
         }
@@ -65,11 +63,11 @@ export class PZCompletionItemProvider implements vscode.CompletionItemProvider {
             }
 
             // create completion item
-            const item = new CompletionItem(blockName, CompletionItemKind.Keyword);
+            const item = new vscode.CompletionItem(blockName, vscode.CompletionItemKind.Keyword);
 
             // retrieve block formatting
             const snippetStr = this.formatBlock(document, blockName, parentBlock.scriptBlock);
-            item.insertText = new SnippetString(snippetStr);
+            item.insertText = new vscode.SnippetString(snippetStr);
             item.detail = blockData.shortDescription;
 
             completion.push(item);
@@ -78,7 +76,7 @@ export class PZCompletionItemProvider implements vscode.CompletionItemProvider {
         return completion;
     }
 
-    private formatBlock(document: TextDocument, blockType: string, parentType: string): string {
+    private formatBlock(document: vscode.TextDocument, blockType: string, parentType: string): string {
         const blockData = getScriptBlockData(blockType);
 
         // init necessary indentations
