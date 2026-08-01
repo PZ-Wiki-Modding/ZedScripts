@@ -135,6 +135,24 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 ## Changelog
 With each update, the extension fetches the latest data from the pz-scripts-data repository and make a local copy of it. If you're having issues, it might be because of outdated data, so make sure to fetch the latest data.
 
+1.12.0:
+- major rewrite of the workspace and library handling
+  - now each script files get their folder recognized, that is their versioning folder (42, 42.20, common, pre-build 41 etc)
+  - references to other blocks will only search in the valid folders, that is for 42.20, files in 42 are not loaded so references there can't be used
+  - the common folder script files will use the latest version (so 42.20 for example, if 42.20 and 42 are provided)
+- added a status bar item to show the current workspace and its loading state
+  - indicates when pre-loading libraries and workspaces
+  - indicates when loading libraries and workspaces
+  - indicates when validating workspace
+  - indicates when running normally
+- indentation of the formatter will use the file settings (no more fixed 4 spaces)
+  - tabs / spaces
+  - 2, 3, 4 spaces...
+- improved the language highlight a bit for some edge cases
+- diagnostics for extra closing bracket
+- tweaked the hovering description of parameters and blocks, now no longer links to the wiki but only to the PZ API Docs
+- extra fixes here and there
+
 1.11.0:
 - cleanup README, [CONTRIBUTING](CONTRIBUTING.md) and [LICENSE](LICENSE) files
 - reordered files for easier management and expansion
