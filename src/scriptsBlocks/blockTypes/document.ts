@@ -114,25 +114,17 @@ export class DocumentBlock extends ScriptsBlock {
      * @param id ID of the block we are looking for
      * @returns 
      */
-    public findBlockFromFullType(
+    public findBlockFromFullTypeInWorkspace(
         expectedBlock: string, modules: string[], id: string
-    ): ScriptsBlock[] {
-        // expectedBlock is the type of block we are looking for (ex: "model")
+    ): ScriptsBlock[] {return PZWorkspace.findBlockFromFullTypeInVersion(this.version, expectedBlock, modules, id);}
 
-        const foundBlocks = this.workspace.findBlockFromFullType(this.version, expectedBlock, modules, id);
-
-        // // search for the block with the expected type and full type
-        // const foundBlocks: ScriptsBlock[] = [];
-        // for (const documentBlock of DocumentBlock.documentBlockCache.values()) {
-        //     const found = documentBlock.findBlockFromFullTypeInBlock(expectedBlock, modules, id);
-        //     if (found) {
-        //         foundBlocks.push(...found);
-        //     }
-        // }
-        
-        return foundBlocks; // return all found blocks
-    }
-
+    /**
+     * Search in this document for a block with the expected ID in the provided modules.
+     * @param expectedBlock Expected block type (ex: "model")
+     * @param modules Modules we can search in
+     * @param id ID of the block we are looking for
+     * @returns 
+     */
     public findBlockFromFullTypeInBlock(expectedBlock: string, modules: string[], id: string): ScriptsBlock[] {
         // in children, find a module block
         // in theory, it should be unique

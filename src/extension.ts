@@ -59,13 +59,13 @@ function subscribeCommands(context: vscode.ExtensionContext) {
     context.subscriptions.push(
         // add a force reset cache function
         vscode.commands.registerCommand(
-            "ZedScripts.resetScriptCache",
+            "ZedScripts.resetScriptsCache",
             resetScriptsCache
         ),
 
         // add an export function
         vscode.commands.registerCommand(
-            "ZedScripts.exportScriptBlocks",
+            "ZedScripts.exportScriptsBlocks",
             exportScriptsBlocks
         ),
 
@@ -145,10 +145,10 @@ function subscribeCallbacks(context: vscode.ExtensionContext) {
         // extra handlers
         vscode.languages.registerCompletionItemProvider(
             LANG_ZEDSCRIPTS,
-            new PZCompletionItemProvider(),
-            ".",
-            " ",
-            "\t"
+            new PZCompletionItemProvider()//,
+            // ".",
+            // " ",
+            // "\t"
         ),
 
         // handle mouse hover words

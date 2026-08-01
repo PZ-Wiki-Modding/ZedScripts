@@ -201,7 +201,7 @@ export class ZedScriptsEnvironment {
 
     private getFileCounter(): string {
         if (this.activeWorkspace && this.activeWorkspace.isLoading) {
-            return `${this.activeWorkspace.i}/${this.activeWorkspace.total}`;
+            return `${this.activeWorkspace.loadingPosition}/${this.activeWorkspace.loadingCount}`;
         }
         return "";
     }

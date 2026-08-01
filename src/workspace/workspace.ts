@@ -42,8 +42,10 @@ export class PZWorkspace {
 
     // status bar
     isLoading: boolean = false;
-    i: number = 0;
-    total: number = 0;
+    loadingPosition: number = 0;
+    loadingCount: number = 0;
+    finalLoadedCount: number = 0;
+    isLoaded: boolean = false;
 
     /** Cache of workspaces by folder path */
     static workspaceCache: Map<WorkspaceType, Map<string, PZWorkspace>> = new Map();
@@ -75,6 +77,13 @@ export class PZWorkspace {
 
 // WORKSPACE LOADERS
 
+    /**
+     * The reason we preload files is to avoid loading the same files and to only load
+     * files that are valid ZedScripts files. For example, plenty of .txt files are not ZedScripts files
+     * so we preload them by filtering them out first.
+     * 
+     * This is mostly for the status bar to show the actual proper amount of script files that are being loaded.
+     */
     public async preload(): Promise<void> {
         // solitary workspaces should not load anything since the folder is a placeholder
         if (this.workspaceType === WorkspaceType.SOLITARY) {
@@ -109,19 +118,20 @@ export class PZWorkspace {
         // we only keep files that are recognized as ZedScripts files
         const recognizedFiles: PreloadedFile[] = [];
         let lastR = 0;
+        this.isLoaded = false; // mark as not loaded until the load() function is called
         this.isLoading = true;
-        this.i = 0;
-        this.total = uniqueFiles.length;
+        this.loadingPosition = 0;
+        this.loadingCount = uniqueFiles.length;
         for (const file of uniqueFiles) {
             const document = await vscode.workspace.openTextDocument(file);
             const result = testZedScripts(document);
             if (result) {
                 recognizedFiles.push({type: result.type, file: file, preparedPath: result.preparedPath});
             }
-            this.i++;
-            const r = Math.round((this.i / this.total) * 100);
+            this.loadingPosition++;
+            const r = Math.round((this.loadingPosition / this.loadingCount) * 100);
             if (r > lastR+10) {
-                console.debug(`${r}%`);
+                // console.debug(`${r}%`);
                 lastR += 10;
                 ZSEnv.updateStatusBar();
             }
@@ -130,10 +140,13 @@ export class PZWorkspace {
         this.preloadedFiles = recognizedFiles;
     }
 
+    /**
+     * Finally load all the preloaded files into the workspace.
+     */
     public async load(): Promise<void> {
-        this.total = this.preloadedFiles.length;
+        this.loadingCount = this.preloadedFiles.length;
 
-        if (this.total === 0) {
+        if (this.loadingCount === 0) {
             console.debug(`No ZedScripts files found in ${this.workspaceType}: ${this.folder.fsPath}`);
             return;
         }
@@ -141,7 +154,7 @@ export class PZWorkspace {
         // parse each file
         let lastR = 0;
         this.isLoading = true;
-        this.i = 0;
+        this.loadingPosition = 0;
         for (const fileData of this.preloadedFiles) {
             // load the document
             const document = await vscode.workspace.openTextDocument(fileData.file);
@@ -157,18 +170,29 @@ export class PZWorkspace {
             this.addDocument(result);
 
             // log progress every 10%
-            this.i++;
-            const r = Math.round((this.i / this.total) * 100);
+            this.loadingPosition++;
+            const r = Math.round((this.loadingPosition / this.loadingCount) * 100);
             if (r > lastR+10) {
-                console.debug(`${r}%`);
+                // console.debug(`${r}%`);
                 lastR += 10;
                 ZSEnv.updateStatusBar();
             }
         }
         this.isLoading = false;
-        console.debug(`Loaded ${this.total} files from workspace: ${this.workspaceType}`);
+
+        // conclude loading
+        this.isLoaded = true;
+        this.preloadedFiles = []; // clear preloaded files cache
+        this.finalLoadedCount = this.loadingCount;
+        console.debug(`Loaded ${this.loadingCount} files from workspace: ${this.workspaceType}`);
     }
 
+    /**
+     * Adds a new document to the workspace, creating a DocumentBlock for it.
+     * If the document is a pre-42 file, we skip it as they are not supported.
+     * @param result The result object containing the document and its metadata which was preloaded.
+     * @returns The created DocumentBlock, or void if the document was skipped.
+     */
     public addDocument(result: ResultZedScripts): DocumentBlock | void {
         // retrieve the version and pass if B41, they are not supported
         const version = findWorkspaceVersion(result.preparedPath);
@@ -281,6 +305,19 @@ export class PZWorkspace {
         return result;
     }
 
+    public static getAllDocumentsPerType(type: WorkspaceType): DocumentBlock[] {
+        const result: DocumentBlock[] = [];
+        const typeMap = PZWorkspace.workspaceCache.get(type);
+        if (!typeMap) { 
+            console.error(`Unexpected workspace type: ${type}`);
+            return result;
+        }
+        for (const workspace of typeMap.values()) {
+            result.push(...workspace.getAllDocuments());
+        }
+        return result;
+    }
+
     public static clearCacheForUri(uri: vscode.Uri): void {
         const filePath = preparePath(uri.fsPath);
         const workspace = PZWorkspace.fileToWorkspaceMap.get(filePath);
@@ -310,18 +347,18 @@ export class PZWorkspace {
         const documentBlocks = this.getAllDocuments();
         let lastR = 0;
         this.isLoading = true;
-        this.i = 0;
-        this.total = documentBlocks.length;
+        this.loadingPosition = 0;
+        this.loadingCount = documentBlocks.length;
         for (const documentBlock of documentBlocks) {
             documentBlock.validateRecursive();
             const diagnostics = documentBlock.diagnostics;
             if (diagnostics) {
                 this.diagnosticProvider?.diagnosticCollection.set(documentBlock.document.uri, diagnostics);
             }
-            this.i++;
-            const r = Math.round((this.i / this.total) * 100);
+            this.loadingPosition++;
+            const r = Math.round((this.loadingPosition / this.loadingCount) * 100);
             if (r > lastR+10) {
-                console.debug(`${r}%`);
+                // console.debug(`${r}%`);
                 lastR += 10;
                 ZSEnv.updateStatusBar();
             }
@@ -345,43 +382,6 @@ export class PZWorkspace {
 
 
 // WORKSPACE GETTERS
-
-    public findBlockFromFullType(
-        version: Version,
-        expectedBlock: string, 
-        modules: string[], 
-        id: string): ScriptsBlock[] 
-    {
-        const result: ScriptsBlock[] = [];
-
-        // if this is a version workspace (4*.*), we need to search in this single workspace documents
-        // if (version.usesVersioning) {
-            PZWorkspace.findBlockFromFullTypeInVersion(
-                version, expectedBlock, modules, id
-            ).forEach(block => result.push(block));
-        // }
-
-        // // we also search in the common workspace documents
-        // PZWorkspace.findBlockFromFullTypeInVersion(
-        //     Version.COMMON, expectedBlock, modules, id
-        // ).forEach(block => result.push(block));
-
-        // // we also search in the base game workspace documents
-        // PZWorkspace.findBlockFromFullTypeInVersion(
-        //     Version.BASE_GAME, expectedBlock, modules, id
-        // ).forEach(block => result.push(block));
-
-        // // then finally search in any versioning
-        // PZWorkspace.findBlockFromFullTypeInVersion(
-        //     Version.ANY, expectedBlock, modules, id
-        // ).forEach(block => result.push(block));
-
-        if (expectedBlock === "animationsMesh") {
-            console.debug(`Found ${result.length} blocks for ${expectedBlock} in workspace ${this.folder.fsPath}`);
-        }
-
-        return result;
-    }
 
     public static findBlockFromFullTypeInVersion(
         targetVersion: Version,

@@ -2,6 +2,7 @@ import * as vscode from "vscode";
 import * as path from "path";
 
 import { ZSEnv } from "../extension";
+import { PZWorkspace, WorkspaceType } from "../workspace/workspace";
 
 import { DefaultText } from "../models/DefaultText";
 
@@ -29,20 +30,36 @@ export async function resetScriptsCache() {
     }
 }
 
-export function exportScriptsBlocks() {
-    const documentBlocks = DocumentBlock.getAllDocumentBlocks();
+export async function exportScriptsBlocks() {
+    const documentBlocks = PZWorkspace.getAllDocumentsPerType(WorkspaceType.WORKSPACE);
     const exportData = documentBlocks.map(block => block.export());
     const exportJson = JSON.stringify(exportData, null, 2);
-    const exportPath = path.join(
+
+    const defaultPath = path.join(
         vscode.workspace.workspaceFolders?.[0].uri.fsPath || "",
         "scripts_export.json"
     );
+    const result = await vscode.window.showSaveDialog({
+        defaultUri: vscode.Uri.file(defaultPath),
+        title: DefaultText.COMMAND_EXPORT_TITLE,
+        filters: {
+            'JSON files': ['json'],
+            'All files': ['*']
+        }
+    });
+    if (!result) { return; }
+
+    const exportPath = result.fsPath;
+    const exportUri = result.toString();
     vscode.workspace.fs.writeFile(
         vscode.Uri.file(exportPath),
         Buffer.from(exportJson, "utf-8")
     ).then(() => {
         vscode.window.showInformationMessage(
-            formatText(DefaultText.COMMAND_EXPORT_SUCCESS, { filePath: exportPath })
+            formatText(DefaultText.COMMAND_EXPORT_SUCCESS, { 
+                filename: path.basename(exportPath),
+                fileUri: exportUri,
+            })
         );
     }, (error) => {
         vscode.window.showErrorMessage(
