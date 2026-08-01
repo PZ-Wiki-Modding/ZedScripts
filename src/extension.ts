@@ -43,11 +43,16 @@ export async function activate(context: vscode.ExtensionContext) {
     ZSEnv.updateStatusBar();
     context.subscriptions.push(ZSEnv.statusBar);
 
+    // we load the commands first in-case the user wants to show information
+    // on the currently loading libraries and workspace
+    subscribeCommands(context);
+
     // load libraries and the workspace
     await ZSEnv.load();
 
-
-    subscribe(context);
+    // these need to be loaded after because they may trigger events
+    // during the loading of the libraries and workspace
+    subscribeCallbacks(context);
 
     // // handle the initially active document on startup
     // if (vscode.window.activeTextEditor) {
@@ -67,23 +72,9 @@ export function deactivate() {
 
 
 
-
-
-function subscribe(context: vscode.ExtensionContext) {
-    // implement a file watcher to clear the cache of a DocumentBlock when a .txt file is deleted
-    const watcher = vscode.workspace.createFileSystemWatcher("**/*.txt");
-    watcher.onDidDelete((uri) => {
-        ZSEnv.clearCacheForUri(uri);
-        console.debug(`Invalidated cache for : ${uri.fsPath}`);
-    });
-    
-    // register commands and event listeners
+function subscribeCommands(context: vscode.ExtensionContext) {
+    // register commands
     context.subscriptions.push(
-        watcher,
-
-
-    // COMMANDS
-
         // add a force reset cache function
         vscode.commands.registerCommand(
             "ZedScripts.resetScriptCache",
@@ -133,9 +124,24 @@ function subscribe(context: vscode.ExtensionContext) {
                 vscode.window.showInformationMessage("Hello!");
             }
         ),
+    );
+}
 
+
+function subscribeCallbacks(context: vscode.ExtensionContext) {
+    // implement a file watcher to clear the cache of a DocumentBlock when a .txt file is deleted
+    const watcher = vscode.workspace.createFileSystemWatcher("**/*.txt");
+    watcher.onDidDelete((uri) => {
+        ZSEnv.clearCacheForUri(uri);
+        console.debug(`Invalidated cache for : ${uri.fsPath}`);
+    });
+    
+    // register commands and event listeners
+    context.subscriptions.push(
 
     // ON DOCUMENT CHANGES
+
+        watcher,
 
         // triggers anytime we open a text document, or swap active document editor
         vscode.window.onDidChangeActiveTextEditor((editor) => {

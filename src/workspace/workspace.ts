@@ -25,12 +25,19 @@ export enum WorkspaceType {
     SOLITARY = "solitary",
 }
 
+interface PreloadedFile {
+    type: string;
+    file: vscode.Uri;
+    preparedPath: string;
+}
+
 export class PZWorkspace {
 // MEMBERS
     folder: vscode.Uri;
-    type: WorkspaceType;
+    workspaceType: WorkspaceType;
     diagnosticProvider?: DiagnosticProvider;
 
+    preloadedFiles: PreloadedFile[] = [];
     versions: Map<Version, Map<string, DocumentBlock>> = new Map();
 
     // status bar
@@ -49,28 +56,28 @@ export class PZWorkspace {
 
 // CONSTRUCTOR
 
-    constructor(folder: vscode.Uri, type: WorkspaceType, diagnosticProvider?: DiagnosticProvider) {
+    constructor(folder: vscode.Uri, workspaceType: WorkspaceType, diagnosticProvider?: DiagnosticProvider) {
         this.folder = folder;
-        this.type = type;
+        this.workspaceType = workspaceType;
 
         // only register diagnostics for workspace type, not library type
-        if (type === WorkspaceType.WORKSPACE) {
+        if (workspaceType === WorkspaceType.WORKSPACE) {
             this.diagnosticProvider = diagnosticProvider;
         }
         
         // cache this workspace
-        if (!PZWorkspace.workspaceCache.has(type)) {
-            PZWorkspace.workspaceCache.set(type, new Map());
+        if (!PZWorkspace.workspaceCache.has(workspaceType)) {
+            PZWorkspace.workspaceCache.set(workspaceType, new Map());
         }
-        PZWorkspace.workspaceCache.get(type)?.set(folder.toString(), this);
+        PZWorkspace.workspaceCache.get(workspaceType)?.set(folder.toString(), this);
     }
 
 
 // WORKSPACE LOADERS
 
-    public async load(): Promise<void> {
+    public async preload(): Promise<void> {
         // solitary workspaces should not load anything since the folder is a placeholder
-        if (this.type === WorkspaceType.SOLITARY) {
+        if (this.workspaceType === WorkspaceType.SOLITARY) {
             console.debug("Solitary workspace does not load files.");
             return;
         }
@@ -83,25 +90,59 @@ export class PZWorkspace {
         for (const file of dirFiles) {
             files.set(file.fsPath, file);
         }
-        const uniqueFiles = Array.from(files.values());
+        let uniqueFiles = Array.from(files.values());
+
+        // if this is a library
+        // we remove the files that are already handled by the workspace
+        // the workspace files are preloaded already at this point
+        if (this.workspaceType === WorkspaceType.LIBRARY) {
+            const workspaces = PZWorkspace.workspaceCache.get(WorkspaceType.WORKSPACE) || new Map();
+            for (const workspace of workspaces.values()) {
+                const preloadedFiles = workspace.preloadedFiles;
+                for (const preloadedFile of preloadedFiles) {
+                    // compare file to remove duplicates
+                    uniqueFiles = uniqueFiles.filter(file => file.fsPath !== preloadedFile.file.fsPath);
+                }
+            }
+        }
         
         // we only keep files that are recognized as ZedScripts files
-        const recognizedFiles: {type: string, file: vscode.Uri, preparedPath: string}[] = [];
+        const recognizedFiles: PreloadedFile[] = [];
+        let lastR = 0;
+        this.isLoading = true;
+        this.i = 0;
+        this.total = uniqueFiles.length;
         for (const file of uniqueFiles) {
             const document = await vscode.workspace.openTextDocument(file);
             const result = testZedScripts(document);
             if (result) {
                 recognizedFiles.push({type: result.type, file: file, preparedPath: result.preparedPath});
             }
+            this.i++;
+            const r = Math.round((this.i / this.total) * 100);
+            if (r > lastR+10) {
+                console.debug(`${r}%`);
+                lastR += 10;
+                ZSEnv.updateStatusBar();
+            }
+        }
+        this.isLoading = false;
+        this.preloadedFiles = recognizedFiles;
+    }
+
+    public async load(): Promise<void> {
+        this.total = this.preloadedFiles.length;
+
+        if (this.total === 0) {
+            console.debug(`No ZedScripts files found in ${this.workspaceType}: ${this.folder.fsPath}`);
+            return;
         }
 
         // parse each file
-        // let i = 0;
         let lastR = 0;
         this.isLoading = true;
         this.i = 0;
-        this.total = recognizedFiles.length;
-        for (const fileData of recognizedFiles) {
+        for (const fileData of this.preloadedFiles) {
             // load the document
             const document = await vscode.workspace.openTextDocument(fileData.file);
             const result = {document: document, type: fileData.type, preparedPath: fileData.preparedPath};
@@ -125,7 +166,7 @@ export class PZWorkspace {
             }
         }
         this.isLoading = false;
-        console.debug(`Loaded ${this.total} files from workspace: ${this.type}`);
+        console.debug(`Loaded ${this.total} files from workspace: ${this.workspaceType}`);
     }
 
     public addDocument(result: ResultZedScripts): DocumentBlock | void {
@@ -261,12 +302,13 @@ export class PZWorkspace {
 
     public validate(): void {
         // only validate workspace type
-        if (this.type !== WorkspaceType.WORKSPACE) {
+        if (this.workspaceType !== WorkspaceType.WORKSPACE) {
             return;
         }
 
         // recursively validate all document blocks in this workspace
         const documentBlocks = this.getAllDocuments();
+        let lastR = 0;
         this.isLoading = true;
         this.i = 0;
         this.total = documentBlocks.length;
@@ -277,6 +319,12 @@ export class PZWorkspace {
                 this.diagnosticProvider?.diagnosticCollection.set(documentBlock.document.uri, diagnostics);
             }
             this.i++;
+            const r = Math.round((this.i / this.total) * 100);
+            if (r > lastR+10) {
+                console.debug(`${r}%`);
+                lastR += 10;
+                ZSEnv.updateStatusBar();
+            }
         }
         this.isLoading = false;
     }

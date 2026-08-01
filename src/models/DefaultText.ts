@@ -12,4 +12,8 @@ export enum DefaultText {
 
     LIBRARY_LOAD_FAILED = "Library folder does not exist or is not accessible: {folder}",
     WORKSPACE_LOAD_FAILED = "Workspace folder does not exist or is not accessible: {folder}",
+
+    STATUS_BAR_TOOLTIP_TITLE = "**ZedScripts**",
+    STATUS_BAR_TOOLTIP_PROCESSING = "Processing files from {workspaceType}.",
+    STATUS_BAR_TOOLTIP_LOADED = "Loaded.",
 }

@@ -20,6 +20,8 @@ interface StatusBarConfig {
 enum State {
     LAUNCHING = "launching",
     LOADING_DATA = "loading_data",
+    PRE_LOADING_LIBRARIES = "pre_loading_libraries",
+    PRE_LOADING_WORKSPACE = "pre_loading_workspace",
     LOADING_LIBRARIES = "loading_libraries",
     LOADING_WORKSPACE = "loading_workspace",
     VALIDATING = "validating",
@@ -48,8 +50,18 @@ export class ZedScriptsEnvironment {
 
     public async load(): Promise<void> {
         await this.loadData(true);
+
+        // we preload the workspace first to remove files in the libraries that are already
+        // handled in the workspace (example, opening one of the libraries as a workspace folder)
+        console.debug("Pre-loading libraries and workspace...");
+        await this.preLoadWorkspace(true);
+        await this.preLoadLibraries(true);
+
+        // order doesn't matter here, we already cached all the files we want to process
+        console.debug("Loading libraries and workspace...");
         await this.loadLibraries(true);
         await this.loadWorkspace(true);
+
         this.validateWorkspace();
     }
 
@@ -69,11 +81,10 @@ export class ZedScriptsEnvironment {
     /**
      * Load the libraries from the configured directories.
      */
-    public async loadLibraries(skip_final_state: boolean = false): Promise<void> {
-        console.debug("Loading libraries and workspace...");
-        this.setState(State.LOADING_LIBRARIES);
+    public async preLoadLibraries(skip_final_state: boolean = false): Promise<void> {
+        this.setState(State.PRE_LOADING_LIBRARIES);
 
-        // first load libraries files
+        // preload libraries files
         const config = vscode.workspace.getConfiguration("ZedScripts");
         const libraryDirs: string[] = config.get("searchDirectories", []);
         for (const folder of libraryDirs) {
@@ -83,6 +94,45 @@ export class ZedScriptsEnvironment {
                 continue;
             }
             const workspace = new PZWorkspace(uri, WorkspaceType.LIBRARY);
+            this.activeWorkspace = workspace;
+            await workspace.preload();
+            this.activeWorkspace = null;
+        }
+        if (!skip_final_state) {
+            this.setState(State.RUNNING);
+        }
+    }
+
+    public async preLoadWorkspace(skip_final_state: boolean = false): Promise<void> {
+        this.setState(State.PRE_LOADING_WORKSPACE);
+        // list the folders of the workspace
+        const workspaceFolders = vscode.workspace.workspaceFolders || [];
+
+        // preload workspace files
+        for (const folder of workspaceFolders) {
+            if (!isValidDir(folder.uri.fsPath)) {
+                vscode.window.showWarningMessage(formatText(DefaultText.WORKSPACE_LOAD_FAILED, { folder: folder.uri.fsPath }));
+                continue;
+            }
+            const workspace = new PZWorkspace(folder.uri, WorkspaceType.WORKSPACE, this.diagnosticProvider);
+            this.activeWorkspace = workspace;
+            await workspace.preload();
+            this.activeWorkspace = null;
+        }
+        if (!skip_final_state) {
+            this.setState(State.RUNNING);
+        }
+    }
+
+    /**
+     * Load the libraries from the configured directories.
+     */
+    public async loadLibraries(skip_final_state: boolean = false): Promise<void> {
+        this.setState(State.LOADING_LIBRARIES);
+
+        // load libraries files
+        const workspaces = PZWorkspace.workspaceCache.get(WorkspaceType.LIBRARY) || new Map();
+        for (const workspace of workspaces.values()) {
             this.activeWorkspace = workspace;
             await workspace.load();
             this.activeWorkspace = null;
@@ -94,16 +144,10 @@ export class ZedScriptsEnvironment {
 
     public async loadWorkspace(skip_final_state: boolean = false): Promise<void> {
         this.setState(State.LOADING_WORKSPACE);
-        // list the folders of the workspace
-        const workspaceFolders = vscode.workspace.workspaceFolders || [];
 
         // load workspace files
-        for (const folder of workspaceFolders) {
-            if (!isValidDir(folder.uri.fsPath)) {
-                vscode.window.showWarningMessage(formatText(DefaultText.WORKSPACE_LOAD_FAILED, { folder: folder.uri.fsPath }));
-                continue;
-            }
-            const workspace = new PZWorkspace(folder.uri, WorkspaceType.WORKSPACE, this.diagnosticProvider);
+        const workspaces = PZWorkspace.workspaceCache.get(WorkspaceType.WORKSPACE) || new Map();
+        for (const workspace of workspaces.values()) {
             this.activeWorkspace = workspace;
             await workspace.load();
             this.activeWorkspace = null;
@@ -130,17 +174,17 @@ export class ZedScriptsEnvironment {
 
 // STATUS BAR MANAGEMENT
 
-    public setState(newState: State): void {
-        this.state = newState;
-        this.updateStatusBar();
-    }
-
     public initializeStatusBar(): vscode.StatusBarItem {
         const statusBar = vscode.window.createStatusBarItem(
             vscode.StatusBarAlignment.Left, 0
         );
         statusBar.command = "ZedScripts.showInfo";
         return statusBar;
+    }
+
+    public setState(newState: State): void {
+        this.state = newState;
+        this.updateStatusBar();
     }
 
     public updateStatusBar(): void {
@@ -173,6 +217,14 @@ export class ZedScriptsEnvironment {
                 icon: "$(sync~spin) ZedScripts: data...", 
                 color: new vscode.ThemeColor("statusBarItem.warningBackground"),
             },
+            [State.PRE_LOADING_LIBRARIES]: { 
+                icon: ("$(sync~spin) ZedScripts: pre-libraries... " + fileCounter).trim(), 
+                color: new vscode.ThemeColor("statusBarItem.warningBackground"),
+            },
+            [State.PRE_LOADING_WORKSPACE]: { 
+                icon: ("$(sync~spin) ZedScripts: pre-workspace... " + fileCounter).trim(), 
+                color: new vscode.ThemeColor("statusBarItem.warningBackground"),
+            },
             [State.LOADING_LIBRARIES]: { 
                 icon: ("$(sync~spin) ZedScripts: libraries... " + fileCounter).trim(), 
                 color: new vscode.ThemeColor("statusBarItem.warningBackground"),
@@ -198,8 +250,27 @@ export class ZedScriptsEnvironment {
         return configs[this.state];
     }
 
-    private createTooltip(): string {
-        return "Hello World!"
+    private createTooltip(): vscode.MarkdownString {
+        const tooltip = new vscode.MarkdownString();
+        tooltip.isTrusted = true;
+
+        tooltip.appendMarkdown(DefaultText.STATUS_BAR_TOOLTIP_TITLE);
+        tooltip.appendMarkdown('\n\n')
+
+        if (this.activeWorkspace) {
+            tooltip.appendMarkdown(formatText(
+                DefaultText.STATUS_BAR_TOOLTIP_PROCESSING, {
+                    workspaceType: this.activeWorkspace.workspaceType
+                }));
+            if (this.activeWorkspace.isLoading) {
+                tooltip.appendMarkdown('\n\n');
+                tooltip.appendMarkdown(`${this.getFileCounter()}`);
+            }
+        } else {
+            tooltip.appendMarkdown(DefaultText.STATUS_BAR_TOOLTIP_LOADED);
+        }
+
+        return tooltip;
     }
 }
 
