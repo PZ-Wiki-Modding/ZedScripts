@@ -46,7 +46,6 @@ export class PZCompletionItemProvider implements vscode.CompletionItemProvider {
                     CompletionText.PARAMETER_AUTO, { parameter: paramName },
                     '<', '>'
                 );
-                console.log(`Adding completion for parameter: ${paramName} with snippet: ${snippetStr}`);
                 item.insertText = new SnippetString(snippetStr);
                 completion.push(item);
             }
@@ -62,7 +61,6 @@ export class PZCompletionItemProvider implements vscode.CompletionItemProvider {
             }
 
             const snippetStr = this.formatBlock(document, blockName, parentBlock.scriptBlock);
-            console.log(`Adding completion for block: ${blockName} with snippet: ${snippetStr}`);
             item.insertText = new SnippetString(snippetStr);
 
             item.detail = blockData.description;
