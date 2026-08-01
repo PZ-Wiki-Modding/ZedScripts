@@ -31,8 +31,11 @@ enum State {
 export class ZedScriptsEnvironment {
     context: vscode.ExtensionContext;
     diagnosticProvider: DiagnosticProvider;
+
+    // status bar
     statusBar: vscode.StatusBarItem;
     state: State = State.LOADING_LIBRARIES;
+    activeWorkspace: PZWorkspace | null = null;
 
     constructor(context: vscode.ExtensionContext, diagnosticProvider: DiagnosticProvider) {
         this.context = context;
@@ -80,7 +83,9 @@ export class ZedScriptsEnvironment {
                 continue;
             }
             const workspace = new PZWorkspace(uri, WorkspaceType.LIBRARY);
+            this.activeWorkspace = workspace;
             await workspace.load();
+            this.activeWorkspace = null;
         }
         if (!skip_final_state) {
             this.setState(State.RUNNING);
@@ -99,7 +104,9 @@ export class ZedScriptsEnvironment {
                 continue;
             }
             const workspace = new PZWorkspace(folder.uri, WorkspaceType.WORKSPACE, this.diagnosticProvider);
+            this.activeWorkspace = workspace;
             await workspace.load();
+            this.activeWorkspace = null;
         }
         if (!skip_final_state) {
             this.setState(State.RUNNING);
@@ -148,17 +155,45 @@ export class ZedScriptsEnvironment {
         this.statusBar.show();
     }
 
+    private getFileCounter(): string {
+        if (this.activeWorkspace && this.activeWorkspace.isLoading) {
+            return `${this.activeWorkspace.i}/${this.activeWorkspace.total}`;
+        }
+        return "";
+    }
 
     private getStatusBarConfig(): StatusBarConfig {
+        const fileCounter = this.getFileCounter();
         const configs: Record<State, StatusBarConfig> = {
-            [State.LAUNCHING]: { icon: "$(rocket) ZedScripts", color: new vscode.ThemeColor("statusBarItem.warningBackground") },
-            [State.LOADING_DATA]: { icon: "$(sync~spin) ZedScripts: data...", color: new vscode.ThemeColor("statusBarItem.warningBackground") },
-            [State.LOADING_LIBRARIES]: { icon: "$(sync~spin) ZedScripts: libraries...", color: new vscode.ThemeColor("statusBarItem.warningBackground") },
-            [State.LOADING_WORKSPACE]: { icon: "$(sync~spin) ZedScripts: workspace...", color: new vscode.ThemeColor("statusBarItem.warningBackground") },
-            [State.VALIDATING]: { icon: "$(sync~spin) ZedScripts: validating...", color: new vscode.ThemeColor("statusBarItem.warningBackground") },
-            [State.RUNNING]: { icon: "$(check) ZedScripts", color: new vscode.ThemeColor("statusBarItem.foreground") },
+            [State.LAUNCHING]: { 
+                icon: "$(rocket) ZedScripts", 
+                // color: new vscode.ThemeColor("statusBarItem.warningBackground"),
+            },
+            [State.LOADING_DATA]: { 
+                icon: "$(sync~spin) ZedScripts: data...", 
+                color: new vscode.ThemeColor("statusBarItem.warningBackground"),
+            },
+            [State.LOADING_LIBRARIES]: { 
+                icon: ("$(sync~spin) ZedScripts: libraries... " + fileCounter).trim(), 
+                color: new vscode.ThemeColor("statusBarItem.warningBackground"),
+            },
+            [State.LOADING_WORKSPACE]: { 
+                icon: ("$(sync~spin) ZedScripts: workspace... " + fileCounter).trim(), 
+                color: new vscode.ThemeColor("statusBarItem.warningBackground"),
+            },
+            [State.VALIDATING]: { 
+                icon: ("$(sync~spin) ZedScripts: validating... " + fileCounter).trim(), 
+                color: new vscode.ThemeColor("statusBarItem.warningBackground"),
+            },
+            [State.RUNNING]: { 
+                icon: "$(check) ZedScripts", 
+                color: new vscode.ThemeColor("statusBarItem.foreground"),
+            },
             // [State.ERROR]: { icon: "$(error) ZedScripts", color: new vscode.ThemeColor("statusBarItem.errorBackground") },
-            [State.STOPPED]: { icon: "$(debug-stop) ZedScripts", color: new vscode.ThemeColor("statusBarItem.errorBackground") }
+            [State.STOPPED]: { 
+                icon: "$(debug-stop) ZedScripts", 
+                color: new vscode.ThemeColor("statusBarItem.errorBackground"),
+            }
         };
         return configs[this.state];
     }

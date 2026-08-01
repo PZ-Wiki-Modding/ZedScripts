@@ -13,7 +13,7 @@ import { createReferenceDecoration } from './models/decorations';
 import { fetchData } from './providers/fetchData';
 
 let debounceTimer: NodeJS.Timeout | undefined;
-let ZSEnv: ZedScriptsEnvironment;
+export let ZSEnv: ZedScriptsEnvironment;
 
 function loadDecorations(document: vscode.TextDocument) {
     const editor = vscode.window.activeTextEditor;

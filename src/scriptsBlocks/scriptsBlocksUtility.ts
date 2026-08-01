@@ -97,10 +97,10 @@ export function getVariantTree(blockType: string): string[] {
 
 // document handler
 
-export interface ResultResolvedDocument {
+export interface ResultZedScripts {
     document: vscode.TextDocument;
     type: string;
-    path: string;
+    preparedPath: string;
 }
 
 
@@ -108,13 +108,11 @@ export function reopenFile(document: vscode.TextDocument): Thenable<vscode.TextD
     return vscode.languages.setTextDocumentLanguage(document, LANG_ZEDSCRIPTS);
 }
 
-export async function testForZedScripts(document: vscode.TextDocument): 
-    Promise<ResultResolvedDocument | null> 
-{
-    const filePath = preparePath(document.fileName); // unix-style path
+export function testZedScripts(document: vscode.TextDocument): ResultZedScripts | null {
+    const preparedPath = preparePath(document.fileName); // unix-style path
     
     // retrieve the type of root file
-    let type = testForScriptRootFile(filePath);
+    let type = testForScriptRootFile(preparedPath);
 
     // if no type is found, check if the document is forced to be ZedScripts
     const isZedScripts = document.languageId === LANG_ZEDSCRIPTS;
@@ -125,12 +123,21 @@ export async function testForZedScripts(document: vscode.TextDocument):
     // skip non-script files
     if (!type) { return null; }
 
+    return { document, type, preparedPath };
+}
+
+export async function testAndReloadZedScripts(document: vscode.TextDocument): 
+    Promise<ResultZedScripts | null> 
+{
+    const result = testZedScripts(document);
+    if (!result) { return null; }
+
     // reopen file as ZedScripts if needed
-    let resolvedDocument = document;
-    if (!isZedScripts) {
-        const newDoc = reopenFile(document);
-        resolvedDocument = await newDoc;
+    const resultDoc = result.document;
+    if (!(resultDoc.languageId === LANG_ZEDSCRIPTS)) {
+        const newDoc = reopenFile(resultDoc);
+        result.document = await newDoc;
     }
 
-    return { document: resolvedDocument, type, path: filePath };
+    return result;
 }

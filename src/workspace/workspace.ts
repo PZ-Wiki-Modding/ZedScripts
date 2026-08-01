@@ -8,8 +8,9 @@ import { testForScriptRootFile, DEFAULT_ROOT_FILE } from "../scriptsBlocks/scrip
 
 import { ScriptsBlock } from '../scriptsBlocks/scriptsBlocks';
 import { DocumentBlock } from '../scriptsBlocks/blockTypes/document';
-import { testForZedScripts, ResultResolvedDocument } from '../scriptsBlocks/scriptsBlocksUtility';
+import { testAndReloadZedScripts, testZedScripts, ResultZedScripts, reopenFile } from '../scriptsBlocks/scriptsBlocksUtility';
 
+import { ZSEnv } from '../extension';
 
 function preparePath(filePath: string): string {
     const normalizedPath = filePath.replace(/\\/g, '/'); // normalize to unix-style path
@@ -31,6 +32,11 @@ export class PZWorkspace {
     diagnosticProvider?: DiagnosticProvider;
 
     versions: Map<Version, Map<string, DocumentBlock>> = new Map();
+
+    // status bar
+    isLoading: boolean = false;
+    i: number = 0;
+    total: number = 0;
 
     /** Cache of workspaces by folder path */
     static workspaceCache: Map<WorkspaceType, Map<string, PZWorkspace>> = new Map();
@@ -79,41 +85,52 @@ export class PZWorkspace {
         }
         const uniqueFiles = Array.from(files.values());
         
-        // parse each file
-        let i = 0;
-        let lastR = 0;
-        const totalFiles = uniqueFiles.length;
+        // we only keep files that are recognized as ZedScripts files
+        const recognizedFiles: {type: string, file: vscode.Uri, preparedPath: string}[] = [];
         for (const file of uniqueFiles) {
-            await this.loadFile(file);
+            const document = await vscode.workspace.openTextDocument(file);
+            const result = testZedScripts(document);
+            if (result) {
+                recognizedFiles.push({type: result.type, file: file, preparedPath: result.preparedPath});
+            }
+        }
+
+        // parse each file
+        // let i = 0;
+        let lastR = 0;
+        this.isLoading = true;
+        this.i = 0;
+        this.total = recognizedFiles.length;
+        for (const fileData of recognizedFiles) {
+            // load the document
+            const document = await vscode.workspace.openTextDocument(fileData.file);
+            const result = {document: document, type: fileData.type, preparedPath: fileData.preparedPath};
+
+            // reopen file as ZedScripts if needed
+            if (!(document.languageId === LANG_ZEDSCRIPTS)) {
+                const newDoc = reopenFile(document);
+                result.document = await newDoc;
+            }
+
+            // add to workspace
+            this.addDocument(result);
 
             // log progress every 10%
-            i++;
-            const r = Math.round((i / totalFiles) * 100);
+            this.i++;
+            const r = Math.round((this.i / this.total) * 100);
             if (r > lastR+10) {
                 console.debug(`${r}%`);
                 lastR += 10;
+                ZSEnv.updateStatusBar();
             }
         }
-        console.debug(`Loaded ${totalFiles} files from workspace: ${this.type}`);
+        this.isLoading = false;
+        console.debug(`Loaded ${this.total} files from workspace: ${this.type}`);
     }
 
-    public async loadFile(file: vscode.Uri): Promise<void> {
-        const document = await vscode.workspace.openTextDocument(file);
-        // const result = handleOpenTextDocument(document);
-        // const resolvedDocument = result instanceof Promise ? await result : result;
-        await this.loadDocument(document);
-    }
-
-    public async loadDocument(document: vscode.TextDocument): Promise<DocumentBlock | void> {
-        const result = await testForZedScripts(document);
-        if (!result) { return; }
-
-        return this.addDocument(result);
-    }
-
-    public addDocument(result: ResultResolvedDocument): DocumentBlock | void {
+    public addDocument(result: ResultZedScripts): DocumentBlock | void {
         // retrieve the version and pass if B41, they are not supported
-        const version = findWorkspaceVersion(result.path);
+        const version = findWorkspaceVersion(result.preparedPath);
         if (version.type === VersionType.PRE_42) { return; }
 
         // retrieve the diagnostics to add
@@ -124,16 +141,16 @@ export class PZWorkspace {
         if (!this.versions.has(version)) {
             this.versions.set(version, new Map());
         }
-        this.versions.get(version)?.set(result.path, documentBlock);
+        this.versions.get(version)?.set(result.preparedPath, documentBlock);
 
         // cache the document to workspace mapping for easy access later
-        PZWorkspace.fileToWorkspaceMap.set(result.path, this);
+        PZWorkspace.fileToWorkspaceMap.set(result.preparedPath, this);
 
         return documentBlock;
     }
 
     /** Solitary documents are documents that are not part of a workspace */
-    public static addNewSolitaryDocument(result: ResultResolvedDocument): DocumentBlock | void {
+    public static addNewSolitaryDocument(result: ResultZedScripts): DocumentBlock | void {
         // add the document to the solitary workspace
         return PZWorkspace.solitaryWorkspace.addDocument(result);
     }
@@ -167,7 +184,7 @@ export class PZWorkspace {
      */
     public static async update(document: vscode.TextDocument, diagnosticProvider?: DiagnosticProvider): Promise<DocumentBlock | void> {
         // check if the document is a ZedScripts document
-        const result = await testForZedScripts(document);
+        const result = await testAndReloadZedScripts(document);
         if (!result) {
             // clear diagnostics in case this file had been previously recognized as a ZedScripts document
             diagnosticProvider?.diagnosticCollection.delete(document.uri); 
@@ -249,13 +266,19 @@ export class PZWorkspace {
         }
 
         // recursively validate all document blocks in this workspace
-        for (const documentBlock of this.getAllDocuments()) {
+        const documentBlocks = this.getAllDocuments();
+        this.isLoading = true;
+        this.i = 0;
+        this.total = documentBlocks.length;
+        for (const documentBlock of documentBlocks) {
             documentBlock.validateRecursive();
             const diagnostics = documentBlock.diagnostics;
             if (diagnostics) {
                 this.diagnosticProvider?.diagnosticCollection.set(documentBlock.document.uri, diagnostics);
             }
+            this.i++;
         }
+        this.isLoading = false;
     }
 
     public static validateAll(type: WorkspaceType = WorkspaceType.WORKSPACE): void {
