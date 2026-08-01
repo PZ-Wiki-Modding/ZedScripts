@@ -68,11 +68,11 @@ export class ZedScriptsEnvironment {
     /**
      * Load the scripts data.
      */
-    public async loadData(skip_final_state: boolean = false): Promise<boolean> {
+    public async loadData(skipFinalState: boolean = false, forceFetch: boolean = false): Promise<boolean> {
         console.debug("Loading dataset...");
         this.setState(State.LOADING_DATA);
-        const result = await fetchData(this.context);
-        if (!skip_final_state) {
+        const result = await fetchData(this.context, forceFetch);
+        if (!skipFinalState) {
             this.setState(State.RUNNING);
         }
         return result;
@@ -81,7 +81,7 @@ export class ZedScriptsEnvironment {
     /**
      * Load the libraries from the configured directories.
      */
-    public async preLoadLibraries(skip_final_state: boolean = false): Promise<void> {
+    public async preLoadLibraries(skipFinalState: boolean = false): Promise<void> {
         this.setState(State.PRE_LOADING_LIBRARIES);
 
         // preload libraries files
@@ -98,12 +98,12 @@ export class ZedScriptsEnvironment {
             await workspace.preload();
             this.activeWorkspace = null;
         }
-        if (!skip_final_state) {
+        if (!skipFinalState) {
             this.setState(State.RUNNING);
         }
     }
 
-    public async preLoadWorkspace(skip_final_state: boolean = false): Promise<void> {
+    public async preLoadWorkspace(skipFinalState: boolean = false): Promise<void> {
         this.setState(State.PRE_LOADING_WORKSPACE);
         // list the folders of the workspace
         const workspaceFolders = vscode.workspace.workspaceFolders || [];
@@ -119,7 +119,7 @@ export class ZedScriptsEnvironment {
             await workspace.preload();
             this.activeWorkspace = null;
         }
-        if (!skip_final_state) {
+        if (!skipFinalState) {
             this.setState(State.RUNNING);
         }
     }
@@ -127,7 +127,7 @@ export class ZedScriptsEnvironment {
     /**
      * Load the libraries from the configured directories.
      */
-    public async loadLibraries(skip_final_state: boolean = false): Promise<void> {
+    public async loadLibraries(skipFinalState: boolean = false): Promise<void> {
         this.setState(State.LOADING_LIBRARIES);
 
         // load libraries files
@@ -137,12 +137,12 @@ export class ZedScriptsEnvironment {
             await workspace.load();
             this.activeWorkspace = null;
         }
-        if (!skip_final_state) {
+        if (!skipFinalState) {
             this.setState(State.RUNNING);
         }
     }
 
-    public async loadWorkspace(skip_final_state: boolean = false): Promise<void> {
+    public async loadWorkspace(skipFinalState: boolean = false): Promise<void> {
         this.setState(State.LOADING_WORKSPACE);
 
         // load workspace files
@@ -152,15 +152,15 @@ export class ZedScriptsEnvironment {
             await workspace.load();
             this.activeWorkspace = null;
         }
-        if (!skip_final_state) {
+        if (!skipFinalState) {
             this.setState(State.RUNNING);
         }
     }
 
-    public validateWorkspace(skip_final_state: boolean = false): void {
+    public validateWorkspace(skipFinalState: boolean = false): void {
         this.setState(State.VALIDATING);
         PZWorkspace.validateAll();
-        if (!skip_final_state) {
+        if (!skipFinalState) {
             this.setState(State.RUNNING);
         }
     }

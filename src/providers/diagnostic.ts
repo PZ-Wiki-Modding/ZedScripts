@@ -6,6 +6,7 @@ import { DocumentBlock } from "../scriptsBlocks/blockTypes/document";
 import { EXTENSION_ID } from "../project";
 import { formatText } from "../utils/format";
 import { DiagnosticType } from "../models/DiagnosticType";
+import { createReferenceDecoration } from '../models/decorations';
 
 import { PZWorkspace } from "../workspace/workspace";
 
@@ -30,6 +31,26 @@ export async function diagnosticFile(document: TextDocument, diagnosticProvider:
             diagnosticProvider.diagnosticCollection.set(document.uri, diagnostics);
         }
     }
+}
+
+export function loadDecorations(document: vscode.TextDocument) {
+    const editor = vscode.window.activeTextEditor;
+
+    if (!editor || editor.document !== document) {
+        return;
+    }
+
+    const documentBlock = DocumentBlock.getDocumentBlock(document);
+    if (documentBlock) {
+        const references: Map<string, vscode.Range[]> = new Map();
+        documentBlock.collectReferencesPerType(references);
+
+        // for each references, create a decoration
+        for (const [refType, ranges] of references) {
+            const decoration = createReferenceDecoration(refType);
+            editor.setDecorations(decoration, ranges);
+        }
+    };
 }
 
 

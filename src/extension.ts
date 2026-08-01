@@ -1,39 +1,21 @@
 import * as vscode from "vscode";
 import * as path from "path";
+
 import { LANG_ZEDSCRIPTS } from "./project";
+import { ZedScriptsEnvironment } from "./workspace/environment";
+
+import { DocumentBlock } from "./scriptsBlocks/blockTypes/document";
+
 import { diagnosticFile, DIAGNOSTIC_PROVIDER } from "./providers/diagnostic";
 import { provideDefinition } from "./providers/definition";
 import { provideDocumentFormattingEdits } from "./providers/editing";
 import { PZCompletionItemProvider } from "./providers/completion";
 import { PZHoverProvider } from "./providers/hover";
-import { ZedScriptsEnvironment } from "./workspace/environment";
-import { DefaultText } from "./models/DefaultText";
-import { DocumentBlock } from "./scriptsBlocks/blockTypes/document";
-import { createReferenceDecoration } from './models/decorations';
-import { fetchData } from './providers/fetchData';
+
+import { reloadDocument, resetScriptsCache, exportScriptsBlocks } from "./providers/commands";
 
 let debounceTimer: NodeJS.Timeout | undefined;
 export let ZSEnv: ZedScriptsEnvironment;
-
-function loadDecorations(document: vscode.TextDocument) {
-    const editor = vscode.window.activeTextEditor;
-
-    if (!editor || editor.document !== document) {
-        return;
-    }
-
-    const documentBlock = DocumentBlock.getDocumentBlock(document);
-    if (documentBlock) {
-        const references: Map<string, vscode.Range[]> = new Map();
-        documentBlock.collectReferencesPerType(references);
-
-        // for each references, create a decoration
-        for (const [refType, ranges] of references) {
-            const decoration = createReferenceDecoration(refType);
-            editor.setDecorations(decoration, ranges);
-        }
-    };
-}
 
 export async function activate(context: vscode.ExtensionContext) {
     console.debug('Activating extension "project-zomboid-scripts"...');
@@ -78,44 +60,13 @@ function subscribeCommands(context: vscode.ExtensionContext) {
         // add a force reset cache function
         vscode.commands.registerCommand(
             "ZedScripts.resetScriptCache",
-            async () => {
-                const result = await fetchData(context, true);
-                if (result) {
-                    vscode.window.showInformationMessage(
-                        DefaultText.CACHE_RESET
-                    );
-                } else {
-                    vscode.window.showWarningMessage(
-                        DefaultText.CACHE_RESET_FAILED
-                    );
-                }
-            }
+            resetScriptsCache
         ),
 
         // add an export function
         vscode.commands.registerCommand(
             "ZedScripts.exportScriptBlocks",
-            () => {
-                const documentBlocks = DocumentBlock.getAllDocumentBlocks();
-                const exportData = documentBlocks.map(block => block.export());
-                const exportJson = JSON.stringify(exportData, null, 2);
-                const exportPath = path.join(
-                    vscode.workspace.workspaceFolders?.[0].uri.fsPath || "",
-                    "scripts_export.json"
-                );
-                vscode.workspace.fs.writeFile(
-                    vscode.Uri.file(exportPath),
-                    Buffer.from(exportJson, "utf-8")
-                ).then(() => {
-                    vscode.window.showInformationMessage(
-                        `Exported script blocks to ${exportPath}`
-                    );
-                }, (error) => {
-                    vscode.window.showErrorMessage(
-                        `Failed to export script blocks: ${error.message}`
-                    );
-                });
-            }
+            exportScriptsBlocks
         ),
 
         vscode.commands.registerCommand(
@@ -145,10 +96,8 @@ function subscribeCallbacks(context: vscode.ExtensionContext) {
 
         // triggers anytime we open a text document, or swap active document editor
         vscode.window.onDidChangeActiveTextEditor((editor) => {
-            // console.debug(`Active editor changed: ${editor?.document.fileName}`);
             if (!editor) { return; }
-            diagnosticFile(editor.document, DIAGNOSTIC_PROVIDER);
-            loadDecorations(editor.document);
+            reloadDocument(editor);
         }),
 
         // this one triggers when we open a new document
@@ -164,10 +113,7 @@ function subscribeCallbacks(context: vscode.ExtensionContext) {
             if (debounceTimer) {
                 clearTimeout(debounceTimer);
             }
-            debounceTimer = setTimeout(() => {
-                diagnosticFile(event.document, DIAGNOSTIC_PROVIDER);
-                loadDecorations(event.document);
-            }, 500);
+            debounceTimer = setTimeout(() => reloadDocument(event), 500);
         }),
 
 

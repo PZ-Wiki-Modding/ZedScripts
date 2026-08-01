@@ -102,11 +102,11 @@
     ],
     "commands": [
       {
-        "command": "ZedScripts.resetScriptCache",
-        "title": "ZedScripts: Force fetch Scripts Data"
+        "command": "ZedScripts.resetScriptsCache",
+        "title": "ZedScripts: Reset Scripts Cache"
       },
       {
-        "command": "ZedScripts.exportScriptBlocks",
+        "command": "ZedScripts.exportScriptsBlocks",
         "title": "ZedScripts: Export to JSON"
       }
     ]
