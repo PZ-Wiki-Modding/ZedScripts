@@ -1,11 +1,9 @@
-import * as fs from "fs";
-import * as path from "path";
 import * as vscode from "vscode";
-import { DEFAULT_DIR } from "../project";
 
 import { DocumentBlock } from "../scriptsBlocks/blockTypes/document";
 import { ScriptParameter } from "../scriptsBlocks/scriptsBlocksParameter";
 
+import { getTranslationLocation } from "../utils/positions";
 
 export async function provideDefinition(
     document: vscode.TextDocument,
@@ -39,6 +37,7 @@ export async function provideDefinition(
     // 2. find references to a block ID
     const references = DocumentBlock.getAllReferences();
     if (block.isWord(word) || block.isID(word)) {
+        // retrieve block references
         const range: vscode.Range[] = [];
         for (const refBlock of references) {
             if (refBlock[0] === block) {
@@ -46,18 +45,39 @@ export async function provideDefinition(
             }
         }
         const loc = range.map(r => new vscode.Location(document.uri, r));
+
+        // retrieve translation references
+        const translationRef = block.getTranslationReference()
+        if (translationRef) {
+            const translationLoc = getTranslationLocation(translationRef);
+            if (translationLoc) {
+                loc.push(translationLoc)
+            }
+        }
+
         return loc;
     }
 }
 
 
 export function provideReferenceDefinition(param: ScriptParameter): vscode.Location[] | undefined {
+    const loc: vscode.Location[] = [];
+    
+    // retrieve script blocks references
     if (param.ref) {
-        const loc: vscode.Location[] = [];
         for (const refBlock of param.ref.blocks) {
             loc.push(refBlock.getDefinitionLocation());
         }
-        return loc;
     }
-    return undefined;
+
+    // retrieve translation ref
+    const translationRef = param.getTranslationReference();
+        if (translationRef) {
+        const translationLoc = getTranslationLocation(translationRef);
+        if (translationLoc) {
+            loc.push(translationLoc);
+        }
+    }
+
+    return loc.length > 0 ? loc : undefined;
 }

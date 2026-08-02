@@ -1,16 +1,21 @@
 import * as vscode from 'vscode';
+import fs from 'fs';
 import * as path from "path";
 
-import { DiagnosticProvider } from '../providers/diagnostic';
+import { LANG_ZEDSCRIPTS, ConfigKeys } from '../project';
+import { ZSEnv } from '../extension';
+
 import { findWorkspaceVersion, Version, VersionType } from './version';
-import { LANG_ZEDSCRIPTS } from '../project';
-import { testForScriptRootFile, DEFAULT_ROOT_FILE } from "../scriptsBlocks/scriptsBlocksData";
+
+import { DiagnosticProvider } from '../providers/diagnostic';
+
+import { scriptFileVersionCatcher, translationFileVersionCatcher } from '../models/regexPatterns';
 
 import { ScriptsBlock } from '../scriptsBlocks/scriptsBlocks';
+import { TranslationLocation } from '../scriptsBlocks/scriptsBlocksData';
 import { DocumentBlock } from '../scriptsBlocks/blockTypes/document';
 import { testAndReloadZedScripts, testZedScripts, ResultZedScripts, reopenFile } from '../scriptsBlocks/scriptsBlocksUtility';
 
-import { ZSEnv } from '../extension';
 
 function preparePath(filePath: string): string {
     const normalizedPath = filePath.replace(/\\/g, '/'); // normalize to unix-style path
@@ -37,15 +42,21 @@ export class PZWorkspace {
     workspaceType: WorkspaceType;
     diagnosticProvider?: DiagnosticProvider;
 
-    preloadedFiles: PreloadedFile[] = [];
-    versions: Map<Version, Map<string, DocumentBlock>> = new Map();
+    /** cache of preloaded files */
+    _preloadedFiles: PreloadedFile[] = [];
+
+    /** map(version, map(prepared path, document block)) */
+    scripts: Map<Version, Map<string, DocumentBlock>> = new Map();
+
+    /** map(version, map(filename, uri)) */
+    translations: Map<Version, Map<string, vscode.Uri>> = new Map();
 
     // status bar
-    isLoading: boolean = false;
-    loadingPosition: number = 0;
-    loadingCount: number = 0;
-    finalLoadedCount: number = 0;
     isLoaded: boolean = false;
+    isLoading: boolean = false;
+    loadingPosition: number = 0;  // i
+    loadingCount: number = 0;     // total
+    finalLoadedCount: number = 0; // total loaded
 
     /** Cache of workspaces by folder path */
     static workspaceCache: Map<WorkspaceType, Map<string, PZWorkspace>> = new Map();
@@ -74,6 +85,12 @@ export class PZWorkspace {
         PZWorkspace.workspaceCache.get(workspaceType)?.set(folder.toString(), this);
     }
 
+    public static clear(workspaceType: WorkspaceType) {
+        const typeMap = PZWorkspace.workspaceCache.get(workspaceType);
+        if (typeMap) {
+            typeMap.clear();
+        }
+    }
 
 // WORKSPACE LOADERS
 
@@ -107,12 +124,23 @@ export class PZWorkspace {
         if (this.workspaceType === WorkspaceType.LIBRARY) {
             const workspaces = PZWorkspace.workspaceCache.get(WorkspaceType.WORKSPACE) || new Map();
             for (const workspace of workspaces.values()) {
-                const preloadedFiles = workspace.preloadedFiles;
+                const preloadedFiles = workspace._preloadedFiles;
                 for (const preloadedFile of preloadedFiles) {
                     // compare file to remove duplicates
-                    uniqueFiles = uniqueFiles.filter(file => file.fsPath !== preloadedFile.file.fsPath);
+                    uniqueFiles = uniqueFiles.filter(
+                        file => file.fsPath !== preloadedFile.file.fsPath
+                    );
                 }
             }
+        }
+
+        // we also filter out any files in the ZedScripts.noParsing config
+        const noParsingConfig: string[] = vscode.workspace.getConfiguration("ZedScripts").get(ConfigKeys.NO_PARSING, []);
+        if (noParsingConfig.length > 0) {
+            uniqueFiles = uniqueFiles.filter(file => {
+                const preparedPath = preparePath(file.fsPath);
+                return !noParsingConfig.some(pattern => RegExp(pattern).test(preparedPath));
+            });
         }
         
         // we only keep files that are recognized as ZedScripts files
@@ -137,14 +165,14 @@ export class PZWorkspace {
             }
         }
         this.isLoading = false;
-        this.preloadedFiles = recognizedFiles;
+        this._preloadedFiles = recognizedFiles;
     }
 
     /**
      * Finally load all the preloaded files into the workspace.
      */
     public async load(): Promise<void> {
-        this.loadingCount = this.preloadedFiles.length;
+        this.loadingCount = this._preloadedFiles.length;
 
         if (this.loadingCount === 0) {
             console.debug(`No ZedScripts files found in ${this.workspaceType}: ${this.folder.fsPath}`);
@@ -155,7 +183,7 @@ export class PZWorkspace {
         let lastR = 0;
         this.isLoading = true;
         this.loadingPosition = 0;
-        for (const fileData of this.preloadedFiles) {
+        for (const fileData of this._preloadedFiles) {
             // load the document
             const document = await vscode.workspace.openTextDocument(fileData.file);
             const result = {document: document, type: fileData.type, preparedPath: fileData.preparedPath};
@@ -182,7 +210,7 @@ export class PZWorkspace {
 
         // conclude loading
         this.isLoaded = true;
-        this.preloadedFiles = []; // clear preloaded files cache
+        this._preloadedFiles = []; // clear preloaded files cache
         this.finalLoadedCount = this.loadingCount;
         console.debug(`Loaded ${this.loadingCount} files from workspace: ${this.workspaceType}`);
     }
@@ -195,7 +223,7 @@ export class PZWorkspace {
      */
     public addDocument(result: ResultZedScripts): DocumentBlock | void {
         // retrieve the version and pass if B41, they are not supported
-        const version = findWorkspaceVersion(result.preparedPath);
+        const version = findWorkspaceVersion(result.preparedPath, scriptFileVersionCatcher);
         if (version.type === VersionType.PRE_42) { return; }
 
         // retrieve the diagnostics to add
@@ -203,10 +231,10 @@ export class PZWorkspace {
 
         // create a DocumentBlock which will parse this file for script blocks and parameters
         const documentBlock = new DocumentBlock(result.document, diagnostics, result.type, this, version);
-        if (!this.versions.has(version)) {
-            this.versions.set(version, new Map());
+        if (!this.scripts.has(version)) {
+            this.scripts.set(version, new Map());
         }
-        this.versions.get(version)?.set(result.preparedPath, documentBlock);
+        this.scripts.get(version)?.set(result.preparedPath, documentBlock);
 
         // cache the document to workspace mapping for easy access later
         PZWorkspace.fileToWorkspaceMap.set(result.preparedPath, this);
@@ -275,6 +303,104 @@ export class PZWorkspace {
     }
 
 
+// TRANSLATIONS MANAGEMENT
+
+    public async loadTranslations(): Promise<void> {
+        // solitary workspaces should not load anything since the folder is a placeholder
+        if (this.workspaceType === WorkspaceType.SOLITARY) {
+            console.debug("Solitary workspace does not load files.");
+            return;
+        }
+
+        // retrieve all translation files (.json) in the workspace folder
+        const dirfiles = await vscode.workspace.findFiles(
+            new vscode.RelativePattern(this.folder, "**/*.json")
+        );
+
+        // filter translation files that match the filter regex
+        // we only retrieve the english files
+        // because the game needs those as default names
+        const translationFiles: Map<Version, Map<string, vscode.Uri>> = new Map();
+        for (const file of dirfiles) {
+            const preparedPath = preparePath(file.fsPath);
+            if (translationFileVersionCatcher.test(preparedPath)) {
+                const version = findWorkspaceVersion(preparedPath, translationFileVersionCatcher);
+                if (!translationFiles.has(version)) {
+                    translationFiles.set(version, new Map());
+                }
+                translationFiles.get(version)!.set(path.parse(preparedPath).name, file);
+            }
+        }
+
+        // store the translation files in the workspace
+        this.translations = translationFiles;
+    }
+
+    public static getTranslationKeyFromVersion(
+        targetVersion: Version,
+        key: string,
+        sourceFile: string
+    ): TranslationLocation | undefined {
+        for (const workspace of PZWorkspace.getAllWorkspaces()) {
+            const versions = Array.from(workspace.translations.keys());
+
+            // first we search in the versioning folder, because the game searches there first, wallah
+            // we remove all the non-versionned scripts
+            const filtered = Version.filter(versions);
+            if (filtered.length > 0) {
+                // in this workspace, we search for the closest version below the target version, if any
+                // if none, then we take the closest upper one
+                const closestVersion = targetVersion.findClosestBelow(filtered);
+                if (closestVersion) {
+                    const result = workspace.searchInTranslationsForKey(closestVersion, sourceFile, key);
+                    if (result) {
+                        return result;
+                    }
+                }
+            }
+
+            // we then search in the common, any and basegame versions
+            for (const version of versions) {
+                if (version.isCommon || version.isAny || version.isBaseGame) {
+                    const result = workspace.searchInTranslationsForKey(version, sourceFile, key);
+                    if (result) {
+                        return result;
+                    }
+                }
+            }
+        }
+
+        return undefined;
+    }
+
+    public searchInTranslationsForKey(
+        version: Version,
+        sourceFile: string,
+        key: string
+    ): TranslationLocation | null {
+        // find translation uri
+        const translationMap = this.translations.get(version);
+        if (!translationMap) { return null; }
+        const translationUri = translationMap.get(sourceFile);
+        if (!translationUri) { return null; }
+
+        // read translation JSON file
+        const translationContent = fs.readFileSync(translationUri.fsPath, 'utf-8');
+        const translationJson: Record<string, string> = JSON.parse(translationContent);
+
+        // look for the key inside the JSON object
+        if (translationJson.hasOwnProperty(key)) {
+            return {
+                translationKey: key,
+                fileUri: translationUri,
+                translationValue: translationJson[key],
+                sourceFile: sourceFile,
+            };
+        }
+        return null;
+    }
+
+
 // WORKSPACE MANAGEMENT
 
     /**
@@ -297,7 +423,7 @@ export class PZWorkspace {
 
     public getAllDocuments(version: Version | undefined = undefined): DocumentBlock[] {
         const result: DocumentBlock[] = [];
-        for (const [ver, documentBlocks] of this.versions.entries()) {
+        for (const [ver, documentBlocks] of this.scripts.entries()) {
             if (!version || ver.toStringSafe() === version.toStringSafe()) {
                 result.push(...Array.from(documentBlocks.values()));
             }
@@ -322,7 +448,7 @@ export class PZWorkspace {
         const filePath = preparePath(uri.fsPath);
         const workspace = PZWorkspace.fileToWorkspaceMap.get(filePath);
         if (workspace) {
-            const versions = Array.from(workspace.versions.values());
+            const versions = Array.from(workspace.scripts.values());
             for (const documentBlocks of versions) {
                 documentBlocks.delete(filePath);
             }
@@ -400,14 +526,12 @@ export class PZWorkspace {
         for (const workspace of PZWorkspace.getAllWorkspaces()) {
             // we search in the common, any and basegame versions
             // since those can be fully loaded by any versionned scripts
-            const versions = Array.from(workspace.versions.keys());
+            const versions = Array.from(workspace.scripts.keys());
             for (const version of versions) {
                 if (version.isCommon || version.isAny || version.isBaseGame) {
-                    if (workspace.versions.has(version)) {
-                        const documentBlocks = workspace.getAllDocuments(version);
-                        const foundBlocks = PZWorkspace.findBlockFromFullTypeInAllDocuments(documentBlocks, expectedBlock, modules, id);
-                        foundBlocks.forEach(block => result.add(block));
-                    }
+                    const documentBlocks = workspace.getAllDocuments(version);
+                    const foundBlocks = PZWorkspace.findBlockFromFullTypeInAllDocuments(documentBlocks, expectedBlock, modules, id);
+                    foundBlocks.forEach(block => result.add(block));
                 }
             }
 

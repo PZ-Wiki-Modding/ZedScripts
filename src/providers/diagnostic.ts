@@ -1,14 +1,16 @@
 import * as vscode from "vscode";
 import { TextDocument, DiagnosticSeverity, Diagnostic, Range } from "vscode";
 
-import { DocumentBlock } from "../scriptsBlocks/blockTypes/document";
+import { ConfigKeys, EXTENSION_ID } from "../project";
+import { PZWorkspace } from "../workspace/workspace";
 
-import { EXTENSION_ID } from "../project";
-import { formatText } from "../utils/format";
 import { DiagnosticType } from "../models/DiagnosticType";
 import { createReferenceDecoration } from '../models/decorations';
 
-import { PZWorkspace } from "../workspace/workspace";
+import { DocumentBlock } from "../scriptsBlocks/blockTypes/document";
+
+import { formatText } from "../utils/format";
+
 
 
 
@@ -94,12 +96,12 @@ export function diagnostic(
     const config = vscode.workspace.getConfiguration(EXTENSION_ID);
 
     // Skip all diagnostics if the master switch is on
-    if (config.get("disableAllDiagnostics")) {
+    if (config.get(ConfigKeys.DISABLED_DIAGNOSTICS_ALL, false)) {
         return false;
     }
 
     // Check if this diagnostic type is disabled in configuration
-    const disabledDiagnostics: string[] = config.get("disabledDiagnostics") || [];
+    const disabledDiagnostics: string[] = config.get(ConfigKeys.DISABLED_DIAGNOSTICS_LIST, []);
     
     // Find the key name for this diagnostic type value
     const diagnosticKey = Object.entries(DiagnosticType).find(([_, value]) => value === type)?.[0];

@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 
-import { VALUE_TYPES, ScriptBlockParameter, BLOCK_NAMES } from "../scriptsBlocks/scriptsBlocksData";
+import { ValueTypes, ScriptBlockParameter, BLOCK_NAMES } from "../scriptsBlocks/scriptsBlocksData";
 import {
     getScriptBlockData, 
     canHaveParent, 
@@ -134,7 +134,7 @@ export class PZCompletionItemProvider implements vscode.CompletionItemProvider {
     private formatParameter(param: ScriptBlockParameter, completionLevel: number, tabs: string): string {
         const name = param.name;
         let defaultValue = param.default || 'value';
-        if (param.type?.main === VALUE_TYPES.ARRAY) {
+        if (param.type?.main === ValueTypes.ARRAY) {
             const separator = param.type.array?.separator;
             defaultValue = (param.default as string[] || ['list']).join(separator);
         }

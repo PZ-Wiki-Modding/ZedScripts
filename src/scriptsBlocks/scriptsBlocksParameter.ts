@@ -1,27 +1,39 @@
 import * as vscode from 'vscode';
+import * as fs from 'fs';
+
+import { WIKI_LINK } from '../project';
+import { PZWorkspace } from '../workspace/workspace';
+
 import { ScriptsBlock } from "./scriptsBlocks";
 import { DocumentBlock } from "./blockTypes/document";
-import { WIKI_LINK } from '../project';
-import { 
-    formatText,
-    formatList,
-    getIndentation
-} from '../utils/format';
-import { DefaultText } from '../models/DefaultText';
-import { ThemeColorType } from "../models/ThemeColorType";
-import { DiagnosticType } from "../models/DiagnosticType";
-import { diagnostic } from '../providers/diagnostic';
-import { registerActionTextReplace } from '../providers/actions';
+
 import { 
     DeprecatedInfo,
     ObjectType,
     ArrayType,
     ScriptBlockParameter, 
-    VALUE_TYPES
+    ValueTypes,
+    TranslationProperties,
+    TranslationLocation,
 } from './scriptsBlocksData';
 import { getScriptBlockData, getMainVariant } from "./scriptsBlocksUtility";
+
+import { DefaultText } from '../models/DefaultText';
+import { ThemeColorType } from "../models/ThemeColorType";
+import { DiagnosticType } from "../models/DiagnosticType";
+
+import { diagnostic } from '../providers/diagnostic';
+import { registerActionTextReplace } from '../providers/actions';
+
 import { color } from "../utils/themeColors";
 import { IndexRange } from '../utils/positions'; 
+import { 
+    formatText,
+    formatList,
+    getIndentation
+} from '../utils/format';
+
+
 
 export interface ReferenceData {
     blocks: ScriptsBlock[];
@@ -42,6 +54,7 @@ export class ScriptParameter {
     comma: string;
     isDuplicate: boolean;
     ref: ReferenceData | undefined = undefined;
+    translation: TranslationLocation | undefined = undefined;
 
     // positions
     parameterRange: IndexRange;
@@ -114,7 +127,7 @@ export class ScriptParameter {
                 parameter += ` ${operator} ${typeColored}`;
 
                 // an array should 'type[]'
-                if (typeMain === VALUE_TYPES.ARRAY) {
+                if (typeMain === ValueTypes.ARRAY) {
                     const arrayTypeData = this.getArrayTypeData()!;
                     const arrayType = type.array?.type || "string";
                     const arrayTypeColored = `${color(arrayType, ThemeColorType.TYPE)}`;
@@ -124,7 +137,7 @@ export class ScriptParameter {
                     parameter += ` (separator '${color(separator, ThemeColorType.TYPE)}')`;
 
                 // an object should show 'type[keyType separator valueType]'
-                } else if (typeMain === VALUE_TYPES.OBJECT) {
+                } else if (typeMain === ValueTypes.OBJECT) {
                     const objectData = this.getObjectTypeData()!;
                     const keyValueSeparator = objectData.keyValueSeparator;
                     const keyType = objectData.keyType;
@@ -139,7 +152,7 @@ export class ScriptParameter {
                     parameter += ` (separator '${color(separator, ThemeColorType.TYPE)}')`;
 
                 // a block should show the expected block type and if it is a full type or not
-                } else if (typeMain === VALUE_TYPES.BLOCK) {
+                } else if (typeMain === ValueTypes.BLOCK) {
                     const blockType = type.block;
                     if (blockType) {
                         const blockColor = this.parent.colorCode;
@@ -262,7 +275,78 @@ export class ScriptParameter {
         return parameterData?.type?.array;
     }
 
+    public getTranslationData(): TranslationProperties | undefined {
+        const parameterData = this.getParameterData();
+        return parameterData?.type?.translation;
+    }
 
+    public getTranslationSearchInfo(translationData: TranslationProperties): {translationKey: string, sourceFile: string} {
+        const keyPattern = translationData.keyPattern;
+        const sourceFile = translationData.sourceFile;
+        const id = this.value;
+        const module = this.parent.getModule()?.id || "Base"; // there must be a module, but just in case
+
+        const translationKey = formatText(
+            keyPattern, { module, value: id }
+        );
+        return {
+            translationKey: translationKey,
+            sourceFile: sourceFile
+        };
+    }
+
+    public getTranslationReference(): TranslationLocation | null {
+        if (this.translation) {
+            return this.translation;
+        }
+        
+        const translationData = this.getTranslationData();
+        if (!translationData) { return null; }
+
+        const info = this.getTranslationSearchInfo(translationData)
+        const result = PZWorkspace.getTranslationKeyFromVersion(
+            this.getRoot().version,
+            info.translationKey, 
+            info.sourceFile
+        );
+
+        // cache for easier access later
+        // for definitions
+        this.translation = result;
+
+        return result || null;
+    }
+
+    public getTranslationLocation(): vscode.Location | null {
+        const translationLoc = this.getTranslationReference();
+        if (!translationLoc) { return null; }
+
+        // find the location of the translationKey in the translation file
+        const filePath = translationLoc.fileUri.fsPath;
+        if (!fs.existsSync(filePath)) {
+            console.warn(`Translation file not found: ${filePath}`);
+            return null;
+        }
+
+        const fileContent = fs.readFileSync(filePath, 'utf-8');
+        const regex = new RegExp(`"${translationLoc.translationKey}"`, 'm');
+        const match = regex.exec(fileContent);
+        if (!match) {
+            console.warn(`Translation key not found in file: ${translationLoc.translationKey}`);
+            return null;
+        }
+        
+        const startPos = fileContent.substring(0, match.index).split('\n').length - 1;
+        const lineText = fileContent.split('\n')[startPos];
+        const startChar = lineText.indexOf(translationLoc.translationKey);
+        const endChar = startChar + translationLoc.translationKey.length;
+
+        const startPosition = new vscode.Position(startPos, startChar);
+        const endPosition = new vscode.Position(startPos, endChar);
+        const range = new vscode.Range(startPosition, endPosition);
+
+        return new vscode.Location(translationLoc.fileUri, range);
+    }
 
     public getDescription(): string {
         const parameterData = this.getParameterData();
@@ -270,7 +354,7 @@ export class ScriptParameter {
     }
 
     public getExpectedType(): string {
-        return this.getParameterData()?.type?.main || VALUE_TYPES.STRING;
+        return this.getParameterData()?.type?.main || ValueTypes.STRING;
     }
 
     public getTypeOfValue(expectedType: string | undefined = undefined): string {
@@ -278,7 +362,7 @@ export class ScriptParameter {
 
         // I don't know how I feel about that lol 
         // but that's kind of the problem with scripts
-        if (expectedType === VALUE_TYPES.ARRAY || expectedType === VALUE_TYPES.OBJECT) {
+        if (expectedType === ValueTypes.ARRAY || expectedType === ValueTypes.OBJECT) {
             return expectedType;
         }
 
@@ -291,38 +375,42 @@ export class ScriptParameter {
 
         // a value or a boolean could be used as a string
         // so we need to force to string
-        if (expectedType === VALUE_TYPES.STRING) {
-            return VALUE_TYPES.STRING;
+        if (expectedType === ValueTypes.STRING) {
+            return ValueTypes.STRING;
             
         // check if block: consider as type block directly
-        } else if (expectedType === VALUE_TYPES.BLOCK) {
-            return VALUE_TYPES.BLOCK;
+        } else if (expectedType === ValueTypes.BLOCK) {
+            return ValueTypes.BLOCK;
 
         // check if callback: consider as type callback directly
-        } else if (expectedType === VALUE_TYPES.CALLBACK) {
-            return VALUE_TYPES.CALLBACK;
+        } else if (expectedType === ValueTypes.CALLBACK) {
+            return ValueTypes.CALLBACK;
+        
+        // check if translation: consider as type translation directly
+        } else if (expectedType === ValueTypes.TRANSLATION) {
+            return ValueTypes.TRANSLATION;
         }
 
         // check if boolean
         if (value.toLowerCase() === "true" || value.toLowerCase() === "false") {
-            type = VALUE_TYPES.BOOLEAN;
+            type = ValueTypes.BOOLEAN;
 
         // check if number
         } else if (!isNaN(Number(value))) {
             if (value.includes(".")) {
-                type = VALUE_TYPES.FLOAT;
+                type = ValueTypes.FLOAT;
             
             // if int, output a float anyway if expected is float
             // done for easier handling of diagnostics later down the line
-            } else if (expectedType === VALUE_TYPES.FLOAT) {
-                type = VALUE_TYPES.FLOAT;
+            } else if (expectedType === ValueTypes.FLOAT) {
+                type = ValueTypes.FLOAT;
             } else {
-                type = VALUE_TYPES.INT;
+                type = ValueTypes.INT;
             }
 
         // default to string
         } else {
-            type = VALUE_TYPES.STRING;
+            type = ValueTypes.STRING;
         }
 
         return type;
@@ -409,7 +497,7 @@ export class ScriptParameter {
         const type = this.getTypeOfValue();
 
         // handle array case
-        if (type === VALUE_TYPES.ARRAY) {
+        if (type === ValueTypes.ARRAY) {
             const arrayTypeData = this.getArrayTypeData();
             if (!arrayTypeData) {
                 throw new Error("Array type data is missing for parameter " + this.parameter);
@@ -419,7 +507,7 @@ export class ScriptParameter {
             return values;
 
         // simple value case
-        } else if (type === VALUE_TYPES.OBJECT) {
+        } else if (type === ValueTypes.OBJECT) {
             const objectTypeData = this.getObjectTypeData();
             if (!objectTypeData) {
                 throw new Error("Object type data is missing for parameter " + this.parameter);
@@ -593,49 +681,6 @@ export class ScriptParameter {
             }
         }
 
-        // make sure the values if it's an object type properly use the correct separator and types
-        if (this.getTypeOfValue() === VALUE_TYPES.OBJECT) {
-            const values = this.getValues();
-            const objectData = this.getObjectTypeData()!;
-            const keyValueSeparator = objectData.keyValueSeparator;
-            const invalidFormatValues = values.filter(value => !value.includes(keyValueSeparator));
-            if (invalidFormatValues.length > 0) {
-                if (this.diagnostic(
-                    DiagnosticType.INVALID_OBJECT_FORMAT,
-                    { parameter: name, values: formatList(invalidFormatValues), keyValueSeparator: keyValueSeparator },
-                    this.valueRange.start,
-                    this.valueRange.end
-                )) {
-                    return false;
-                }
-            }
-
-            const keyType = objectData.keyType;
-            const valueType = objectData.valueType;
-            const invalidTypeValues = values.filter(value => {
-                const [key, val] = value.split(keyValueSeparator).map(v => v.trim());
-                const kType = this.tryTypeOfValue(key, keyType);
-                const vType = this.tryTypeOfValue(val, valueType);
-                return kType !== keyType || vType !== valueType;
-            });
-            if (invalidTypeValues.length > 0) {
-                if (this.diagnostic(
-                    DiagnosticType.INVALID_TYPE_FOR_VALUES_OBJECT,
-                    { 
-                        parameter: name, 
-                        invalidTypeValues: formatList(invalidTypeValues), 
-                        keyType: keyType, 
-                        valueType: valueType, 
-                        keyValueSeparator: keyValueSeparator 
-                    },
-                    this.valueRange.start,
-                    this.valueRange.end
-                )) {
-                    return false;
-                }
-            }
-        }
-
         // check if missing comma at the end
         if (this.parent.shouldParameterHaveComma()) {
             if (this.comma === "") {
@@ -711,6 +756,73 @@ export class ScriptParameter {
                     this.valueRange.end,
                     vscode.DiagnosticSeverity.Error
                 );
+                return false;
+            }
+
+            // if type is translation type, then verify the translation key
+            // exists within the source
+            if (actualType === ValueTypes.TRANSLATION) {
+                const translationLoc = this.getTranslationReference();
+                if (!translationLoc) {
+                    const translationData = this.getTranslationData();
+                    const info = this.getTranslationSearchInfo(translationData!)
+                    this.diagnostic(
+                        DiagnosticType.INVALID_TRANSLATION_KEY,
+                        {
+                            element: this.parameter,
+                            scriptBlock: this.parent.scriptBlock,
+                            value: this.value,
+                            translationKey: info.translationKey,
+                            sourceFile: info.sourceFile + '.json',
+                        },
+                        this.parameterRange.start,
+                        this.valueRange.end,
+                        vscode.DiagnosticSeverity.Error
+                    );
+                    return false;
+                }
+
+            // make sure the values if it's an object type properly use the correct separator and types
+            } else if (actualType === ValueTypes.OBJECT) {
+                const values = this.getValues();
+                const objectData = this.getObjectTypeData()!;
+                const keyValueSeparator = objectData.keyValueSeparator;
+                const invalidFormatValues = values.filter(value => !value.includes(keyValueSeparator));
+                if (invalidFormatValues.length > 0) {
+                    if (this.diagnostic(
+                        DiagnosticType.INVALID_OBJECT_FORMAT,
+                        { parameter: name, values: formatList(invalidFormatValues), keyValueSeparator: keyValueSeparator },
+                        this.valueRange.start,
+                        this.valueRange.end
+                    )) {
+                        return false;
+                    }
+                }
+
+                const keyType = objectData.keyType;
+                const valueType = objectData.valueType;
+                const invalidTypeValues = values.filter(value => {
+                    const [key, val] = value.split(keyValueSeparator).map(v => v.trim());
+                    const kType = this.tryTypeOfValue(key, keyType);
+                    const vType = this.tryTypeOfValue(val, valueType);
+                    return kType !== keyType || vType !== valueType;
+                });
+                if (invalidTypeValues.length > 0) {
+                    if (this.diagnostic(
+                        DiagnosticType.INVALID_TYPE_FOR_VALUES_OBJECT,
+                        { 
+                            parameter: name, 
+                            invalidTypeValues: formatList(invalidTypeValues), 
+                            keyType: keyType, 
+                            valueType: valueType, 
+                            keyValueSeparator: keyValueSeparator 
+                        },
+                        this.valueRange.start,
+                        this.valueRange.end
+                    )) {
+                        return false;
+                    }
+                }
             }
         }
 

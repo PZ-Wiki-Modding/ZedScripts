@@ -60,4 +60,11 @@ export const inputsOutputsRegex = {
     singleValue: /(?:^|\s)(?<value>.+?)(?:$|\s)/g,
 }
 
+
+/**
+ * Matches script file paths to extract the base, version, and media/modinfo parts.
+ */
 export const scriptFileVersionCatcher = /(?:(?<base>\w+))\/(?:(?<version>(?:4\d(?:\.\d+)*)|common)\/)?(?:(?<media>media)|(?<modinfo>mod\.info))/;
+
+
+export const translationFileVersionCatcher = /(?:(?<base>\w+))\/(?:(?<version>(?:4\d(?:\.\d+)*)|common)\/)?media\/lua\/shared\/Translate\/EN\/(?<file>.+)\.json/;

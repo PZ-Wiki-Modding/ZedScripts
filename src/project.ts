@@ -16,3 +16,12 @@ export const WIKI_LINK = "https://pzwiki.net/wiki/";
 export const DOCS_LINK = "https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/";
 
 export const DEFAULT_SCRIPT_BLOCKS = 'pz-scripts-data/out/scriptBlocks.json';
+
+export const MainConfigName = "ZedScripts";
+export enum ConfigKeys {
+    LIBRARIES = "searchDirectories",
+    LOCAL_DATA = "onlyUseLocalData",
+    DISABLED_DIAGNOSTICS_LIST = "disabledDiagnostics",
+    DISABLED_DIAGNOSTICS_ALL = "disableAllDiagnostics",
+    NO_PARSING = "noParsing",
+}

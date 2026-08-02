@@ -1,4 +1,6 @@
+import * as vscode from "vscode";
 import * as path from "path";
+
 import { DEFAULT_SCRIPT_BLOCKS} from '../project';
 
 export interface ScriptData {
@@ -6,7 +8,7 @@ export interface ScriptData {
 }
 
 export let SCRIPTS_TYPES: ScriptData = require('../' + DEFAULT_SCRIPT_BLOCKS);
-export enum VALUE_TYPES {
+export enum ValueTypes {
     STRING = "string",
     INT = "integer",
     FLOAT = "float",
@@ -15,6 +17,7 @@ export enum VALUE_TYPES {
     OBJECT = "object",
     BLOCK = "block",
     CALLBACK = "callback",
+    TRANSLATION = "translation",
 }
 
 
@@ -84,10 +87,11 @@ export interface ScriptBlockType {
 }
 
 export interface ParameterType {
-    main: "string" | "integer" | "float" | "boolean" | "array" | "object" | "block" | "callback";
+    main: ValueTypes;
     array?: ArrayType;
     object?: ObjectType;
     block?: BlockType;
+    translation?: TranslationProperties;
 }
 
 
@@ -112,8 +116,20 @@ export interface ScriptBlockID {
     asType?: boolean;
     optional?: string[];
     canHaveSpace?: boolean;
+    translation?: TranslationProperties;
 }
 
+export interface TranslationProperties {
+    keyPattern: string;
+    sourceFile: string;
+}
+
+export interface TranslationLocation {
+    translationKey: string,
+    translationValue: string,
+    fileUri: vscode.Uri,
+    sourceFile: string,
+}
 
 // INPUT FOR CRAFTRECIPE
 export interface InputAnalysisProperty {

@@ -1,11 +1,15 @@
 import * as vscode from 'vscode';
-import { setScriptsTypes, ScriptData } from '../scriptsBlocks/scriptsBlocksData';
-import { DocumentBlock } from '../scriptsBlocks/blockTypes/document';
+
 import { 
     SCRIPT_DATA_LINK,
     CACHE_DURATION_MS,
-    DEFAULT_SCRIPT_BLOCKS
+    DEFAULT_SCRIPT_BLOCKS,
+    ConfigKeys
 } from '../project';
+
+import { setScriptsTypes, ScriptData } from '../scriptsBlocks/scriptsBlocksData';
+import { DocumentBlock } from '../scriptsBlocks/blockTypes/document';
+
 
 export async function fetchData(context: vscode.ExtensionContext, forceFetch: boolean = false): Promise<boolean> {
     console.log("Initializing script and translation blocks data...");
@@ -16,7 +20,7 @@ export async function fetchData(context: vscode.ExtensionContext, forceFetch: bo
 
     // check if the user wants to use the local copy only
     const config = vscode.workspace.getConfiguration("ZedScripts");
-    const onlyUseLocalData: boolean = config.get("onlyUseLocalData", false);
+    const onlyUseLocalData: boolean = config.get(ConfigKeys.LOCAL_DATA, false);
     if (onlyUseLocalData) {
         setScriptsTypes(require('../' + DEFAULT_SCRIPT_BLOCKS));
         console.log("Using local data as per configuration.");

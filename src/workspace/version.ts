@@ -223,7 +223,7 @@ export class Version {
     }
 }
 
-export function findWorkspaceVersion(pathStr: string): Version {
+export function findWorkspaceVersion(pathStr: string, regexType: RegExp): Version {
     // check for media type versioning
     if (!pathStr.includes('media')) {
         // we default to not having any versioning
@@ -231,7 +231,7 @@ export function findWorkspaceVersion(pathStr: string): Version {
     }
 
     // fetch information from path
-    const match = scriptFileVersionCatcher.exec(pathStr);
+    const match = regexType.exec(pathStr);
     if (!match || !match.groups) { 
         return Version.ANY; 
     }

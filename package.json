@@ -35,9 +35,9 @@
             "type": "string"
           },
           "default": [
-            "C:/Program Files (x86)/Steam/steamapps/common/ProjectZomboid/media/scripts/"
+            "C:/Program Files (x86)/Steam/steamapps/common/ProjectZomboid/media/"
           ],
-          "description": "Directories to search for the vanilla script files."
+          "description": "Libraries to search for script files definitions. The vanilla game scripts should be included here, as well as any mods your mod may depend on."
         },
         "ZedScripts.onlyUseLocalData": {
           "type": "boolean",
@@ -56,6 +56,18 @@
           "type": "boolean",
           "default": false,
           "description": "Whether to disable all diagnostics."
+        },
+        "ZedScripts.noParsing": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "tileGeometry\\.txt",
+            "tileDepthTextureAssignments\\.txt",
+            ".+\\.tiles\\.txt"
+          ],
+          "description": "List of regex patterns of files to exclude from parsing. Preferably do not remove files from the default list or you risk getting into heavy loading times. Some irrelevant script files have also been added to this list."
         }
       }
     },

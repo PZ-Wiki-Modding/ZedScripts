@@ -2,12 +2,15 @@ import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
 
+import { PZWorkspace, WorkspaceType } from './workspace';
+import { ConfigKeys } from '../project';
+
 import { DefaultText } from '../models/DefaultText';
+
 import { fetchData } from '../providers/fetchData';
 import { DiagnosticProvider } from '../providers/diagnostic';
-import { PZWorkspace, WorkspaceType } from './workspace';
+
 import { formatText } from '../utils/format';
-import { DocumentBlock } from '../scriptsBlocks/blockTypes/document';
 
 
 
@@ -24,6 +27,7 @@ enum State {
     PRE_LOADING_WORKSPACE = "pre_loading_workspace",
     LOADING_LIBRARIES = "loading_libraries",
     LOADING_WORKSPACE = "loading_workspace",
+    LOADING_TRANSLATIONS = "loading_translations",
     VALIDATING = "validating",
     RUNNING = "ready",
     // ERROR = "error",
@@ -54,13 +58,16 @@ export class ZedScriptsEnvironment {
         // we preload the workspace first to remove files in the libraries that are already
         // handled in the workspace (example, opening one of the libraries as a workspace folder)
         console.debug("Pre-loading libraries and workspace...");
-        await this.preLoadWorkspace(true);
-        await this.preLoadLibraries(true);
+        await this.preloadWorkspace(true);
+        await this.preloadLibraries(true);
 
         // order doesn't matter here, we already cached all the files we want to process
         console.debug("Loading libraries and workspace...");
         await this.loadLibraries(true);
         await this.loadWorkspace(true);
+
+        // load translations
+        await this.loadTranslations();
 
         this.validateWorkspace();
     }
@@ -81,12 +88,15 @@ export class ZedScriptsEnvironment {
     /**
      * Load the libraries from the configured directories.
      */
-    public async preLoadLibraries(skipFinalState: boolean = false): Promise<void> {
+    public async preloadLibraries(skipFinalState: boolean = false): Promise<void> {
         this.setState(State.PRE_LOADING_LIBRARIES);
+
+        // clear existing libraries first
+        PZWorkspace.clear(WorkspaceType.LIBRARY);
 
         // preload libraries files
         const config = vscode.workspace.getConfiguration("ZedScripts");
-        const libraryDirs: string[] = config.get("searchDirectories", []);
+        const libraryDirs: string[] = config.get(ConfigKeys.LIBRARIES, []);
         for (const folder of libraryDirs) {
             const uri = vscode.Uri.file(folder);
             if (!isValidDir(folder)) {
@@ -103,8 +113,12 @@ export class ZedScriptsEnvironment {
         }
     }
 
-    public async preLoadWorkspace(skipFinalState: boolean = false): Promise<void> {
+    public async preloadWorkspace(skipFinalState: boolean = false): Promise<void> {
         this.setState(State.PRE_LOADING_WORKSPACE);
+
+        // clear existing workspace first
+        PZWorkspace.clear(WorkspaceType.WORKSPACE);
+
         // list the folders of the workspace
         const workspaceFolders = vscode.workspace.workspaceFolders || [];
 
@@ -124,9 +138,6 @@ export class ZedScriptsEnvironment {
         }
     }
 
-    /**
-     * Load the libraries from the configured directories.
-     */
     public async loadLibraries(skipFinalState: boolean = false): Promise<void> {
         this.setState(State.LOADING_LIBRARIES);
 
@@ -152,6 +163,19 @@ export class ZedScriptsEnvironment {
             await workspace.load();
             this.activeWorkspace = null;
         }
+        if (!skipFinalState) {
+            this.setState(State.RUNNING);
+        }
+    }
+
+    public async loadTranslations(skipFinalState: boolean = false): Promise<void> {
+        this;this.setState(State.LOADING_TRANSLATIONS)
+
+        // load the translations
+        for (const workspace of PZWorkspace.getAllWorkspaces()) {
+            await workspace.loadTranslations();
+        }
+
         if (!skipFinalState) {
             this.setState(State.RUNNING);
         }
@@ -213,36 +237,40 @@ export class ZedScriptsEnvironment {
                 icon: "$(rocket) ZedScripts", 
                 // color: new vscode.ThemeColor("statusBarItem.warningBackground"),
             },
-            [State.LOADING_DATA]: { 
+            [State.LOADING_DATA]: {
                 icon: "$(sync~spin) ZedScripts: data...", 
                 color: new vscode.ThemeColor("statusBarItem.warningBackground"),
             },
-            [State.PRE_LOADING_LIBRARIES]: { 
+            [State.PRE_LOADING_LIBRARIES]: {
                 icon: ("$(sync~spin) ZedScripts: pre-libraries... " + fileCounter).trim(), 
                 color: new vscode.ThemeColor("statusBarItem.warningBackground"),
             },
-            [State.PRE_LOADING_WORKSPACE]: { 
+            [State.PRE_LOADING_WORKSPACE]: {
                 icon: ("$(sync~spin) ZedScripts: pre-workspace... " + fileCounter).trim(), 
                 color: new vscode.ThemeColor("statusBarItem.warningBackground"),
             },
-            [State.LOADING_LIBRARIES]: { 
+            [State.LOADING_LIBRARIES]: {
                 icon: ("$(sync~spin) ZedScripts: libraries... " + fileCounter).trim(), 
                 color: new vscode.ThemeColor("statusBarItem.warningBackground"),
             },
-            [State.LOADING_WORKSPACE]: { 
+            [State.LOADING_WORKSPACE]: {
                 icon: ("$(sync~spin) ZedScripts: workspace... " + fileCounter).trim(), 
                 color: new vscode.ThemeColor("statusBarItem.warningBackground"),
             },
-            [State.VALIDATING]: { 
+            [State.LOADING_TRANSLATIONS]: {
+                icon: ("$(sync~spin) ZedScripts: translations... " + fileCounter).trim(), 
+                color: new vscode.ThemeColor("statusBarItem.warningBackground"),
+            },
+            [State.VALIDATING]: {
                 icon: ("$(sync~spin) ZedScripts: validating... " + fileCounter).trim(), 
                 color: new vscode.ThemeColor("statusBarItem.warningBackground"),
             },
-            [State.RUNNING]: { 
+            [State.RUNNING]: {
                 icon: "$(check) ZedScripts", 
                 color: new vscode.ThemeColor("statusBarItem.foreground"),
             },
             // [State.ERROR]: { icon: "$(error) ZedScripts", color: new vscode.ThemeColor("statusBarItem.errorBackground") },
-            [State.STOPPED]: { 
+            [State.STOPPED]: {
                 icon: "$(debug-stop) ZedScripts", 
                 color: new vscode.ThemeColor("statusBarItem.errorBackground"),
             }

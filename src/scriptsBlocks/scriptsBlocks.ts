@@ -1,21 +1,27 @@
 import * as vscode from 'vscode';
-import { scriptBlockRegex, parameterRegex } from '../models/regexPatterns';
+
 import { 
     DOCUMENT_IDENTIFIER,
     WIKI_LINK,
     DOCS_LINK,
 } from '../project';
-import { formatText, getIndentation } from '../utils/format';
+import { PZWorkspace } from '../workspace/workspace';
+
 import { DefaultText } from '../models/DefaultText';
 import { ThemeColorType } from "../models/ThemeColorType";
 import { DiagnosticType } from "../models/DiagnosticType";
+import { scriptBlockRegex, parameterRegex } from '../models/regexPatterns';
+
 import { diagnostic } from '../providers/diagnostic';
 import { registerActionTextReplace } from '../providers/actions';
-import { color } from "../utils/themeColors";
-import { ScriptBlockData } from './scriptsBlocksData';
-import { getScriptBlockData, getVariantTree, getMainVariant, isScriptBlock } from './scriptsBlocksUtility';
-import { createIndexRange, replaceCommentsWithWhitespace } from '../utils/positions';
+
 import { ScriptParameter } from './scriptsBlocksParameter';
+import { ScriptBlockData, TranslationProperties, TranslationLocation } from './scriptsBlocksData';
+import { getScriptBlockData, getVariantTree, getMainVariant, isScriptBlock } from './scriptsBlocksUtility';
+
+import { formatText, getIndentation } from '../utils/format';
+import { color } from "../utils/themeColors";
+import { createIndexRange, replaceCommentsWithWhitespace } from '../utils/positions';
 
 // special implementations
 import { DocumentBlock } from './blockTypes/document';
@@ -33,13 +39,14 @@ export class ScriptsBlock {
     originalScriptBlock: string | null = null;
     
     // block data
-    parent: ScriptsBlock | null = null; // the parent script block, if any
+    parent: ScriptsBlock | null = null;
     scriptBlock: string = ""; // the type of the script block
-    id: string | null = null; // the ID of the block, if any
-    children: ScriptsBlock[] = []; // children script blocks
-    parameters: ScriptParameter[] = []; // parameters of the block
-    isTemplate: boolean = false; // whether this block is a template block
+    id: string | null = null;
+    children: ScriptsBlock[] = [];
+    parameters: ScriptParameter[] = [];
+    isTemplate: boolean = false;
     isValid: boolean = true; // whether this block passed the validation checks
+    translation: TranslationLocation | undefined = undefined;
 
     // positions
     start: number = 0;
@@ -271,6 +278,7 @@ export class ScriptsBlock {
     public collectReferencedToBlocks(refs: Map<ScriptsBlock, vscode.Range[]>): void {
         // collect references from parameters
         for (const param of this.parameters) {
+            // collect block references
             if (param.ref) {
                 // get position
                 const valueRange = param.valueRange;
@@ -524,8 +532,50 @@ export class ScriptsBlock {
             parameters.push(parameter);
         }
         return parameters;
-    } 
+    }
 
+    public getTranslationData(): TranslationProperties | undefined {
+        const blockData = getScriptBlockData(this.scriptBlock) as ScriptBlockData;
+        const IDData = blockData.ID;
+        return IDData?.translation;
+    }
+
+    public getTranslationSearchInfo(translationData: TranslationProperties): {translationKey: string, sourceFile: string} {
+        const keyPattern = translationData.keyPattern;
+        const sourceFile = translationData.sourceFile;
+        const id = this.id || ""; // should be here only if has ID, but just in case
+        const module = this.getModule()?.id || "Base"; // there must be a module, but just in case
+
+        const translationKey = formatText(
+            keyPattern, { module, value: id }
+        );
+        return {
+            translationKey: translationKey,
+            sourceFile: sourceFile
+        };
+    }
+
+    public getTranslationReference(): TranslationLocation | null {
+        if (this.translation) {
+            return this.translation;
+        }
+        
+        const translationData = this.getTranslationData();
+        if (!translationData) { return null; }
+
+        const info = this.getTranslationSearchInfo(translationData)
+        const result = PZWorkspace.getTranslationKeyFromVersion(
+            this.getRoot().version,
+            info.translationKey, 
+            info.sourceFile
+        );
+
+        // cache for easier access later
+        // for definitions
+        this.translation = result;
+
+        return result || null;
+    }
 
 // CHECKERS
 
@@ -679,8 +729,6 @@ export class ScriptsBlock {
                 }
             }
             return true;
-        
-        // check if ID is required
         }
 
         const optionalBlocks = IDData.optional;
@@ -773,6 +821,25 @@ export class ScriptsBlock {
                     this.originalScriptBlock = this.scriptBlock;
                     this.scriptBlock = this.scriptBlock + " " + id;
                     this.id = null; // reset ID to null
+                }
+            }
+
+            // check if the ID has a translation
+            const translationLoc = this.getTranslationReference();   
+            if (!translationLoc) {
+                const translationData = this.getTranslationData();
+                const info = this.getTranslationSearchInfo(translationData!)
+                if (this.diagnostic(
+                    DiagnosticType.INVALID_TRANSLATION_KEY,
+                    { 
+                        element: this.scriptBlock, 
+                        value: id, 
+                        translationKey: info.translationKey,
+                        sourceFile: info.sourceFile + '.json',
+                    },
+                    this.headerStart, this.headerStart + this.scriptBlock.length + 1 + id.length
+                )) {
+                    return false;
                 }
             }
         }

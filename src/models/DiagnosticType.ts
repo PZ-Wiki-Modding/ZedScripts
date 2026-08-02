@@ -53,13 +53,7 @@ export enum DiagnosticType {
     INVALID_VALUE = "'{value}' is not a valid value for '{property}'. Valid values are: {validValues}.",
 
     // translations diagnostics
-    UNMATCHED_CODE = "Unmatched language code between folder name '{folderCode}' and file name '{fileCode}'. They should be the same.",
-    NON_EXISTENT_CODE = "The language code '{code}' does not exist. Valid codes are: {validCodes}.",
-    IN_FIRST_LINE = "Translation key-value pairs cannot be in the first line of the file as it is not parsed.",
-    UNECESSARY_COMMA = "Unnecessary comma. Translation files do not need a comma compared to script files.",
-    INVALID_FILE_PREFIX = "The file '{filePrefix}' is not a valid translation file prefix. Make sure to separate the language code and prefix with an underscore. Valid prefixes are: {validPrefixes}.",
-    MISSING_QUOTES = "Missing quotes around value.",
-    MISSING_PREFIX = "Missing prefix {prefix} for key '{key}'.",
+    INVALID_TRANSLATION_KEY = "'{element}' with value '{value}' expects a translation key '{translationKey}' in source file '{sourceFile}', but was not found.",
 
     _DEBUG = "This is a debug diagnostic with value: {value}.",
 }

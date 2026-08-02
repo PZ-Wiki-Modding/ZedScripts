@@ -50,7 +50,7 @@ You can provide a path to a set of libraries that contain scripts to provide as 
 By default, the extension sets the default Project Zomboid install directory on a Windows system as a library, which is `C:\Program Files (x86)\Steam\steamapps\common\ProjectZomboid\media\scripts`. If on a different OS or installed elsewhere, you must provide the path to your Project Zomboid install directory. You can see [here](https://pzwiki.net/wiki/Game_files#Accessing_the_game_files) on how to find your Project Zomboid install directory.
 
 ### Diagnostics
-You can disable a specific diagnostic entirely by adding its ID to the `zedScripts.disabledDiagnostics` setting. Alternatively, you can disable all diagnostics via the `zedScripts.disableAllDiagnostics` setting. Below are all the available diagnostics for scripts:
+You can disable a specific diagnostic entirely by adding its ID to the `ZedScripts.disabledDiagnostics` setting. Alternatively, you can disable all diagnostics via the `ZedScripts.disableAllDiagnostics` setting. Below are all the available diagnostics for scripts:
 
 | ID                                | Description                                                                                                                                                                                                                          |
 | --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |

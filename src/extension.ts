@@ -1,12 +1,11 @@
 import * as vscode from "vscode";
-import * as path from "path";
 
-import { LANG_ZEDSCRIPTS } from "./project";
+import { ConfigKeys, LANG_ZEDSCRIPTS, MainConfigName } from "./project";
 import { ZedScriptsEnvironment } from "./workspace/environment";
 
 import { DocumentBlock } from "./scriptsBlocks/blockTypes/document";
 
-import { diagnosticFile, DIAGNOSTIC_PROVIDER } from "./providers/diagnostic";
+import { DIAGNOSTIC_PROVIDER } from "./providers/diagnostic";
 import { provideDefinition } from "./providers/definition";
 import { provideDocumentFormattingEdits } from "./providers/editing";
 import { PZCompletionItemProvider } from "./providers/completion";
@@ -89,6 +88,38 @@ function subscribeCallbacks(context: vscode.ExtensionContext) {
     
     // register commands and event listeners
     context.subscriptions.push(
+
+
+    // CONFIGURATION
+
+        vscode.workspace.onDidChangeConfiguration(async (event) => {
+            if (event.affectsConfiguration(MainConfigName)) {
+                // we change the diagnostic rules
+                if (
+                    event.affectsConfiguration(`${MainConfigName}.${ConfigKeys.DISABLED_DIAGNOSTICS_LIST}`)
+                    || event.affectsConfiguration(`${MainConfigName}.${ConfigKeys.DISABLED_DIAGNOSTICS_ALL}`)
+                ) {
+                    ZSEnv.validateWorkspace();
+
+                // the libraries changed
+                } else if (
+                    event.affectsConfiguration(`${MainConfigName}.${ConfigKeys.LIBRARIES}`)
+                ) {
+                    await ZSEnv.preloadLibraries(true);
+                    await ZSEnv.loadLibraries();
+                
+                // the parsing rules changed
+                // we also full reload when the data updates because the parsing rules 
+                // are impacted by the dataset (root files)
+                } else if (
+                    event.affectsConfiguration(`${MainConfigName}.${ConfigKeys.NO_PARSING}`)
+                    || event.affectsConfiguration(`${MainConfigName}.${ConfigKeys.LOCAL_DATA}`)
+                ) {
+                    await ZSEnv.load();
+                }
+            }
+        }),
+
 
     // ON DOCUMENT CHANGES
 
