@@ -1,4 +1,25 @@
 # Changelog
+1.13.0:
+- implement translation diagnostics 
+  - for script block translations (items, craftRecipe)
+  - for some parameters (i.e. category of craftRecipe)
+  - ability to CTRL + Left click the ID of blocks or value of parameters that link to a translation
+  - takes into account the current active version of the file to find the proper translation file
+  - takes into account workspace and libraries translation files
+  - the default game path has been modified to point to the media folder instead of media/scripts, to properly find the vanilla translation files
+- added new configuration parameter to not parse specific files based on provided regex patterns
+  - notably used to skip parsing some very large documents that can slow down the loading process of the extension
+- cleanup some file headers and some variables
+- required elements now automatically reload when changing configurations
+  - diagnostic rules changes will revalidate workspace
+  - library modifications will reload libraries
+  - parsing rule changes and data source will reload everything
+- tweak auto completion to trigger on any key strokes
+- improve export to JSON command
+  - now request a file path to chose where to save the export
+  - only exports workspace, not libraries
+- fix console spam
+
 1.12.0:
 - major rewrite of the workspace and library handling
   - now each script files get their folder recognized, that is their versioning folder (42, 42.20, common, pre-build 41 etc)
