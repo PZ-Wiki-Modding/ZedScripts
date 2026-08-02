@@ -3,7 +3,7 @@
   "displayName": "ZedScripts",
   "icon": "images/pz-script.png",
   "description": "A Visual Studio Code extension to aid in editing Project Zomboid script files, also known as ZedScripts.",
-  "version": "1.12.0",
+  "version": "1.13.0",
   "publisher": "SimKDT",
   "engines": {
     "vscode": "^1.105.0"
