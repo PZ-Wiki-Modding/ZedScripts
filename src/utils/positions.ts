@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import * as fs from 'fs';
 
 import { TranslationLocation } from "../scriptsBlocks/scriptsBlocksData"
+import { log } from './logger';
 
 
 export interface IndexRange {
@@ -26,7 +27,7 @@ export function getTranslationLocation(translationLoc: TranslationLocation): vsc
     // find the location of the translationKey in the translation file
     const filePath = translationLoc.fileUri.fsPath;
     if (!fs.existsSync(filePath)) {
-        console.warn(`Translation file not found: ${filePath}`);
+        log(`Translation file not found: ${filePath}`, "warn");
         return null;
     }
 
@@ -34,7 +35,7 @@ export function getTranslationLocation(translationLoc: TranslationLocation): vsc
     const regex = new RegExp(`"${translationLoc.translationKey}"`, 'm');
     const match = regex.exec(fileContent);
     if (!match) {
-        console.warn(`Translation key not found in file: ${translationLoc.translationKey}`);
+        log(`Translation key not found in file: ${translationLoc.translationKey}`, "warn");
         return null;
     }
     

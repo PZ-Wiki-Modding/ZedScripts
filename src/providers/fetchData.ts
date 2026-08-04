@@ -10,9 +10,10 @@ import {
 import { setScriptsTypes, ScriptData } from '../scriptsBlocks/scriptsBlocksData';
 import { DocumentBlock } from '../scriptsBlocks/blockTypes/document';
 
+import { log } from '../utils/logger';
 
 export async function fetchData(context: vscode.ExtensionContext, forceFetch: boolean = false): Promise<boolean> {
-    console.log("Initializing script and translation blocks data...");
+    log("Initializing script and translation blocks data...");
     
     // clear DocumentBlock cache to update diagnostics
     DocumentBlock.clearCache();
@@ -23,7 +24,7 @@ export async function fetchData(context: vscode.ExtensionContext, forceFetch: bo
     const onlyUseLocalData: boolean = config.get(ConfigKeys.LOCAL_DATA, false);
     if (onlyUseLocalData) {
         setScriptsTypes(require('../' + DEFAULT_SCRIPT_BLOCKS));
-        console.log("Using local data as per configuration.");
+        log("Using local data as per configuration.");
         return true;
     }
 
@@ -36,7 +37,7 @@ export async function fetchData(context: vscode.ExtensionContext, forceFetch: bo
             setScriptsTypes(cachedScriptsBlocks);
         }
         if (cachedScriptsBlocks) {
-            console.log("Using cached data.");
+            log("Using cached data.");
             return true;
         }
     }
@@ -49,11 +50,11 @@ export async function fetchData(context: vscode.ExtensionContext, forceFetch: bo
         // save to cache
         await context.globalState.update('lastFetch', Date.now());
         
-        console.log("Fetched data successfully");
+        log("Fetched data successfully");
         return true;
     } catch (error) {
         setScriptsTypes(cachedScriptsBlocks || require('../' + DEFAULT_SCRIPT_BLOCKS));
-        console.warn("Failed to fetch data, using cached or local data.");
+        log("Failed to fetch data, using cached or local data.", "warn");
         return false;
     }
 }

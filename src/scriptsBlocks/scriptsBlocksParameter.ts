@@ -32,6 +32,7 @@ import {
     formatList,
     getIndentation
 } from '../utils/format';
+import { log } from '../utils/logger';
 
 
 
@@ -324,7 +325,7 @@ export class ScriptParameter {
         // find the location of the translationKey in the translation file
         const filePath = translationLoc.fileUri.fsPath;
         if (!fs.existsSync(filePath)) {
-            console.warn(`Translation file not found: ${filePath}`);
+            log(`Translation file not found: ${filePath}`, "warn");
             return null;
         }
 
@@ -332,7 +333,7 @@ export class ScriptParameter {
         const regex = new RegExp(`"${translationLoc.translationKey}"`, 'm');
         const match = regex.exec(fileContent);
         if (!match) {
-            console.warn(`Translation key not found in file: ${translationLoc.translationKey}`);
+            log(`Translation key not found in file: ${translationLoc.translationKey}`, "warn");
             return null;
         }
         

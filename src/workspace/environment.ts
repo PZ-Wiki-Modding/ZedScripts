@@ -11,7 +11,7 @@ import { fetchData } from '../providers/fetchData';
 import { DiagnosticProvider } from '../providers/diagnostic';
 
 import { formatText } from '../utils/format';
-
+import { log } from '../utils/logger';
 
 
 interface StatusBarConfig {
@@ -57,12 +57,12 @@ export class ZedScriptsEnvironment {
 
         // we preload the workspace first to remove files in the libraries that are already
         // handled in the workspace (example, opening one of the libraries as a workspace folder)
-        console.debug("Pre-loading libraries and workspace...");
+        log("Pre-loading libraries and workspace...");
         await this.preloadWorkspace(true);
         await this.preloadLibraries(true);
 
         // order doesn't matter here, we already cached all the files we want to process
-        console.debug("Loading libraries and workspace...");
+        log("Loading libraries and workspace...");
         await this.loadLibraries(true);
         await this.loadWorkspace(true);
 
@@ -76,7 +76,7 @@ export class ZedScriptsEnvironment {
      * Load the scripts data.
      */
     public async loadData(skipFinalState: boolean = false, forceFetch: boolean = false): Promise<boolean> {
-        console.debug("Loading dataset...");
+        log("Loading dataset...");
         this.setState(State.LOADING_DATA);
         const result = await fetchData(this.context, forceFetch);
         if (!skipFinalState) {
@@ -308,16 +308,16 @@ function isValidDir(dir: string): boolean {
     const normalizedDir = path.normalize(dir);
     try {
         if (!fs.existsSync(normalizedDir)) {
-            console.warn(`Directory does not exist: ${normalizedDir}`);
+            log(`Directory does not exist: ${normalizedDir}`, "warn");
             return false;
         }
         if (!fs.statSync(normalizedDir).isDirectory()) {
-            console.warn(`Path is not a directory: ${normalizedDir}`);
+            log(`Path is not a directory: ${normalizedDir}`, "warn");
             return false;
         }
         return true;
     } catch (error) {
-        console.warn(`Error accessing directory: ${normalizedDir}`, error);
+        log(`Error accessing directory: ${normalizedDir}`, "warn");
         return false;
     }
 }

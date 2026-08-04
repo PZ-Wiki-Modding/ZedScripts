@@ -65,8 +65,6 @@ export class DiagnosticProvider {
     }
     
     public async updateDiagnostics(document: vscode.TextDocument): Promise<DocumentBlock | void> {
-    // console.debug(`Updating diagnostics for document: ${document.fileName}`);
-        // return updateDiagnostics(document, this);
         return await PZWorkspace.update(document, this);
     }
 
@@ -118,6 +116,5 @@ export function diagnostic(
         severity
     );
     diagnostics.push(diagnostic);
-    // console.warn(message);
     return diagnostic;
 }

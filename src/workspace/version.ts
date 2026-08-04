@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import fs from 'fs';
 import * as path from 'path';
 
-import { scriptFileVersionCatcher } from '../models/regexPatterns';
+import { log } from '../utils/logger';
 
 export enum VersionType {
     _TEMP = "_temp",
@@ -116,7 +116,7 @@ export class Version {
         // split by `.`
         const parts = this.source.split('.');
         if (parts.length === 0) {
-            console.warn(`Invalid version string, this is an unexpected behavior: ${this.source}`);
+            log(`Invalid version string, this is an unexpected behavior: ${this.source}`, "warn");
             this.type = VersionType.ANY;
             return;
         }
@@ -124,12 +124,12 @@ export class Version {
         // retrieve major version
         const major = parseInt(parts[0]);
         if (isNaN(major)) {
-            console.warn(`Invalid major version number: ${parts[0]} in version string: ${this.source}`);
+            log(`Invalid major version number: ${parts[0]} in version string: ${this.source}`, "warn");
             vscode.window.showWarningMessage(`Invalid major version number: '${parts[0]}' in version string: '${this.source}'. Should be an integer.`);
             this.type = VersionType.ANY;
             return;
         } else if (major < 42) {
-            console.warn(`Version ${this.source} is less than 42, which is not supported. Defaulting to ANY.`);
+            log(`Version ${this.source} is less than 42, which is not supported. Defaulting to ANY.`, "warn");
             vscode.window.showWarningMessage(`Version folder '${this.source}' is less than 42, which is not supported.`);
             this.type = VersionType.ANY;
             return;
@@ -138,7 +138,7 @@ export class Version {
         // retrieve minor version
         const minor = parts.length > 1 ? parseInt(parts[1]) : 0;
         if (isNaN(minor)) {
-            console.warn(`Invalid minor version number: ${parts[1]} in version string: ${this.source}`);
+            log(`Invalid minor version number: ${parts[1]} in version string: ${this.source}`, "warn");
             vscode.window.showWarningMessage(`Invalid minor version number: '${parts[1]}' in version string: '${this.source}'. Should be an integer.`);
             this.type = VersionType.ANY;
             return;
@@ -208,14 +208,14 @@ export class Version {
         } else {
             // there is no other version, so we return null
             // but this is not a normal case, since we verified the array isn't empty
-            console.warn('No other version found to compare with, this is unexpected behavior.');
+            log('No other version found to compare with, this is unexpected behavior.', "warn");
             return null;
         }
 
         // find the Version instance corresponding to the closest string
         const closestVersion = filtered.find(v => v.toStringSafe() === closest);
         if (!closestVersion) {
-            console.warn(`Closest version string ${closest} does not correspond to any Version instance.`);
+            log(`Closest version string ${closest} does not correspond to any Version instance.`, "warn");
             return null;
         }
 

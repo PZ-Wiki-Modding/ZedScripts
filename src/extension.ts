@@ -10,14 +10,16 @@ import { provideDefinition } from "./providers/definition";
 import { provideDocumentFormattingEdits } from "./providers/editing";
 import { PZCompletionItemProvider } from "./providers/completion";
 import { PZHoverProvider } from "./providers/hover";
-
 import { reloadDocument, resetScriptsCache, exportScriptsBlocks } from "./providers/commands";
+
+import { log } from "./utils/logger";
 
 let debounceTimer: NodeJS.Timeout | undefined;
 export let ZSEnv: ZedScriptsEnvironment;
 
+
 export async function activate(context: vscode.ExtensionContext) {
-    console.debug('Activating extension "project-zomboid-scripts"...');
+    log('Activating extension "project-zomboid-scripts"...');
     ZSEnv = new ZedScriptsEnvironment(context, DIAGNOSTIC_PROVIDER);
     
     // show status bar
@@ -44,11 +46,11 @@ export async function activate(context: vscode.ExtensionContext) {
     //     loadDecorations(vscode.window.activeTextEditor.document);
     // }
 
-    console.log('Extension "project-zomboid-scripts" is now active!');
+    log('Extension "project-zomboid-scripts" is now active!');
 }
 
 export function deactivate() {
-    console.debug('Extension "project-zomboid-scripts" is now deactivated.');
+    log('Extension "project-zomboid-scripts" is now deactivated.');
 }
 
 
@@ -83,7 +85,7 @@ function subscribeCallbacks(context: vscode.ExtensionContext) {
     const watcher = vscode.workspace.createFileSystemWatcher("**/*.txt");
     watcher.onDidDelete((uri) => {
         ZSEnv.clearCacheForUri(uri);
-        console.debug(`Invalidated cache for : ${uri.fsPath}`);
+        log(`Invalidated cache for : ${uri.fsPath}`);
     });
     
     // register commands and event listeners

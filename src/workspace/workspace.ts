@@ -16,6 +16,8 @@ import { TranslationLocation } from '../scriptsBlocks/scriptsBlocksData';
 import { DocumentBlock } from '../scriptsBlocks/blockTypes/document';
 import { testAndReloadZedScripts, testZedScripts, ResultZedScripts, reopenFile } from '../scriptsBlocks/scriptsBlocksUtility';
 
+import { log } from '../utils/logger';
+
 
 function preparePath(filePath: string): string {
     const normalizedPath = filePath.replace(/\\/g, '/'); // normalize to unix-style path
@@ -104,7 +106,7 @@ export class PZWorkspace {
     public async preload(): Promise<void> {
         // solitary workspaces should not load anything since the folder is a placeholder
         if (this.workspaceType === WorkspaceType.SOLITARY) {
-            console.debug("Solitary workspace does not load files.");
+            log("Solitary workspace does not load files.", "debug");
             return;
         }
 
@@ -159,7 +161,6 @@ export class PZWorkspace {
             this.loadingPosition++;
             const r = Math.round((this.loadingPosition / this.loadingCount) * 100);
             if (r > lastR+10) {
-                // console.debug(`${r}%`);
                 lastR += 10;
                 ZSEnv.updateStatusBar();
             }
@@ -175,7 +176,7 @@ export class PZWorkspace {
         this.loadingCount = this._preloadedFiles.length;
 
         if (this.loadingCount === 0) {
-            console.debug(`No ZedScripts files found in ${this.workspaceType}: ${this.folder.fsPath}`);
+            log(`No ZedScripts files found in ${this.workspaceType}: ${this.folder.fsPath}`, "debug");
             return;
         }
 
@@ -201,7 +202,6 @@ export class PZWorkspace {
             this.loadingPosition++;
             const r = Math.round((this.loadingPosition / this.loadingCount) * 100);
             if (r > lastR+10) {
-                // console.debug(`${r}%`);
                 lastR += 10;
                 ZSEnv.updateStatusBar();
             }
@@ -212,7 +212,7 @@ export class PZWorkspace {
         this.isLoaded = true;
         this._preloadedFiles = []; // clear preloaded files cache
         this.finalLoadedCount = this.loadingCount;
-        console.debug(`Loaded ${this.loadingCount} files from workspace: ${this.workspaceType}`);
+        log(`Loaded ${this.loadingCount} files from workspace: ${this.workspaceType}`);
     }
 
     /**
@@ -308,7 +308,7 @@ export class PZWorkspace {
     public async loadTranslations(): Promise<void> {
         // solitary workspaces should not load anything since the folder is a placeholder
         if (this.workspaceType === WorkspaceType.SOLITARY) {
-            console.debug("Solitary workspace does not load files.");
+            log("Solitary workspace does not load files.", "debug");
             return;
         }
 
@@ -435,7 +435,7 @@ export class PZWorkspace {
         const result: DocumentBlock[] = [];
         const typeMap = PZWorkspace.workspaceCache.get(type);
         if (!typeMap) { 
-            console.error(`Unexpected workspace type: ${type}`);
+            log(`Unexpected workspace type: ${type}`, "error");
             return result;
         }
         for (const workspace of typeMap.values()) {
@@ -484,7 +484,6 @@ export class PZWorkspace {
             this.loadingPosition++;
             const r = Math.round((this.loadingPosition / this.loadingCount) * 100);
             if (r > lastR+10) {
-                // console.debug(`${r}%`);
                 lastR += 10;
                 ZSEnv.updateStatusBar();
             }
@@ -496,7 +495,7 @@ export class PZWorkspace {
         // fetch workspace type
         const typeMap = PZWorkspace.workspaceCache.get(type);
         if (!typeMap) {
-            console.error(`Unexpected workspace type: ${type}`);
+            log(`Unexpected workspace type: ${type}`, "error");
             return;
         }
 
@@ -519,7 +518,7 @@ export class PZWorkspace {
         
         // skip the provided version if pre-42, this shouldn't happen
         if (targetVersion.isPre42) {
-            console.warn(`Searching for blocks in Pre-42 versions is not supported: ${targetVersion.source}`);
+            log(`Searching for blocks in Pre-42 versions is not supported: ${targetVersion.source}`, "warn");
             return Array.from(result);
         }
 

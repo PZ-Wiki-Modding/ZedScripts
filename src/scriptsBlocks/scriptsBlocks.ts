@@ -22,6 +22,7 @@ import { getScriptBlockData, getVariantTree, getMainVariant, isScriptBlock } fro
 import { formatText, getIndentation } from '../utils/format';
 import { color } from "../utils/themeColors";
 import { createIndexRange, replaceCommentsWithWhitespace } from '../utils/positions';
+import { log } from '../utils/logger';
 
 // special implementations
 import { DocumentBlock } from './blockTypes/document';
@@ -858,7 +859,7 @@ export class ScriptsBlock {
             }
         } catch (error) {
             const position = `${this.lineStart}:${this.lineEnd}`;
-            console.error(`Error validating block (${this.scriptBlock}, ${this.id}, ${position}): ${error}`);
+            log(`Error validating block (${this.scriptBlock}, ${this.id}, ${position}): ${error}`, "error");
         }
 
         // validate parameters
@@ -867,7 +868,7 @@ export class ScriptsBlock {
                 parameter.validate();
             } catch (error) {
                 const position = `${parameter.parameterRange.start}:${parameter.parameterRange.end}`;
-                console.error(`Error validating parameter (${this.scriptBlock}, ${this.id}, ${parameter.parameter}, ${position}): ${error}`);
+                log(`Error validating parameter (${this.scriptBlock}, ${this.id}, ${parameter.parameter}, ${position}): ${error}`, "error");
             }
         }
 

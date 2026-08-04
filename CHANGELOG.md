@@ -1,6 +1,7 @@
 # Changelog
 1.13.1:
 - fix translation diagnostics spamming errors
+- moved logging system to an output channel instead of console
 
 1.13.0:
 - implement translation diagnostics 

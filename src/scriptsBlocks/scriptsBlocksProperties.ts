@@ -118,7 +118,6 @@ export class InputsParameter {
                             vscode.DiagnosticSeverity.Warning
                         );
                         const line = this.document.positionAt(matches[i].range.start).line;
-                        console.debug(`Duplicate subparameter '${key}' at line ${line + 1}`);
                     }
                 }
 
