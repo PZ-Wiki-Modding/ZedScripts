@@ -1,4 +1,7 @@
 # Changelog
+1.13.1:
+- fix translation diagnostics spamming errors
+
 1.13.0:
 - implement translation diagnostics 
   - for script block translations (items, craftRecipe)

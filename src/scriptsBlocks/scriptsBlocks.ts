@@ -826,9 +826,9 @@ export class ScriptsBlock {
 
             // check if the ID has a translation
             const translationLoc = this.getTranslationReference();   
-            if (!translationLoc) {
-                const translationData = this.getTranslationData();
-                const info = this.getTranslationSearchInfo(translationData!)
+            const translationData = this.getTranslationData();
+            if (!translationLoc && translationData) {
+                const info = this.getTranslationSearchInfo(translationData)
                 if (this.diagnostic(
                     DiagnosticType.INVALID_TRANSLATION_KEY,
                     { 
