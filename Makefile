@@ -10,7 +10,7 @@ help:
 	@echo "  build:   Build the extension"
 	@echo "  test:    Run tests"
 	@echo "  package: Package the extension"
-	@echo "  release: Publish to VS Code Marketplace and Open VSX"
+	@echo "  release: Publish to VS Code Marketplace and Open VSX (set UPDATE_TYPE to patch, minor or major, default patch)"
 
 build:
 	npm run build
