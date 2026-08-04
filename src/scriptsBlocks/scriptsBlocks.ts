@@ -616,7 +616,81 @@ export class ScriptsBlock {
             // return false;
         }
 
+        // verify what follows the children blocks
+        if (!this.validateAfterChildren()) {
+            // return false;
+        }
+
         return true;
+    }
+
+
+    /**
+     * Validates the character right after closing bracket of each child blocks. Example:
+     * 
+     * ```
+     * component Foo
+     * {
+     *      a = 1,
+     * },
+     * b = 2,
+     * ```
+     *
+     * comma after } separates nothing, the key is ",\n b" instead of "b". A { there is lost (never opened)
+     */
+    protected validateAfterChildren(): boolean {
+        if (!this.shouldValidate()) { return true; }
+        if (!this.shouldParameterHaveComma()) { return true; }
+
+        const eol = this.document.eol === vscode.EndOfLine.CRLF ? "\r\n" : "\n";
+
+        let valid = true;
+        for (const child of this.children) {
+            // end of a child block is the index right after }
+            const index = child.end;
+            const range = new vscode.Range(
+                this.document.positionAt(index),
+                this.document.positionAt(index + 1)
+            );
+            const char = this.document.getText(range);
+
+            let type: DiagnosticType;
+            let replacement: string;
+            let reason: string;
+            switch (char) {
+                case ',':
+                    type = DiagnosticType.COMMA_AFTER_BLOCK;
+                    replacement = "";
+                    reason = "Remove the comma after the closing bracket";
+                    break;
+                case '{':
+                    type = DiagnosticType.BLOCK_AFTER_BLOCK;
+                    replacement = eol + char;
+                    reason = "Move the opening bracket to its own line";
+                    break;
+                case '}':
+                    type = DiagnosticType.BRACE_AFTER_BLOCK;
+                    replacement = eol + char;
+                    reason = "Move the closing bracket to its own line";
+                    break;
+                default:
+                    continue;
+            }
+
+            const diagnosticOutput = this.diagnostic(
+                type,
+                { scriptBlock: child.scriptBlock },
+                index,
+                index + 1
+            );
+            if (!diagnosticOutput) { continue; }
+            valid = false;
+
+            const fix = registerActionTextReplace(this.document, range, replacement, reason);
+            this.registerFix(fix, diagnosticOutput, range);
+        }
+
+        return valid;
     }
 
 

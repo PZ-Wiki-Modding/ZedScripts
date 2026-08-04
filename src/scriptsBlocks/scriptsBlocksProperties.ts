@@ -16,6 +16,7 @@ import {
 import { getScriptBlockData } from "./scriptsBlocksUtility";
 
 import { diagnostic } from '../providers/diagnostic';
+import { registerActionTextReplace } from '../providers/actions';
 
 
 export class InputsParameter {
@@ -246,6 +247,47 @@ export class InputsParameter {
         return true;
     }
 
+    protected validateComma(): boolean {
+        if (!this.shouldValidate()) { return true; }
+        if (!this.parent.shouldParameterHaveComma()) { return true; }
+        if (this.comma === ",") { return true; }
+
+        const missing = this.comma === "";
+        const end = this.valuesRange.end + this.comma.length;
+
+        const diagnosticOutput = diagnostic(
+            this.document,
+            this.diagnostics,
+            missing ? DiagnosticType.MISSING_COMMA : DiagnosticType.INVALID_COMMA,
+            {},
+            this.parameterRange.start,
+            end
+        );
+        if (!diagnosticOutput) { return false; }
+
+        // fix
+        const commaRange = new vscode.Range(
+            this.document.positionAt(this.valuesRange.end),
+            this.document.positionAt(end)
+        );
+        const fix = registerActionTextReplace(
+            this.document,
+            commaRange,
+            ",",
+            missing ? `Add missing comma for '${this.parameter}' entry` : `Replace invalid comma with a correct one`
+        );
+        this.parent.getRoot().addAction(
+            new vscode.Range(
+                this.document.positionAt(this.parameterRange.start),
+                this.document.positionAt(end)
+            ),
+            diagnosticOutput,
+            fix
+        );
+
+        return false;
+    }
+
     // FIXME: this is really shitty but necessary with the current structure of the code
     // the reason is that InputsParameter instances get stored alongside the classic ScriptsBlocksParameters
     public validateLater(): void {}
@@ -417,6 +459,9 @@ export class InputsItemParameter extends InputsParameter {
         if (!parameterData) {
             return false; // that would be weird if we got there with an invalid parameter
         }
+
+        // check the trailing comma, independent from the content of the entry
+        this.validateComma();
 
         // check one of
         const oneOf = this.validateOneOf(parameterData);
@@ -625,6 +670,9 @@ export class InputsFluidParameter extends InputsParameter {
             return false; // that would be weird if we got there with an invalid parameter
         }
 
+        // check the trailing comma, independent from the content of the entry
+        this.validateComma();
+
         // check one of
         const oneOf = this.validateOneOf(parameterData);
         if (!oneOf) {
@@ -636,7 +684,7 @@ export class InputsFluidParameter extends InputsParameter {
         if (!values) {
             return false;
         }
-        
+
         return true;
     }
 }

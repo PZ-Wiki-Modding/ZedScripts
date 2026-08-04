@@ -708,8 +708,7 @@ export class ScriptParameter {
                     ));
                     return false;
                 }
-            } 
-            if (this.comma !== ",") {
+            } else if (this.comma !== ",") {
                 const diagnosticOutput = this.diagnostic(
                     DiagnosticType.INVALID_COMMA,
                     {},
