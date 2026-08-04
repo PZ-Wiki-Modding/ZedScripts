@@ -18,8 +18,9 @@ export function createIndexRange(start: number, index: number, fullMatch: string
 
 
 export function replaceCommentsWithWhitespace(text: string): string {
+    // keep newlines to match original text
 	return text.replace(/\/\*[\s\S]*?\*\//g, (match) => {
-		return ' '.repeat(match.length);
+		return match.replace(/[^\n]/g, ' ');
 	});
 }
 

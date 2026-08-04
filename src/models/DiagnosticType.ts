@@ -2,6 +2,9 @@ export enum DiagnosticType {
     // formatting related diagnostics
     MISSING_COMMA = "Missing comma.",
     INVALID_COMMA = "Invalid comma.",
+    COMMA_AFTER_BLOCK = "A comma right after the closing bracket '}' of '{scriptBlock}' is not a separator, it corrupts what follows it.",
+    BLOCK_AFTER_BLOCK = "An opening bracket right after the closing bracket '}' of '{scriptBlock}' is skipped, the block it opens is never parsed.",
+    BRACE_AFTER_BLOCK = "A closing bracket right after the closing bracket '}' of '{scriptBlock}' is skipped, the block it closes stays open.",
     UNMATCHED_BRACE = "Missing closing bracket '}' for '{scriptBlock}' block.",
     UNEXPECTED_CLOSING_BRACKET = "Unexpected extra closing bracket '}'.",
     NOT_VALID_BLOCK = "'{scriptBlock}' is an unknown script block.",

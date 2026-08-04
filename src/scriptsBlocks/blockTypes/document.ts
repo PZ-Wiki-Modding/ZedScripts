@@ -5,6 +5,7 @@ import { ScriptsBlock } from '../scriptsBlocks';
 import { ImportsBlock } from './imports';
 import { PZWorkspace } from '../../workspace/workspace';
 import { Version } from '../../workspace/version';
+import { replaceCommentsWithWhitespace } from '../../utils/positions';
 
 /**
  * A ScriptBlock that represents the entire document. This is more a convenience class to handle everything easily.
@@ -181,11 +182,14 @@ export class DocumentBlock extends ScriptsBlock {
 // VALIDATORS
 
     // overwrite validates for this class since the rules aren't the same
-    protected validateBlock(): boolean { 
+    protected validateBlock(): boolean {
+        // dont parse braces and commas inside comments
+        const text = replaceCommentsWithWhitespace(this.document.getText());
+
         // count { } pairs to catch extra ones
         let count = 0;
-        for (let i = this.start; i < this.end; i++) {
-            const char = this.document.getText(new vscode.Range(this.document.positionAt(i), this.document.positionAt(i + 1)));
+        for (let i = 0; i < text.length; i++) {
+            const char = text[i];
             if (char === '{') {
                 count++;
             } else if (char === '}') {
@@ -205,7 +209,7 @@ export class DocumentBlock extends ScriptsBlock {
 
         if (count < 0) { return false; } // already reported an error
 
-        return true; 
+        return true;
     }
     // protected validateChildren(): boolean { return true; } // some documents might need children
     protected validateID(): boolean { return true; }
