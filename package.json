@@ -37,7 +37,7 @@
           "default": [
             "C:/Program Files (x86)/Steam/steamapps/common/ProjectZomboid/media/"
           ],
-          "description": "Libraries to search for script files definitions. The vanilla game scripts should be included here, as well as any mods your mod may depend on."
+          "description": "Libraries to search for script files and translations definitions. The vanilla game media folder should be included here, as well as any mods your workspace mod may depend on."
         },
         "ZedScripts.onlyUseLocalData": {
           "type": "boolean",
