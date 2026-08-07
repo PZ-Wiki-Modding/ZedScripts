@@ -32,7 +32,7 @@ export interface ScriptBlockData {
     ID?: ScriptBlockID;
     parameters: { [key: string]: ScriptBlockParameter };
     properties?: { [key: string]: InputParameterData };
-    isVariant?: string; // if this block is a variant of another block, the name of the base block
+    variantOf?: string; // if this block is a variant of another block, the name of the base block
 
     isRoot?: boolean;
     pattern?: string[]; // to be used as regex patterns for identification

@@ -70,7 +70,7 @@ export function listRequiredParameters(blockType: string): ScriptBlockParameter[
 
 export function getMainVariant(blockType: string): string {
     const blockData = getScriptBlockData(blockType);
-    const variant = blockData.isVariant;
+    const variant = blockData.variantOf;
     if (variant) {
         return getMainVariant(variant);
     }
@@ -80,7 +80,7 @@ export function getMainVariant(blockType: string): string {
 export function getVariantTree(blockType: string): string[] {
     const tree: string[] = [];
     const blockData = getScriptBlockData(blockType);
-    const variant = blockData.isVariant;
+    const variant = blockData.variantOf;
     if (variant) {
         const treeVariant = getVariantTree(variant);
         tree.push(...treeVariant);
