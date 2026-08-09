@@ -42,7 +42,7 @@
         "ZedScripts.onlyUseLocalData": {
           "type": "boolean",
           "default": true,
-          "description": "Whether to only use local data for scripts."
+          "description": "Whether to only use local data for scripts. If turned off, the extension will attempt to download the latest scripts dataset from the pz-scripts-data repository. If the extension hasn't been updated in a while but the dataset yes, you may find this useful."
         },
         "ZedScripts.disabledDiagnostics": {
           "type": "array",
@@ -120,6 +120,10 @@
       {
         "command": "ZedScripts.exportScriptsBlocks",
         "title": "ZedScripts: Export to JSON"
+      },
+      {
+        "command": "ZedScripts.showDiagnosticTypes",
+        "title": "ZedScripts: Show Diagnostic IDs"
       }
     ]
   },

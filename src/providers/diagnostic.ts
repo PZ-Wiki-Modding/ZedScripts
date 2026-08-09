@@ -115,6 +115,8 @@ export function diagnostic(
         message,
         severity
     );
+    diagnostic.source = "ZedScripts";
+    diagnostic.code = diagnosticKey || "UNKNOWN";
     diagnostics.push(diagnostic);
     return diagnostic;
 }

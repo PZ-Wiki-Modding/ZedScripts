@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Extract DiagnosticType enum from enums.ts and create a dictionary."""
 
-import re, json, pyperclip
+import re, json
 from pathlib import Path
 
 def extract_diagnostic_type_enum(file_path: str) -> dict:
@@ -41,31 +41,35 @@ def extract_diagnostic_type_enum(file_path: str) -> dict:
     
     return diagnostic_dict
 
-def main(script_dir: Path):
+def main():
     """Main function."""
     # Get the path to enums.ts
-    enums_file = script_dir.parent / 'src' / 'models' / 'DiagnosticType.ts'
+    PROJECT_DIR = Path(__file__).parent.parent
+    enums_file = PROJECT_DIR / 'src' / 'models' / 'DiagnosticType.ts'
     
     if not enums_file.exists():
         raise FileNotFoundError(f"enums.ts not found at {enums_file}")
     
     # Extract the enum
     diagnostics = extract_diagnostic_type_enum(str(enums_file))
-    
-    # Print as dictionary
-    print("DiagnosticType Dictionary:")
-    print(json.dumps(diagnostics, indent=2))
-    
-    return diagnostics
+
+    max_key_length = max(len(f"`{key}`") for key in diagnostics.keys())
+    max_value_length = max(len(value) for value in diagnostics.values())
+
+    # format for markdown table of diagnostics
+    txt = f"| {f"`ID`".ljust(max_key_length)} | {f"`Description`".ljust(max_value_length)} |\n| {'-' * max_key_length} | {'-' * max_value_length} |\n"
+    # diagnostics = dict(sorted(diagnostics.items(), key=lambda item: item[0]))  # Sort by key
+    for key, value in diagnostics.items():
+        txt += f"| {f"`{key}`".ljust(max_key_length)} | {value.ljust(max_value_length)} |\n"
+
+    OUTPUT_FILE = PROJECT_DIR / 'DiagnosticTypesList.md'
+    with open(OUTPUT_FILE, 'w', encoding='utf-8') as f:
+        f.write("""
+# Diagnostic Types List
+This file is auto-generated from the `DiagnosticType` enum in [DiagnosticType.ts](src/models/DiagnosticType.ts). It provides a list of all diagnostic types and their descriptions for reference, ordered by type of diagnostics.
+""".strip())
+        f.write("\n\n")
+        f.write(txt)
 
 if __name__ == "__main__":
-    script_dir = Path(__file__).parent
-    diagnostics = main(script_dir)
-
-    # format for markdown table of diagnostics
-    # format for markdown table of diagnostics
-    txt = "| ID | Description |\n|---|---|\n"
-    for key, value in diagnostics.items():
-        txt += f"| `{key}` | {value} |\n"
-    print(txt)
-    pyperclip.copy(txt)
+    main()

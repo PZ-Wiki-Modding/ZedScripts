@@ -3,6 +3,8 @@ import * as vscode from "vscode";
 import { ConfigKeys, LANG_ZEDSCRIPTS, MainConfigName } from "./project";
 import { ZedScriptsEnvironment } from "./workspace/environment";
 
+import { Commands } from "./models/Commands";
+
 import { DocumentBlock } from "./scriptsBlocks/blockTypes/document";
 
 import { DIAGNOSTIC_PROVIDER } from "./providers/diagnostic";
@@ -10,9 +12,16 @@ import { provideDefinition } from "./providers/definition";
 import { provideDocumentFormattingEdits } from "./providers/editing";
 import { PZCompletionItemProvider } from "./providers/completion";
 import { PZHoverProvider } from "./providers/hover";
-import { reloadDocument, resetScriptsCache, exportScriptsBlocks } from "./providers/commands";
+import { 
+    reloadDocument, 
+    resetScriptsCache, 
+    exportScriptsBlocks, 
+    showDiagnosticTypes 
+} from "./providers/commands";
 
 import { log } from "./utils/logger";
+
+
 
 let debounceTimer: NodeJS.Timeout | undefined;
 export let ZSEnv: ZedScriptsEnvironment;
@@ -60,22 +69,20 @@ function subscribeCommands(context: vscode.ExtensionContext) {
     context.subscriptions.push(
         // add a force reset cache function
         vscode.commands.registerCommand(
-            "ZedScripts.resetScriptsCache",
+            Commands.RESET_SCRIPTS_CACHE,
             resetScriptsCache
         ),
 
         // add an export function
         vscode.commands.registerCommand(
-            "ZedScripts.exportScriptsBlocks",
+            Commands.EXPORT_SCRIPTS_BLOCKS,
             exportScriptsBlocks
         ),
 
         vscode.commands.registerCommand(
-            "ZedScripts.showInfo",
-            () => {
-                vscode.window.showInformationMessage("Hello!");
-            }
-        ),
+            Commands.SHOW_DIAGNOSTIC_TYPES,
+            showDiagnosticTypes
+        )
     );
 }
 
@@ -202,9 +209,4 @@ function subscribeCallbacks(context: vscode.ExtensionContext) {
         })
     );
 }
-
-
-
-
-
 
