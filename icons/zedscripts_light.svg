@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="100mm"
+   height="100mm"
+   viewBox="0 0 122.92652 106.32799"
+   version="1.1"
+   id="svg5"
+   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
+   sodipodi:docname="zedscripts_light.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#323232"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:zoom="1.3050524"
+     inkscape:cx="80.839666"
+     inkscape:cy="193.86195"
+     inkscape:window-width="1920"
+     inkscape:window-height="1028"
+     inkscape:window-x="0"
+     inkscape:window-y="20"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs2">
+    <rect
+       x="15.539441"
+       y="43.617642"
+       width="309.23869"
+       height="235.2667"
+       id="rect2082" />
+  </defs>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-30.906883,-90.495469)">
+    <text
+       xml:space="preserve"
+       transform="matrix(10.043358,0,0,10.043358,-131.50786,-362.93381)"
+       id="text2080"
+       style="white-space:pre;shape-inside:url(#rect2082);display:inline;fill:#000000"><tspan
+         x="15.539062"
+         y="54.717188"
+         id="tspan263"><tspan
+           style="font-size:12px;font-family:Constantine;-inkscape-font-specification:'Constantine, Normal'"
+           id="tspan261">ZS</tspan></tspan></text>
+  </g>
+</svg>

@@ -85,8 +85,8 @@
         ],
         "configuration": "./src/language/ZedScripts.configuration.json",
         "icon": {
-          "dark": "icons/zombie.svg",
-          "light": "icons/zombie.svg"
+          "dark": "icons/zedscripts_dark.svg",
+          "light": "icons/zedscripts_light.svg"
         }
       }
     ],
