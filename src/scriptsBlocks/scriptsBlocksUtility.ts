@@ -7,7 +7,7 @@ import { LANG_ZEDSCRIPTS } from "../project";
 
 
 export function isScriptBlock(word: string): boolean {
-    return word.toLowerCase() in SCRIPTS_TYPES_LOWER;
+    return SCRIPTS_TYPES_LOWER.has(word.toLowerCase());
 }
 
 /**
