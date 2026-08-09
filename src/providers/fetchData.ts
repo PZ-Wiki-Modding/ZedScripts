@@ -3,10 +3,10 @@ import * as vscode from 'vscode';
 import { 
     SCRIPTS_BLOCKS_DATA_LINK,
     ROOTS_DATA_LINK,
-    CACHE_DURATION_MS,
-    ConfigKeys
+    CACHE_DURATION_MS
 } from '../project';
 
+import { ConfigKeys } from "../models/ConfigKeys";
 import { GlobalState } from '../models/GlobalState';
 
 import { 

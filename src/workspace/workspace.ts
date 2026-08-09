@@ -2,13 +2,15 @@ import * as vscode from 'vscode';
 import fs from 'fs';
 import * as path from "path";
 
-import { LANG_ZEDSCRIPTS, ConfigKeys } from '../project';
+import { LANG_ZEDSCRIPTS } from '../project';
 import { ZSEnv } from '../extension';
 
 import { findWorkspaceVersion, Version, VersionType } from './version';
 
 import { DiagnosticProvider } from '../providers/diagnostic';
+import { FILE_DECORATOR } from '../providers/fileDecoration';
 
+import { ConfigKeys } from '../models/ConfigKeys';
 import { scriptFileVersionCatcher, translationFileVersionCatcher } from '../models/regexPatterns';
 
 import { ScriptsBlock } from '../scriptsBlocks/scriptsBlocks';
@@ -239,6 +241,9 @@ export class PZWorkspace {
         // cache the document to workspace mapping for easy access later
         PZWorkspace.fileToWorkspaceMap.set(result.preparedPath, this);
 
+        // apply file decorators
+        FILE_DECORATOR.refresh(result.document.uri);
+
         return documentBlock;
     }
 
@@ -403,13 +408,8 @@ export class PZWorkspace {
 
 // WORKSPACE MANAGEMENT
 
-    /**
-     * Retrieve the workspace associated with a given document, if any
-     * @param document
-     * @returns The corresponding PZWorkspace if found, otherwise undefined.
-     */
-    public static getWorkspaceForDocument(document: vscode.TextDocument): PZWorkspace | undefined {
-        const filePath = preparePath(document.fileName);
+    public static getWorkspaceForUri(uri: vscode.Uri): PZWorkspace | undefined {
+        const filePath = preparePath(uri.fsPath);
         return PZWorkspace.fileToWorkspaceMap.get(filePath);
     }
 

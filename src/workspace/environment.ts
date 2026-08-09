@@ -3,8 +3,8 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 import { PZWorkspace, WorkspaceType } from './workspace';
-import { ConfigKeys } from '../project';
 
+import { ConfigKeys } from '../models/ConfigKeys';
 import { DefaultText } from '../models/DefaultText';
 
 import { fetchData } from '../providers/fetchData';
@@ -161,20 +161,23 @@ export class ZedScriptsEnvironment {
         for (const workspace of workspaces.values()) {
             this.activeWorkspace = workspace;
             await workspace.load();
-            this.activeWorkspace = null;
         }
+        this.activeWorkspace = null;
+
         if (!skipFinalState) {
             this.setState(State.RUNNING);
         }
     }
 
     public async loadTranslations(skipFinalState: boolean = false): Promise<void> {
-        this;this.setState(State.LOADING_TRANSLATIONS)
+        this.setState(State.LOADING_TRANSLATIONS)
 
         // load the translations
         for (const workspace of PZWorkspace.getAllWorkspaces()) {
+            this.activeWorkspace = workspace;
             await workspace.loadTranslations();
         }
+        this.activeWorkspace = null;
 
         if (!skipFinalState) {
             this.setState(State.RUNNING);
@@ -294,6 +297,8 @@ export class ZedScriptsEnvironment {
                 tooltip.appendMarkdown('\n\n');
                 tooltip.appendMarkdown(`${this.getFileCounter()}`);
             }
+        } else if (this.state !== State.RUNNING) {
+            tooltip.appendMarkdown(DefaultText.STATUS_BAR_TOOLTIP_LOADING);
         } else {
             tooltip.appendMarkdown(DefaultText.STATUS_BAR_TOOLTIP_LOADED);
         }

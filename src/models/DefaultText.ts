@@ -22,6 +22,7 @@ export enum DefaultText {
     WORKSPACE_LOAD_FAILED = "Workspace folder does not exist or is not accessible: {folder}",
 
     STATUS_BAR_TOOLTIP_TITLE = "**ZedScripts**",
+    STATUS_BAR_TOOLTIP_LOADING = "Loading...",
     STATUS_BAR_TOOLTIP_PROCESSING = "Processing files from {workspaceType}.",
     STATUS_BAR_TOOLTIP_LOADED = "Loaded.",
 }

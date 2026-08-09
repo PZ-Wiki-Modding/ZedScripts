@@ -68,6 +68,11 @@
             ".+\\.tiles\\.txt"
           ],
           "description": "List of regex patterns of files to exclude from parsing. Preferably do not remove files from the default list or you risk getting into heavy loading times. Some irrelevant script files have also been added to this list."
+        },
+        "ZedScripts.fileDecorator": {
+          "type": "boolean",
+          "default": false,
+          "description": "Add a file decorator to ZedScripts files which will indicate they are ZedScripts files. Notably useful if you use an extension that overrides ZedScripts files icon but you still want an indicator that a file is a ZedScripts file."
         }
       }
     },
@@ -78,7 +83,11 @@
           "ZedScripts",
           "pz-scripts"
         ],
-        "configuration": "./src/language/ZedScripts.configuration.json"
+        "configuration": "./src/language/ZedScripts.configuration.json",
+        "icon": {
+          "dark": "icons/zombie.svg",
+          "light": "icons/zombie.svg"
+        }
       }
     ],
     "grammars": [

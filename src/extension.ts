@@ -1,9 +1,10 @@
 import * as vscode from "vscode";
 
-import { ConfigKeys, LANG_ZEDSCRIPTS, MainConfigName } from "./project";
+import { LANG_ZEDSCRIPTS } from "./project";
 import { ZedScriptsEnvironment } from "./workspace/environment";
 
 import { Commands } from "./models/Commands";
+import { MainConfigName, ConfigKeys } from "./models/ConfigKeys";
 
 import { DocumentBlock } from "./scriptsBlocks/blockTypes/document";
 
@@ -12,6 +13,7 @@ import { provideDefinition } from "./providers/definition";
 import { provideDocumentFormattingEdits } from "./providers/editing";
 import { PZCompletionItemProvider } from "./providers/completion";
 import { PZHoverProvider } from "./providers/hover";
+import { FILE_DECORATOR } from "./providers/fileDecoration";
 import { 
     reloadDocument, 
     resetScriptsCache, 
@@ -30,7 +32,7 @@ export let ZSEnv: ZedScriptsEnvironment;
 export async function activate(context: vscode.ExtensionContext) {
     log('Activating extension "project-zomboid-scripts"...');
     ZSEnv = new ZedScriptsEnvironment(context, DIAGNOSTIC_PROVIDER);
-    
+
     // show status bar
     ZSEnv.updateStatusBar();
     context.subscriptions.push(ZSEnv.statusBar);
@@ -45,15 +47,6 @@ export async function activate(context: vscode.ExtensionContext) {
     // these need to be loaded after because they may trigger events
     // during the loading of the libraries and workspace
     subscribeCallbacks(context);
-
-    // // handle the initially active document on startup
-    // if (vscode.window.activeTextEditor) {
-    //     diagnosticFile(
-    //         vscode.window.activeTextEditor.document,
-    //         DIAGNOSTIC_PROVIDER
-    //     );
-    //     loadDecorations(vscode.window.activeTextEditor.document);
-    // }
 
     log('Extension "project-zomboid-scripts" is now active!');
 }
@@ -90,8 +83,15 @@ function subscribeCommands(context: vscode.ExtensionContext) {
 function subscribeCallbacks(context: vscode.ExtensionContext) {
     // implement a file watcher to clear the cache of a DocumentBlock when a .txt file is deleted
     const watcher = vscode.workspace.createFileSystemWatcher("**/*.txt");
+    watcher.onDidCreate((uri) => {
+        FILE_DECORATOR.refresh(uri);
+    });
+    watcher.onDidChange((uri) => {
+        FILE_DECORATOR.refresh(uri);
+    });
     watcher.onDidDelete((uri) => {
         ZSEnv.clearCacheForUri(uri);
+        FILE_DECORATOR.refresh(uri);
         log(`Invalidated cache for : ${uri.fsPath}`);
     });
     
@@ -157,7 +157,7 @@ function subscribeCallbacks(context: vscode.ExtensionContext) {
         }),
 
 
-    // HELPERS
+    // PROVIDERS
 
         vscode.languages.registerCodeActionsProvider(
             LANG_ZEDSCRIPTS,
@@ -206,7 +206,11 @@ function subscribeCallbacks(context: vscode.ExtensionContext) {
         // apparently used when ctrl + click something
         vscode.languages.registerDefinitionProvider(LANG_ZEDSCRIPTS, {
             provideDefinition,
-        })
+        }),
+
+        // show badges in Explorer for recognized ZedScripts files
+        FILE_DECORATOR,
+        vscode.window.registerFileDecorationProvider(FILE_DECORATOR),
     );
 }
 
