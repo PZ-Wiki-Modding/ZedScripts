@@ -19,7 +19,7 @@ import {
 import { getScriptBlockData, getMainVariant } from "./scriptsBlocksUtility";
 
 import { DefaultText } from '../models/DefaultText';
-import { ThemeColorType } from "../models/ThemeColorType";
+import { ThemeColorScopes } from "../models/ThemeColorType";
 import { DiagnosticType } from "../models/DiagnosticType";
 
 import { diagnostic } from '../providers/diagnostic';
@@ -61,7 +61,7 @@ export class ScriptParameter {
     parameterRange: IndexRange;
     valueRange: IndexRange;
 
-    colorCode: ThemeColorType = ThemeColorType.PARAMETER;
+    colorCode: ThemeColorScopes = ThemeColorScopes.PARAMETER;
 
 // CONSTRUCTOR
     constructor(
@@ -108,7 +108,7 @@ export class ScriptParameter {
 
         if (depr) {
             parameter = "~~" + parameter + "~~";
-            const replacement = depr.replacedBy ? "**" + color(depr.replacedBy, ThemeColorType.PARAMETER) + "**" : null;
+            const replacement = depr.replacedBy ? "**" + color(depr.replacedBy, ThemeColorScopes.PARAMETER) + "**" : null;
             if (replacement) {
                 parameter += ` ${replacement}`;
             }
@@ -123,19 +123,19 @@ export class ScriptParameter {
             const type = parameterData.type
             if (type) {
                 const typeMain = type.main;
-                const operator = `${color(":", ThemeColorType.OPERATOR)}`;
-                const typeColored = `${color(typeMain, ThemeColorType.TYPE)}`;
+                const operator = `${color(":", ThemeColorScopes.OPERATOR)}`;
+                const typeColored = `${color(typeMain, ThemeColorScopes.TYPE)}`;
                 parameter += ` ${operator} ${typeColored}`;
 
                 // an array should 'type[]'
                 if (typeMain === ValueTypes.ARRAY) {
                     const arrayTypeData = this.getArrayTypeData()!;
                     const arrayType = type.array?.type || "string";
-                    const arrayTypeColored = `${color(arrayType, ThemeColorType.TYPE)}`;
+                    const arrayTypeColored = `${color(arrayType, ThemeColorScopes.TYPE)}`;
                     parameter += `[${arrayTypeColored}]`;
 
                     const separator = arrayTypeData.separator;
-                    parameter += ` (separator '${color(separator, ThemeColorType.TYPE)}')`;
+                    parameter += ` (separator '${color(separator, ThemeColorScopes.TYPE)}')`;
 
                 // an object should show 'type[keyType separator valueType]'
                 } else if (typeMain === ValueTypes.OBJECT) {
@@ -144,13 +144,13 @@ export class ScriptParameter {
                     const keyType = objectData.keyType;
                     const valueType = objectData.valueType;
                     
-                    const keyTypeColored = `${color(keyType, ThemeColorType.TYPE)}`;
-                    const valueTypeColored = `${color(valueType, ThemeColorType.TYPE)}`;
-                    parameter += `[${keyTypeColored}${color(keyValueSeparator, ThemeColorType.OPERATOR)}${valueTypeColored}]`;
+                    const keyTypeColored = `${color(keyType, ThemeColorScopes.TYPE)}`;
+                    const valueTypeColored = `${color(valueType, ThemeColorScopes.TYPE)}`;
+                    parameter += `[${keyTypeColored}${color(keyValueSeparator, ThemeColorScopes.OPERATOR)}${valueTypeColored}]`;
 
                     // this is the object key-values separator
                     const separator = objectData.pairsSeparator;
-                    parameter += ` (separator '${color(separator, ThemeColorType.TYPE)}')`;
+                    parameter += ` (separator '${color(separator, ThemeColorScopes.TYPE)}')`;
 
                 // a block should show the expected block type and if it is a full type or not
                 } else if (typeMain === ValueTypes.BLOCK) {
@@ -168,19 +168,19 @@ export class ScriptParameter {
             // default value information
             const defaultValue = parameterData.default;
             if (defaultValue) {
-                const operator = `${color("=", ThemeColorType.OPERATOR)}`;
+                const operator = `${color("=", ThemeColorScopes.OPERATOR)}`;
                 let text;
                 if (type) {
                     const typeMain = type.main;
-                    let colorType = ThemeColorType.STRING;
+                    let colorType = ThemeColorScopes.STRING;
                     // determine color based on type
                     switch (typeMain) {
                         case "integer":
                         case "float":
-                            text = color(String(defaultValue), ThemeColorType.NUMBER);
+                            text = color(String(defaultValue), ThemeColorScopes.NUMBER);
                             break;
                         case "boolean":
-                            text = color(String(defaultValue), ThemeColorType.BOOLEAN);
+                            text = color(String(defaultValue), ThemeColorScopes.BOOLEAN);
                             break;
                         case "array":
                         // case "object":
@@ -188,7 +188,7 @@ export class ScriptParameter {
                             if (Array.isArray(defaultValue) && defaultValue.length > 1) {
                                 const arrayTypeData = this.getArrayTypeData()!;
                                 const separator = arrayTypeData.separator;
-                                const coloredElements = (defaultValue as string[]).map(elem => color(elem, ThemeColorType.STRING));
+                                const coloredElements = (defaultValue as string[]).map(elem => color(elem, ThemeColorScopes.STRING));
                                 text = formatList(coloredElements, separator + " ");
                             }
                             break;
@@ -197,7 +197,7 @@ export class ScriptParameter {
                 
                 // default color as string if no type provided
                 } else {
-                    text = color(String(defaultValue), ThemeColorType.STRING)
+                    text = color(String(defaultValue), ThemeColorScopes.STRING)
                 }
                 const defaultValueColored = `${text}`;
                 parameter += ` ${operator} ${defaultValueColored}`;

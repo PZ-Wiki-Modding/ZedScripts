@@ -1,13 +1,19 @@
 import * as vscode from "vscode";
 import * as path from "path";
 
-import { DEFAULT_SCRIPT_BLOCKS} from '../project';
-
 export interface ScriptData {
     [key: string]: ScriptBlockData;
 }
 
-export let SCRIPTS_TYPES: ScriptData = require('../' + DEFAULT_SCRIPT_BLOCKS);
+// not using an import because it's easier to manage overall
+// also doesn't make it necessary to have the full type definition for ScriptData (supposedly ?)
+export const DEFAULT_SCRIPTS_BLOCKS_DATA: ScriptData = require('../pz-scripts-data/out/scriptsBlocks.json');
+export const DEFAULT_ROOTS_DATA: ScriptData = require('../pz-scripts-data/out/roots.json');
+
+// current active dataset
+export let SCRIPTS_TYPES: ScriptData = DEFAULT_SCRIPTS_BLOCKS_DATA as ScriptData;
+export let ROOT_FILES: ScriptData = DEFAULT_ROOTS_DATA as ScriptData;
+
 export enum ValueTypes {
     STRING = "string",
     INT = "integer",
@@ -154,11 +160,15 @@ export interface InputParameterData {
 }
 
 
-// FUNCTIONS AND FORMATTED DATA
-function mapScriptTypes(data: ScriptData): { [key: string]: ScriptBlockData } {
-    return Object.fromEntries(
-        Object.entries(data).map(([key, value]) => [key.toLowerCase(), value])
-    );
+/**
+ * Format the script data into a map for easier access and case insensitivity.
+ */
+function mapScriptTypes(data: ScriptData): Map<string, ScriptBlockData> {
+    const typeMap = new Map<string, ScriptBlockData>();
+    for (const [key, value] of Object.entries(data)) {
+        typeMap.set(key.toLowerCase(), value);
+    }
+    return typeMap;
 }
 
 // generates a regex pattern to match any script block line
@@ -173,20 +183,10 @@ export function initBlockRegex() {
     );
 }
 
-function mapRootFiles(data: ScriptData): ScriptBlockData[] {
-    return Object.values(data).filter(block => block.isRoot);
-}
-
-export let ROOT_FILES = mapRootFiles(SCRIPTS_TYPES);
-export function initRootFiles() {
-    ROOT_FILES = mapRootFiles(SCRIPTS_TYPES);
-    return;
-}
-
-export function setScriptsTypes(newTypes: ScriptData) {
-    SCRIPTS_TYPES = newTypes;
+export function setScriptsTypes(scriptsBlocks: ScriptData, rootFiles: ScriptData) {
+    SCRIPTS_TYPES = scriptsBlocks;
+    ROOT_FILES = rootFiles;
     initBlockRegex();
-    initRootFiles();
 }
 
 
@@ -194,7 +194,7 @@ export let DEFAULT_ROOT_FILE = "ROOT-Scripts";
 export function testForScriptRootFile(filePath: string): string | null{
     filePath = filePath.replace(/\\/g, '/');
     filePath = path.posix.normalize(filePath);
-    for (const rootFile of ROOT_FILES) {
+    for (const rootFile of Object.values(ROOT_FILES)) {
         for (const pattern of rootFile.pattern || []) {
             const regex = new RegExp(pattern);
             if (regex.test(filePath)) {

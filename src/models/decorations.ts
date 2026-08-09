@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 
 import { getColor } from "../utils/themeColors";
-import { ThemeColorType } from "./ThemeColorType";
+import { ThemeColorScopes } from "./ThemeColorType";
 
 const cachedDecorations = new Map<string, vscode.TextEditorDecorationType>();
 
@@ -12,7 +12,7 @@ export function createReferenceDecoration(refBlock: string): vscode.TextEditorDe
     }
 
     const decoration = vscode.window.createTextEditorDecorationType({
-        color: getColor(ThemeColorType.FULLTYPE),
+        color: getColor(ThemeColorScopes.FULLTYPE),
         // before: {
         //     contentText: refBlock + ':',
         //     color: 'rgba(150, 150, 150, 0.8)',

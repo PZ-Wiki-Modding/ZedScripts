@@ -14,7 +14,8 @@
   },
   "include": [
     "src/**/*.ts",
-    "src/pz-scripts-data/out/scriptBlocks.json"
+    "src/pz-scripts-data/out/scriptsBlocks.json",
+    "src/pz-scripts-data/out/roots.json"
   ],
   "exclude": [
     "node_modules",

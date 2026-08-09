@@ -1,3 +1,6 @@
+/**
+ * Used to store default text messages for various communications with the users.
+ */
 export enum DefaultText {
     SCRIPT_BLOCK_DESCRIPTION = "No description available for this script block.",
     PARAMETER_DESCRIPTION = "No description available for this parameter.",

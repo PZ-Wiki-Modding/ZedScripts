@@ -1,3 +1,8 @@
+/**
+ * Diagnostic keys and messages used for validating scripts.
+ * Each diagnstic can be deactivated via the extension settings 
+ * by providing the enum key.
+ */
 export enum DiagnosticType {
     // formatting related diagnostics
     MISSING_COMMA = "Missing comma.",

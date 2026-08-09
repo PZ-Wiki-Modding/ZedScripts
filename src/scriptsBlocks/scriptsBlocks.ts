@@ -8,7 +8,7 @@ import {
 import { PZWorkspace } from '../workspace/workspace';
 
 import { DefaultText } from '../models/DefaultText';
-import { ThemeColorType } from "../models/ThemeColorType";
+import { ThemeColorScopes } from "../models/ThemeColorType";
 import { DiagnosticType } from "../models/DiagnosticType";
 import { scriptBlockRegex, parameterRegex } from '../models/regexPatterns';
 
@@ -56,7 +56,7 @@ export class ScriptsBlock {
     lineEnd: number = 0;
     headerStart: number = 0;
 
-    colorCode: ThemeColorType = ThemeColorType.SCRIPT_BLOCK;
+    colorCode: ThemeColorScopes = ThemeColorScopes.SCRIPT_BLOCK;
 
 
 // CONSTRUCTOR

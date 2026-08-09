@@ -19,7 +19,7 @@ export function getScriptBlockData(blockType: string): ScriptBlockData {
     if (!isScriptBlock(blockType)) {
         throw new Error(`Block type ${blockType} is not a valid script block type. Ensure to check with isScriptBlock() before getting block data.`);
     }
-    const blockData =   SCRIPTS_TYPES_LOWER[blockType.toLowerCase()] as ScriptBlockData;
+    const blockData = SCRIPTS_TYPES_LOWER.get(blockType.toLowerCase()) as ScriptBlockData;
     return blockData;
 }
 
