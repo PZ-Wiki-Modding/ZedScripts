@@ -7,7 +7,7 @@ import { LANG_ZEDSCRIPTS } from "../project";
 
 
 export function isScriptBlock(word: string): boolean {
-    return word.toLowerCase() in SCRIPTS_TYPES_LOWER;
+    return SCRIPTS_TYPES_LOWER.has(word.toLowerCase());
 }
 
 /**
@@ -19,7 +19,7 @@ export function getScriptBlockData(blockType: string): ScriptBlockData {
     if (!isScriptBlock(blockType)) {
         throw new Error(`Block type ${blockType} is not a valid script block type. Ensure to check with isScriptBlock() before getting block data.`);
     }
-    const blockData =   SCRIPTS_TYPES_LOWER[blockType.toLowerCase()] as ScriptBlockData;
+    const blockData = SCRIPTS_TYPES_LOWER.get(blockType.toLowerCase()) as ScriptBlockData;
     return blockData;
 }
 
@@ -70,7 +70,7 @@ export function listRequiredParameters(blockType: string): ScriptBlockParameter[
 
 export function getMainVariant(blockType: string): string {
     const blockData = getScriptBlockData(blockType);
-    const variant = blockData.isVariant;
+    const variant = blockData.variantOf;
     if (variant) {
         return getMainVariant(variant);
     }
@@ -80,7 +80,7 @@ export function getMainVariant(blockType: string): string {
 export function getVariantTree(blockType: string): string[] {
     const tree: string[] = [];
     const blockData = getScriptBlockData(blockType);
-    const variant = blockData.isVariant;
+    const variant = blockData.variantOf;
     if (variant) {
         const treeVariant = getVariantTree(variant);
         tree.push(...treeVariant);

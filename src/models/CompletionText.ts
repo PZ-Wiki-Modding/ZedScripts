@@ -1,3 +1,6 @@
+/**
+ * Default completion elements used in the completion provider.
+ */
 export enum CompletionText {
     BLOCK = `<scriptBlock> <id>{\n`,
     END = '}',

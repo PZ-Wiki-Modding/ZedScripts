@@ -1,0 +1,36 @@
+name: Format Diagnostics List
+
+on:
+  schedule:
+    - cron: '0 0 * * *' # every day at midnight
+  pull_request:
+    branches: [main, dev]
+    paths:
+      - 'src/models/DiagnosticType.ts'
+      - 'chores/format_diagnostics_list.py'
+      - '.github/workflows/format_diagnostics_list.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6.0.0
+          
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.12.3'
+
+      - name: Run formatter
+        run: python chores/format_diagnostics_list.py
+
+      - name: Commit changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add DiagnosticTypesList.md
+          git diff --quiet && git diff --staged --quiet || (git commit -m "CHORE: update DiagnosticTypesList.md" && git push)

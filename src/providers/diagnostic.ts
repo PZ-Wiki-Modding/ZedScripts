@@ -1,9 +1,10 @@
 import * as vscode from "vscode";
 import { TextDocument, DiagnosticSeverity, Diagnostic, Range } from "vscode";
 
-import { ConfigKeys, EXTENSION_ID } from "../project";
+import { EXTENSION_ID } from "../project";
 import { PZWorkspace } from "../workspace/workspace";
 
+import { MainConfigName, ConfigKeys } from "../models/ConfigKeys";
 import { DiagnosticType } from "../models/DiagnosticType";
 import { createReferenceDecoration } from '../models/decorations';
 
@@ -91,7 +92,7 @@ export function diagnostic(
     // such as library files
     if (!diagnostics) { return false; }
 
-    const config = vscode.workspace.getConfiguration(EXTENSION_ID);
+    const config = vscode.workspace.getConfiguration(MainConfigName);
 
     // Skip all diagnostics if the master switch is on
     if (config.get(ConfigKeys.DISABLED_DIAGNOSTICS_ALL, false)) {
@@ -115,6 +116,8 @@ export function diagnostic(
         message,
         severity
     );
+    diagnostic.source = "ZedScripts";
+    diagnostic.code = diagnosticKey || "UNKNOWN";
     diagnostics.push(diagnostic);
     return diagnostic;
 }

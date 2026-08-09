@@ -42,7 +42,7 @@
         "ZedScripts.onlyUseLocalData": {
           "type": "boolean",
           "default": true,
-          "description": "Whether to only use local data for scripts."
+          "description": "Whether to only use local data for scripts. If turned off, the extension will attempt to download the latest scripts dataset from the pz-scripts-data repository. If the extension hasn't been updated in a while but the dataset yes, you may find this useful."
         },
         "ZedScripts.disabledDiagnostics": {
           "type": "array",
@@ -68,6 +68,11 @@
             ".+\\.tiles\\.txt"
           ],
           "description": "List of regex patterns of files to exclude from parsing. Preferably do not remove files from the default list or you risk getting into heavy loading times. Some irrelevant script files have also been added to this list."
+        },
+        "ZedScripts.fileDecorator": {
+          "type": "boolean",
+          "default": false,
+          "description": "Add a file decorator to ZedScripts files which will indicate they are ZedScripts files. Notably useful if you use an extension that overrides ZedScripts files icon but you still want an indicator that a file is a ZedScripts file."
         }
       }
     },
@@ -78,7 +83,11 @@
           "ZedScripts",
           "pz-scripts"
         ],
-        "configuration": "./src/language/ZedScripts.configuration.json"
+        "configuration": "./src/language/ZedScripts.configuration.json",
+        "icon": {
+          "dark": "icons/zombie.svg",
+          "light": "icons/zombie.svg"
+        }
       }
     ],
     "grammars": [
@@ -120,6 +129,10 @@
       {
         "command": "ZedScripts.exportScriptsBlocks",
         "title": "ZedScripts: Export to JSON"
+      },
+      {
+        "command": "ZedScripts.showDiagnosticTypes",
+        "title": "ZedScripts: Show Diagnostic IDs"
       }
     ]
   },

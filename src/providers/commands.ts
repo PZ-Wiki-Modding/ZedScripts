@@ -5,10 +5,9 @@ import { ZSEnv } from "../extension";
 import { PZWorkspace, WorkspaceType } from "../workspace/workspace";
 
 import { DefaultText } from "../models/DefaultText";
+import { DiagnosticType } from "../models/DiagnosticType";
 
 import { diagnosticFile, loadDecorations, DIAGNOSTIC_PROVIDER } from "./diagnostic";
-
-import { DocumentBlock } from "../scriptsBlocks/blockTypes/document";
 
 import { formatText } from "../utils/format";
 
@@ -65,5 +64,19 @@ export async function exportScriptsBlocks() {
         vscode.window.showErrorMessage(
             formatText(DefaultText.COMMAND_EXPORT_FAILED, { errorMessage: error.message })
         );
+    });
+}
+
+export function showDiagnosticTypes() {
+    const diagnosticTypes = Object.keys(DiagnosticType).map(key => ({
+        label: key,
+        description: DiagnosticType[key as keyof typeof DiagnosticType],
+    })).sort((a, b) => a.label.localeCompare(b.label));
+    vscode.window.showQuickPick(diagnosticTypes, {
+        placeHolder: DefaultText.COMMAND_DIAGNOSTIC_TYPES_QUICKPICK,
+    }).then(selected => {
+        if (selected) {
+            vscode.env.clipboard.writeText(selected.label);
+        }
     });
 }
