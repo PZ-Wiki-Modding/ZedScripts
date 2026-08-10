@@ -629,36 +629,6 @@ export class ScriptsBlock {
 
         const blockData = getScriptBlockData(this.scriptBlock) as ScriptBlockData;
 
-        // check should have parent
-        const shouldHaveParent = blockData.shouldHaveParent;
-        if (shouldHaveParent) {
-            if (!this.parent) {
-                const parentBlocks = blockData?.parents?.map(p => `'${p}'`).join(", ") || "unknown";
-                if (this.diagnostic(
-                    DiagnosticType.MISSING_PARENT_BLOCK,
-                    { scriptBlock: this.scriptBlock, parentBlocks: parentBlocks },
-                    this.headerStart
-                )) {
-                    return false;
-                }
-            }
-        
-        // shouldn't have parent
-        } else {
-            // but has one when shouldn't
-            if (this.parent && this.parent.scriptBlock !== DOCUMENT_IDENTIFIER) {
-                if (this.diagnostic(
-                    DiagnosticType.HAS_PARENT_BLOCK,
-                    { scriptBlock: this.scriptBlock }, 
-                    this.headerStart
-                )) {
-                    return false;
-                }
-            }
-            // all good, no parent as expected
-            return true;
-        }
-
         // check parent type
         const validParents = blockData.parents;
         if (validParents && this.parent) {
