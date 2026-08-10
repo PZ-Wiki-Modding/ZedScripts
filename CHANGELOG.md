@@ -1,4 +1,20 @@
 # Changelog
+1.14.0:
+- update root files handling to fit the new pz-scripts-data format and [Root Files](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/root_files.html) PZ API Docs
+- improved diagnostics
+  - diagnostics now use keys then metadata are retrieved
+  - this means tags are now supported (unecessary=greyed out, deprecated=crossed)
+  - next to diagnostics is now shown "ZedScripts" and the ID of the diagnostic
+  - list diagnostic types by using the new command "ZedScripts: Show Diagnostic IDs"
+  - the list of diagnostic IDs is now in [DiagnosticTypesList](DiagnosticTypesList.md) and is automatically generated every updates
+  - tweaked some diagnostics
+  - fixed duplicated diagnostics
+  - fixed disabling diagnostics not working properly
+- added icons to ZedScripts files (icon themes that add icons to .txt files will overwrite it)
+- added new configuration option to toggle file decorators (adds a "Z" marker next to files that are ZedScripts)
+- updated packages
+- fixed status bar tooltip showing "Loaded" when loading, now shows "Loading..."
+
 1.13.1:
 - fix translation diagnostics spamming errors
 - moved logging system to an output channel instead of console
