@@ -28,7 +28,6 @@ export async function diagnosticFile(document: TextDocument, diagnosticProvider:
     // }
     const documentBlock = await diagnosticProvider.updateDiagnostics(document);
     if (documentBlock) {
-        documentBlock.validateRecursive();
         const diagnostics = documentBlock.diagnostics;
         if (diagnostics) {
             diagnosticProvider.diagnosticCollection.set(document.uri, diagnostics);
