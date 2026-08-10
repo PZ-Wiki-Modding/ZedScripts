@@ -6,10 +6,10 @@ from pathlib import Path
 
 def extract_diagnostic_type_enum(file_path: str) -> dict:
     """
-    Extract DiagnosticType enum from TypeScript file and return as dictionary.
+    Extract DiagnosticType enum and DiagnosticMetadata from TypeScript file.
     
     Args:
-        file_path: Path to the enums.ts file
+        file_path: Path to the DiagnosticType.ts file
         
     Returns:
         Dictionary with diagnostic type names as keys and descriptions as values
@@ -17,23 +17,23 @@ def extract_diagnostic_type_enum(file_path: str) -> dict:
     with open(file_path, 'r', encoding='utf-8') as f:
         content = f.read()
     
-    # Find the DiagnosticType enum block
-    enum_pattern = r'export enum DiagnosticType\s*\{(.*?)\n\}'
-    enum_match = re.search(enum_pattern, content, re.DOTALL)
+    # Find the DiagnosticMetadata object block
+    metadata_pattern = r'export const DiagnosticMetadata.*?\{(.*?)\n\}'
+    metadata_match = re.search(metadata_pattern, content, re.DOTALL)
     
-    if not enum_match:
-        raise ValueError("Could not find DiagnosticType enum in file")
+    if not metadata_match:
+        raise ValueError("Could not find DiagnosticMetadata in file")
     
-    enum_content = enum_match.group(1)
+    metadata_content = metadata_match.group(1)
     
-    # Extract key-value pairs (ignoring comments and empty lines)
+    # Extract key-value pairs from metadata
+    # Pattern: [DiagnosticType.KEY]: { message: "value" }
     diagnostic_dict = {}
     
-    # Pattern to match: KEY = "value" or KEY = `value` or KEY = 'value'
-    # Uses backreference to match the same quote character at start and end
-    entry_pattern = r'([A-Z_]+)\s*=\s*(["`\'])(.*?)\2'
+    # Match: [DiagnosticType.KEY]: { message: "value", ... }
+    entry_pattern = r'\[DiagnosticType\.([A-Z_]+)\]:\s*\{\s*(?:tags.*?)?\s*message:\s*(["`])(.*?)\2'
     
-    matches = re.findall(entry_pattern, enum_content, re.DOTALL)
+    matches = re.findall(entry_pattern, metadata_content, re.DOTALL)
     for key, quote_char, value in matches:
         # Clean up whitespace in multi-line values
         cleaned_value = value.strip()

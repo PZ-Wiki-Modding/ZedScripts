@@ -494,17 +494,9 @@ export class ScriptsBlock {
             const index = match.index!;
 
             const nameRange = createIndexRange(this.start, index, fullMatch, name);
-
-            // const nameStart = this.start + index + fullMatch.indexOf(name);
-            // const nameEnd = nameStart + name.length;
-            // const nameRange: IndexRange = {start: nameStart, end: nameEnd};
-
             const valueRange = createIndexRange(this.start, index, fullMatch, value);
+            const commaRange = createIndexRange(this.start, index, fullMatch, comma);
             
-            // const valueStart = this.start + index + fullMatch.indexOf(value);
-            // const valueEnd = valueStart + value.length;
-            // const valueRange: IndexRange = {start: valueStart, end: valueEnd};
-
             // verify it is within this block and not in a child block
             if (!this.isIndexOf(nameRange.start) || !this.isIndexOf(nameRange.end - 1)) {
                 continue;
@@ -527,6 +519,7 @@ export class ScriptsBlock {
                 nameRange,
                 valueRange,
                 comma,
+                commaRange,
                 isDuplicate
             );
 

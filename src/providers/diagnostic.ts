@@ -5,7 +5,7 @@ import { EXTENSION_ID } from "../project";
 import { PZWorkspace } from "../workspace/workspace";
 
 import { MainConfigName, ConfigKeys } from "../models/ConfigKeys";
-import { DiagnosticType } from "../models/DiagnosticType";
+import { DiagnosticType, DiagnosticMetadata } from "../models/DiagnosticType";
 import { createReferenceDecoration } from '../models/decorations';
 
 import { DocumentBlock } from "../scriptsBlocks/blockTypes/document";
@@ -82,7 +82,7 @@ export const DIAGNOSTIC_PROVIDER = new DiagnosticProvider();
 export function diagnostic(
     document: TextDocument,
     diagnostics: Diagnostic[] | undefined,
-    type: DiagnosticType | string,
+    type: DiagnosticType,
     params: Record<string, string>,
     index_start: number, index_end: number = index_start,
     severity: DiagnosticSeverity = DiagnosticSeverity.Error
@@ -101,23 +101,28 @@ export function diagnostic(
 
     // Check if this diagnostic type is disabled in configuration
     const disabledDiagnostics: string[] = config.get(ConfigKeys.DISABLED_DIAGNOSTICS_LIST, []);
-    
-    // Find the key name for this diagnostic type value
-    const diagnosticKey = Object.entries(DiagnosticType).find(([_, value]) => value === type)?.[0];
-    if (diagnosticKey && disabledDiagnostics.includes(diagnosticKey)) {
-        return false; // Skip adding this diagnostic
+    if (disabledDiagnostics.includes(type as string)) {
+        return false;
     }
 
     const positionStart = document.positionAt(index_start);
     const positionEnd = document.positionAt(index_end);
-    const message = formatText(type, params);
+    
+    // Get the metadata for this diagnostic type
+    const metadata = DiagnosticMetadata[type];
+    const messageTemplate = metadata?.message || type;
+    const message = formatText(messageTemplate, params);
+    
     const diagnostic = new Diagnostic(
         new Range(positionStart, positionEnd),
         message,
         severity
     );
     diagnostic.source = "ZedScripts";
-    diagnostic.code = diagnosticKey || "UNKNOWN";
+    diagnostic.code = type;
+    if (metadata?.tags) {
+        diagnostic.tags = metadata.tags;
+    }
     diagnostics.push(diagnostic);
     return diagnostic;
 }

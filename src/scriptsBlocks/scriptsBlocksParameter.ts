@@ -60,6 +60,7 @@ export class ScriptParameter {
     // positions
     parameterRange: IndexRange;
     valueRange: IndexRange;
+    commaRange: IndexRange;
 
     colorCode: ThemeColorScopes = ThemeColorScopes.PARAMETER;
 
@@ -73,6 +74,7 @@ export class ScriptParameter {
         parameterRange: IndexRange,
         valueRange: IndexRange,
         comma: string,
+        commaRange: IndexRange,
         isDuplicate: boolean
     ) {
         this.document = document;
@@ -82,6 +84,7 @@ export class ScriptParameter {
         this.parameter = name;
         this.value = value;
         this.comma = comma;
+        this.commaRange = commaRange;
         this.isDuplicate = isDuplicate;
 
         this.parameterRange = parameterRange;
@@ -466,28 +469,35 @@ export class ScriptParameter {
         return null;
     }
 
-    public getDeprecatedInformation(deprecatedInfo: DeprecatedInfo): string {
+    public getDeprecatedInformation(deprecatedInfo: DeprecatedInfo): {params: Record<string, string>, diagnosticType: DiagnosticType} {
         const replacement = deprecatedInfo.replacedBy
-        const description = deprecatedInfo.description;
+        const description = deprecatedInfo.description || "";
         const version = deprecatedInfo.version;
         
         // format deprecation based on available information
-        let txt = "";
-        if (replacement && version) {
-            txt = formatText(DefaultText.DEPRECATION_REPLACEMENT_VERSION, { replacement, version });
-        } else if (replacement) {
-            txt = formatText(DefaultText.DEPRECATION_REPLACEMENT, { replacement });
-        } else if (version) {
-            txt = formatText(DefaultText.DEPRECATION_VERSION, { version });
-        } else {
-            txt = "This parameter is deprecated.";
+        let params: Record<string, string> = {description};
+        let diagnosticType: DiagnosticType;
+
+        // add replacement and version to params if available
+        if (replacement) {
+            params.replacement = replacement;
+        }
+        if (version) {
+            params.version = version;
         }
 
-        // add description if provided
-        if (description) {
-            txt += " " + description;
+        // select diagnostic type based on available information
+        if (replacement && version) {
+            diagnosticType = DiagnosticType.DEPRECATED_PARAMETER_REPLACEMENT_VERSION;
+        } else if (replacement) {
+            diagnosticType = DiagnosticType.DEPRECATED_PARAMETER_REPLACEMENT;
+        } else if (version) {
+            diagnosticType = DiagnosticType.DEPRECATED_PARAMETER_VERSION;
+        } else {
+            diagnosticType = DiagnosticType.DEPRECATED_PARAMETER;
         }
-        return txt;
+
+        return {params, diagnosticType};
     }
 
     /**
@@ -614,10 +624,10 @@ export class ScriptParameter {
         // verify if parameter is deprecated
         const depr = this.getDeprecated();
         if (depr) {
-            const txt = this.getDeprecatedInformation(depr);
+            const deprInfo = this.getDeprecatedInformation(depr);
             const diagnosticOutput = this.diagnostic(
-                txt,
-                {},
+                deprInfo.diagnosticType,
+                deprInfo.params,
                 this.parameterRange.start, this.parameterRange.end,
                 vscode.DiagnosticSeverity.Warning
             );
@@ -714,16 +724,16 @@ export class ScriptParameter {
                 const diagnosticOutput = this.diagnostic(
                     DiagnosticType.INVALID_COMMA,
                     {},
-                    this.parameterRange.start,
-                    this.valueRange.end + this.comma.length
+                    this.commaRange.start,
+                    this.commaRange.end
                 );
                 if (diagnosticOutput) {
                     // provide quick fix by replacing the invalid comma with a correct one
                     const fix = registerActionTextReplace(
                         this.document,
                         new vscode.Range(
-                            this.document.positionAt(this.valueRange.end),
-                            this.document.positionAt(this.valueRange.end + this.comma.length)
+                            this.document.positionAt(this.commaRange.start),
+                            this.document.positionAt(this.commaRange.end)
                         ),
                         ",",
                         `Replace invalid comma with a correct one`
@@ -853,11 +863,16 @@ export class ScriptParameter {
             // if full type is not allowed, then module should be null
             // this usually means the game considers it as Base by default
             if (!canFullType && module !== null) {
+                // find range of the module part in the value
+                const moduleLength = module.length;
+                const moduleStart = this.valueRange.start;
+                const moduleEnd = moduleStart + moduleLength;
+
                 this.diagnostic(
                     DiagnosticType.CANNOT_PROVIDE_MODULE,
                     { parameter: this.parameter },
-                    this.valueRange.start,
-                    this.valueRange.end,
+                    moduleStart,
+                    moduleEnd,
                     vscode.DiagnosticSeverity.Error
                 );
                 return false;
@@ -954,7 +969,7 @@ export class ScriptParameter {
                             dependentParameter: needsName
                         },
                         this.parameterRange.start,
-                        this.valueRange.end,
+                        this.parameterRange.end,
                         vscode.DiagnosticSeverity.Error
                     );
                 } else {
@@ -976,7 +991,7 @@ export class ScriptParameter {
                                     value: dependentParameter.value, 
                                     dependentValues: val
                                 },
-                                this.parameterRange.start,
+                                this.valueRange.start,
                                 this.valueRange.end,
                                 vscode.DiagnosticSeverity.Error
                             );
@@ -1033,7 +1048,7 @@ export class ScriptParameter {
     }
 
     private diagnostic(
-        type: DiagnosticType | string,
+        type: DiagnosticType,
         params: Record<string, string>,
         index_start: number,index_end?: number,
         severity: vscode.DiagnosticSeverity = vscode.DiagnosticSeverity.Error
