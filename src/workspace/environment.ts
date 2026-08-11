@@ -15,7 +15,7 @@ import { log } from '../utils/logger';
 
 
 interface StatusBarConfig {
-    readonly icon: string;
+    readonly text: string;
     readonly color?: vscode.ThemeColor;
     readonly backgroundColor?: vscode.ThemeColor;
 }
@@ -217,7 +217,7 @@ export class ZedScriptsEnvironment {
     public updateStatusBar(): void {
         // set current config
         const config = this.getStatusBarConfig();
-        this.statusBar.text = config.icon;
+        this.statusBar.text = config.text;
         this.statusBar.color = config.color;
         this.statusBar.backgroundColor = config.backgroundColor;
         // update tooltip
@@ -237,44 +237,44 @@ export class ZedScriptsEnvironment {
         const fileCounter = this.getFileCounter();
         const configs: Record<State, StatusBarConfig> = {
             [State.LAUNCHING]: { 
-                icon: "$(rocket) ZedScripts", 
+                text: "$(rocket) ZedScripts", 
                 // color: new vscode.ThemeColor("statusBarItem.warningBackground"),
             },
             [State.LOADING_DATA]: {
-                icon: "$(sync~spin) ZedScripts: data...", 
+                text: "$(sync~spin) ZedScripts: data...", 
                 color: new vscode.ThemeColor("statusBarItem.warningBackground"),
             },
             [State.PRE_LOADING_LIBRARIES]: {
-                icon: ("$(sync~spin) ZedScripts: pre-libraries... " + fileCounter).trim(), 
+                text: ("$(sync~spin) ZedScripts: pre-libraries... " + fileCounter).trim(), 
                 color: new vscode.ThemeColor("statusBarItem.warningBackground"),
             },
             [State.PRE_LOADING_WORKSPACE]: {
-                icon: ("$(sync~spin) ZedScripts: pre-workspace... " + fileCounter).trim(), 
+                text: ("$(sync~spin) ZedScripts: pre-workspace... " + fileCounter).trim(), 
                 color: new vscode.ThemeColor("statusBarItem.warningBackground"),
             },
             [State.LOADING_LIBRARIES]: {
-                icon: ("$(sync~spin) ZedScripts: libraries... " + fileCounter).trim(), 
+                text: ("$(sync~spin) ZedScripts: libraries... " + fileCounter).trim(), 
                 color: new vscode.ThemeColor("statusBarItem.warningBackground"),
             },
             [State.LOADING_WORKSPACE]: {
-                icon: ("$(sync~spin) ZedScripts: workspace... " + fileCounter).trim(), 
+                text: ("$(sync~spin) ZedScripts: workspace... " + fileCounter).trim(), 
                 color: new vscode.ThemeColor("statusBarItem.warningBackground"),
             },
             [State.LOADING_TRANSLATIONS]: {
-                icon: ("$(sync~spin) ZedScripts: translations... " + fileCounter).trim(), 
+                text: ("$(sync~spin) ZedScripts: translations... " + fileCounter).trim(), 
                 color: new vscode.ThemeColor("statusBarItem.warningBackground"),
             },
             [State.VALIDATING]: {
-                icon: ("$(sync~spin) ZedScripts: validating... " + fileCounter).trim(), 
+                text: ("$(sync~spin) ZedScripts: validating... " + fileCounter).trim(), 
                 color: new vscode.ThemeColor("statusBarItem.warningBackground"),
             },
             [State.RUNNING]: {
-                icon: "$(check) ZedScripts", 
+                text: "$(check) ZedScripts", 
                 color: new vscode.ThemeColor("statusBarItem.foreground"),
             },
             // [State.ERROR]: { icon: "$(error) ZedScripts", color: new vscode.ThemeColor("statusBarItem.errorBackground") },
             [State.STOPPED]: {
-                icon: "$(debug-stop) ZedScripts", 
+                text: "$(debug-stop) ZedScripts", 
                 color: new vscode.ThemeColor("statusBarItem.errorBackground"),
             }
         };
