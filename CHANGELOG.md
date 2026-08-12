@@ -1,4 +1,8 @@
 # Changelog
+1.15.0:
+- added annotations
+- tweaked some highlights
+
 1.14.0:
 - update root files handling to fit the new pz-scripts-data format and [Root Files](https://pz-wiki-modding.github.io/PZ-API-Docs/scripts/root_files.html) PZ API Docs
 - improved diagnostics

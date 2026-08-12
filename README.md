@@ -87,6 +87,8 @@ block ID
 | `@diagnostic-off:<DIAGNOSTIC_ID1>,<DIAGNOSTIC_ID2>` | Disables specific diagnostics for the block or parameter | ✅      | ✅          |
 | `@soft-override` (WIP)                              | Marks a block as a soft override of an existing block    | ✅      | ❌          |
 
+> [!CAUTION]
+> Do not disable diagnostics without a good reason, as they are important and point to actual issues in your scripts. Only use them for false positives.
 
 ### Data Sources
 > [!CAUTION]
