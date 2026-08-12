@@ -19,7 +19,7 @@ import { ScriptParameter } from './scriptsBlocksParameter';
 import { ScriptBlockData, TranslationProperties, TranslationLocation } from './scriptsBlocksData';
 import { getScriptBlockData, getVariantTree, getMainVariant, isScriptBlock } from './scriptsBlocksUtility';
 
-import { formatText, getIndentation } from '../utils/format';
+import { formatText, formatList, getIndentation } from '../utils/format';
 import { color } from "../utils/themeColors";
 import { createIndexRange, replaceCommentsWithWhitespace } from '../utils/positions';
 import { log } from '../utils/logger';
@@ -50,11 +50,12 @@ export class ScriptsBlock {
     translation: TranslationLocation | undefined = undefined;
 
     // positions
-    start: number = 0;
-    end: number = 0;
+    braceStart: number = 0;
+    braceEnd: number = 0;
+    blockStart: number = 0;
+    idStart: number = 0;
     lineStart: number = 0;
     lineEnd: number = 0;
-    headerStart: number = 0;
 
     colorCode: ThemeColorScopes = ThemeColorScopes.SCRIPT_BLOCK;
 
@@ -66,20 +67,22 @@ export class ScriptsBlock {
         parent: ScriptsBlock | null,
         type: string,
         id: string | null,
-        start: number,
-        end: number,
-        headerStart: number
+        braceStart: number,
+        braceEnd: number,
+        blockStart: number,
+        idStart: number
     ) {
         this.document = document;
         this.diagnostics = diagnostics;
         this.parent = parent;
         this.scriptBlock = type;
         this.id = id;
-        this.start = start;
-        this.end = end;
-        this.headerStart = headerStart;
-        this.lineStart = document.positionAt(this.start).line;
-        this.lineEnd = document.positionAt(this.end).line;
+        this.braceStart = braceStart;
+        this.braceEnd = braceEnd;
+        this.blockStart = blockStart;
+        this.idStart = idStart;
+        this.lineStart = document.positionAt(this.braceStart).line;
+        this.lineEnd = document.positionAt(this.braceEnd).line;
     }
 
     /** A document root will always be found */
@@ -92,8 +95,8 @@ export class ScriptsBlock {
         return new vscode.Location(
             this.document.uri,
             new vscode.Range(
-                this.document.positionAt(this.headerStart),
-                this.document.positionAt(this.end)
+                this.document.positionAt(this.blockStart),
+                this.document.positionAt(this.braceEnd)
             )
         );
     }
@@ -115,13 +118,13 @@ export class ScriptsBlock {
 
     public isIndexOf(index: number): boolean {
         // check if in main block
-        if (index < this.start || index >= this.end) {
+        if (index < this.braceStart || index >= this.braceEnd) {
             return false;
         }
 
         // check if in any child block
         for (const child of this.children) {
-            if (index >= child.start && index < child.end) {
+            if (index >= child.braceStart && index < child.braceEnd) {
                 return false;
             }
         }
@@ -328,7 +331,7 @@ export class ScriptsBlock {
         const indentation = indentBase.repeat(depthLevel);
 
         // get header position
-        const lineStartNumber = this.document.positionAt(this.headerStart).line;
+        const lineStartNumber = this.document.positionAt(this.blockStart).line;
         const lineStart = this.document.lineAt(lineStartNumber).range.start;
 
         // retrieve block edits, that is the scriptBlock + ID
@@ -336,7 +339,7 @@ export class ScriptsBlock {
         const blockHeader = `${indentation}${this.scriptBlock}${this.id ? " " + this.id : ""} {`;
         const currentHeaderRange = new vscode.Range(
             lineStart,
-            this.document.positionAt(this.start)
+            this.document.positionAt(this.braceStart)
         );
         const headerEdit = vscode.TextEdit.replace(currentHeaderRange, blockHeader);
         edits.push(headerEdit);
@@ -405,7 +408,7 @@ export class ScriptsBlock {
 
         const blockHeader = scriptBlockRegex;
         let match: RegExpExecArray | null;
-        let searchPos = this.start;
+        let searchPos = this.braceStart;
 
         while (searchPos < text.length) {
             // find the first script block
@@ -416,13 +419,14 @@ export class ScriptsBlock {
             // retrieve the match informations
             const blockType = match[1];
             const id = match[2].trim();
-            const headerStart = match.index + match[0].indexOf(blockType); // position of the block keyword
+            const blockStart = match.index + match[0].indexOf(blockType); // position of the block keyword
+            const idStart = match.index + match[0].indexOf(id); // position of the ID, if any
             const braceStart = blockHeader.lastIndex - 1; // position of the '{'
 
             // stop if the block is outside the current block
             let braceCount = 1;
             let i = braceStart + 1;
-            if (i >= this.end) {
+            if (i >= this.braceEnd) {
                 break;
             }
 
@@ -438,7 +442,7 @@ export class ScriptsBlock {
                 if (this.diagnostic(
                     DiagnosticType.UNMATCHED_BRACE,
                     { scriptBlock: blockType },
-                    headerStart
+                    blockStart
                 )) {
                     break;
                 }
@@ -457,13 +461,14 @@ export class ScriptsBlock {
                 id || null,
                 startOffset,
                 endOffset,
-                headerStart
+                blockStart,
+                idStart
             );
             children.push(childBlock);
             searchPos = endOffset;
         
             // stop if we reached the end of this block
-            if (searchPos >= this.end) {
+            if (searchPos >= this.braceEnd) {
                 break;
             }
         }
@@ -481,7 +486,7 @@ export class ScriptsBlock {
     protected findParameters(): ScriptParameter[] {
         const document = this.document;
         const text = replaceCommentsWithWhitespace(
-            document.getText().slice(this.start, this.end)
+            document.getText().slice(this.braceStart, this.braceEnd)
         );
 
         const parameters: ScriptParameter[] = [];
@@ -498,9 +503,9 @@ export class ScriptsBlock {
 
             const index = match.index!;
 
-            const nameRange = createIndexRange(this.start, index, fullMatch, name);
-            const valueRange = createIndexRange(this.start, index, fullMatch, value);
-            const commaRange = createIndexRange(this.start, index, fullMatch, comma);
+            const nameRange = createIndexRange(this.braceStart, index, fullMatch, name);
+            const valueRange = createIndexRange(this.braceStart, index, fullMatch, value);
+            const commaRange = createIndexRange(this.braceStart, index, fullMatch, comma);
             
             // verify it is within this block and not in a child block
             if (!this.isIndexOf(nameRange.start) || !this.isIndexOf(nameRange.end - 1)) {
@@ -576,6 +581,17 @@ export class ScriptsBlock {
         return result || null;
     }
 
+
+// DIAGNOSTICS CONFIGURATION
+
+    protected loadAnnotations(): void {
+        // the line before the position of the scriptBlock is the annotation line
+        // uses format /*@annotation:value*/
+        const annotationLineNumber = this.document.positionAt(this.blockStart).line - 1;
+    }
+
+
+
 // CHECKERS
 
     public shouldValidate(): boolean {
@@ -595,7 +611,7 @@ export class ScriptsBlock {
             this.diagnostic(
                 DiagnosticType.NOT_VALID_BLOCK,
                 { scriptBlock: type },
-                this.headerStart
+                this.blockStart
             );
             return false;
         }
@@ -635,7 +651,7 @@ export class ScriptsBlock {
                 if (this.diagnostic(
                     DiagnosticType.WRONG_PARENT_BLOCK,
                     { scriptBlock: this.scriptBlock, parentBlock: parentType, parentBlocks: validParents.map(p => `'${p}'`).join(", ") },
-                    this.headerStart
+                    this.blockStart
                 )) {
                     return false;
                 }
@@ -661,8 +677,8 @@ export class ScriptsBlock {
                     if (this.diagnostic(
                         DiagnosticType.MISSING_CHILD_BLOCK,
                         { scriptBlock: this.scriptBlock, childBlocks: validChildren.map(p => `'${p}'`).join(", ") },
-                        this.headerStart,
-                        this.headerStart,
+                        this.blockStart,
+                        this.blockStart,
                         vscode.DiagnosticSeverity.Hint
                     )) {
                         return false;
@@ -692,7 +708,7 @@ export class ScriptsBlock {
                 if (this.diagnostic(
                     DiagnosticType.HAS_ID,
                     { scriptBlock: this.scriptBlock }, 
-                    this.headerStart
+                    this.idStart, this.idStart + id.length
                 )) {
                     return false;
                 }
@@ -721,7 +737,7 @@ export class ScriptsBlock {
             const diagnosticOutput = this.diagnostic(
                 DiagnosticType.MISSING_ID,
                 { scriptBlock: this.scriptBlock }, 
-                this.headerStart
+                this.blockStart
             );
             
             if (diagnosticOutput) {
@@ -729,15 +745,15 @@ export class ScriptsBlock {
                 const fix = registerActionTextReplace(
                     this.document,
                     new vscode.Range(
-                        this.document.positionAt(this.headerStart),
-                        this.document.positionAt(this.headerStart)
+                        this.document.positionAt(this.blockStart),
+                        this.document.positionAt(this.blockStart)
                     ),
                     `${this.scriptBlock} ${newID}`, // placeholder text for the ID
                     "Add an ID to the script block"
                 );
                 this.registerFix(fix, diagnosticOutput, new vscode.Range(
-                    this.document.positionAt(this.headerStart),
-                    this.document.positionAt(this.headerStart)
+                    this.document.positionAt(this.blockStart),
+                    this.document.positionAt(this.blockStart)
                 ));
                 return false;
             }
@@ -752,8 +768,8 @@ export class ScriptsBlock {
                     { 
                         scriptBlock: this.scriptBlock, 
                         parentBlock: this.parent ? this.parent.scriptBlock : "unknown", 
-                        invalidBlocks: invalidBlocks ? invalidBlocks.map(p => `'${p}'`).join(", ") : "unknown" }, 
-                    this.headerStart
+                        invalidBlocks: invalidBlocks ? formatList(invalidBlocks) : "unknown" }, 
+                    this.idStart, this.idStart + id.length
                 )) {
                     return false;
                 }
@@ -763,22 +779,22 @@ export class ScriptsBlock {
             if (!IDData.canHaveSpace && id && id.includes(" ")) {
                 if (this.diagnostic(
                     DiagnosticType.ID_CANNOT_CONTAIN_SPACES,
-                    { scriptBlock: this.scriptBlock, id: id },
-                    this.headerStart
+                    { scriptBlock: this.scriptBlock, id: id }, 
+                    this.idStart, this.idStart + id.length
                 )) {
                     return false;
                 }
             }
 
-            // check if the ID has one or more valid value
+            // check if the ID has a valid value
             const validIDs = IDData.values;
             if (validIDs) {
                 // verify the ID is valid
                 if (!validIDs.includes(id)) {
                     if (this.diagnostic(
                         DiagnosticType.INVALID_ID,
-                        { scriptBlock: this.scriptBlock, id: id, validIDs: validIDs.map(p => `'${p}'`).join(", ") },
-                        this.headerStart
+                        { scriptBlock: this.scriptBlock, id: id, validIDs: formatList(validIDs) },
+                        this.idStart, this.idStart + id.length
                     )) {
                         return false;
                     }
@@ -806,7 +822,7 @@ export class ScriptsBlock {
                         translationKey: info.translationKey,
                         sourceFile: info.sourceFile + '.json',
                     },
-                    this.headerStart, this.headerStart + this.scriptBlock.length + 1 + id.length
+                    this.idStart, this.idStart + id.length
                 )) {
                     return false;
                 }
@@ -817,6 +833,8 @@ export class ScriptsBlock {
     }
 
     public validateRecursive(): void {
+        // load configurations
+
         // skip validation if diagnostics are not enabled
         if (!this.shouldValidate()) { return; }
 
@@ -883,11 +901,11 @@ export class ScriptsBlock {
             isValid: this.isValid,
             originalScriptBlock: this.originalScriptBlock,
             positions: {
-                start: this.start,
-                end: this.end,
+                start: this.braceStart,
+                end: this.braceEnd,
                 lineStart: this.lineStart,
                 lineEnd: this.lineEnd,
-                headerStart: this.headerStart
+                headerStart: this.blockStart
             },
             parameters: this.parameters.map(param => param.export()),
             children: this.children.map(child => child.export())
@@ -909,9 +927,10 @@ export class IgnoreAll extends ScriptsBlock {
         id: string | null,
         start: number,
         end: number,
-        headerStart: number
+        headerStart: number,
+        idStart: number
     ) {
-        super(document, diagnostics, parent, type, id, start, end, headerStart);
+        super(document, diagnostics, parent, type, id, start, end, headerStart, idStart);
     }
 
     protected findChildBlocks(): ScriptsBlock[] { 
@@ -933,7 +952,6 @@ import { TemplateBlock } from './blockTypes/template';
 import { ComponentBlock } from './blockTypes/component';
 import { ImportsBlock } from './blockTypes/imports';
 import { InputsBlock } from './blockTypes/inputs';
-import { ItemBlock } from './blockTypes/item';
 // import { ItemMapperBlock } from './blockTypes/itemMapper';
 
 // ASSIGNED CLASSES FOR SCRIPT BLOCK TYPES
@@ -943,7 +961,6 @@ assignedClasses.set("template", TemplateBlock);
 assignedClasses.set("component", ComponentBlock);
 assignedClasses.set("imports", ImportsBlock);
 assignedClasses.set("inputs", InputsBlock);
-assignedClasses.set("item", ItemBlock);
 // assignedClasses.set("itemMapper", ItemMapperBlock);
 
 // TODO: needs to implement properly, for now disable those

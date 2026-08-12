@@ -29,7 +29,8 @@ export class DocumentBlock extends ScriptsBlock {
         const id = null;
         const start = 0;
         const end = document.getText().length;
-        super(document, diagnostics, parent, type, id, start, end, start);
+        const idStart = 0;
+        super(document, diagnostics, parent, type, id, start, end, start, idStart);
 
         this.workspace = workspace;
         this.version = version;
@@ -85,14 +86,14 @@ export class DocumentBlock extends ScriptsBlock {
 
     public getBlock(index: number): ScriptsBlock | null {
         // check if index is within this document
-        if (index < this.headerStart || index >= this.end) {
+        if (index < this.blockStart || index >= this.braceEnd) {
             return this;
         }
 
         // recursive search for the block containing the index
         const searchBlock = (block: ScriptsBlock, level: number = 0): ScriptsBlock | null => {
             for (const child of block.children) {
-                if (index >= child.headerStart && index < child.end) {
+                if (index >= child.blockStart && index < child.braceEnd) {
                     // found a child containing the index, search deeper
                     const found = searchBlock(child, level + 1);
                     return found || child;
@@ -184,7 +185,7 @@ export class DocumentBlock extends ScriptsBlock {
     protected validateBlock(): boolean { 
         // count { } pairs to catch extra ones
         let count = 0;
-        for (let i = this.start; i < this.end; i++) {
+        for (let i = this.braceStart; i < this.braceEnd; i++) {
             const char = this.document.getText(new vscode.Range(this.document.positionAt(i), this.document.positionAt(i + 1)));
             if (char === '{') {
                 count++;

@@ -13,15 +13,16 @@ export class ImportsBlock extends ScriptsBlock {
         id: string | null,
         start: number,
         end: number,
-        headerStart: number
+        headerStart: number,
+        idStart: number
     ) {
-        super(document, diagnostics, parent, type, id, start, end, headerStart);
+        super(document, diagnostics, parent, type, id, start, end, headerStart, idStart);
     
         this.findImports();
     }
 
     private findImports(): void {
-        const text = this.document.getText().slice(this.start, this.end);
+        const text = this.document.getText().slice(this.braceStart, this.braceEnd);
         
         // split by whitespace
         const parts = text.split(/\s+/);

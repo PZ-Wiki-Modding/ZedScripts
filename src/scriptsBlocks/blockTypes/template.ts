@@ -11,7 +11,8 @@ export class TemplateBlock extends ScriptsBlock {
         id: string | null,
         start: number,
         end: number,
-        headerStart: number
+        headerStart: number,
+        idStart: number
     ) {
         const splittedID = id ? id.split(" ") : null;
         if (splittedID) {
@@ -19,7 +20,7 @@ export class TemplateBlock extends ScriptsBlock {
             id = splittedID.slice(1).join(" ") || null;
         }
         
-        super(document, diagnostics, parent, type, id, start, end, headerStart);
+        super(document, diagnostics, parent, type, id, start, end, headerStart, idStart);
         this.isTemplate = true;
     }
 }

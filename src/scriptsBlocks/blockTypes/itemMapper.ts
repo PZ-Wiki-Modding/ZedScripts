@@ -11,9 +11,10 @@ export class ItemMapperBlock extends ScriptsBlock {
         id: string | null,
         start: number,
         end: number,
-        headerStart: number
+        headerStart: number,
+        idStart: number
     ) {
-        super(document, diagnostics, parent, type, id, start, end, headerStart);
+        super(document, diagnostics, parent, type, id, start, end, headerStart, idStart);
     }
 
     public canHaveParameter(name: string): boolean {

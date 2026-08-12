@@ -17,9 +17,10 @@ export class InputsBlock extends ScriptsBlock {
         id: string | null,
         start: number,
         end: number,
-        headerStart: number
+        headerStart: number,
+        idStart: number
     ) {
-        super(document, diagnostics, parent, type, id, start, end, headerStart);
+        super(document, diagnostics, parent, type, id, start, end, headerStart, idStart);
     }
 
     public search(): void {
@@ -31,7 +32,7 @@ export class InputsBlock extends ScriptsBlock {
 
     protected findProperties(): InputsParameter[] {
         const document = this.document;
-        const text = document.getText().slice(this.start, this.end);
+        const text = document.getText().slice(this.braceStart, this.braceEnd);
 
         const parameters: InputsParameter[] = [];
 
@@ -50,15 +51,15 @@ export class InputsBlock extends ScriptsBlock {
             const index = match.index!;
 
             // retrieve the positions
-            const nameStart = this.start + index + fullMatch.indexOf(name);
+            const nameStart = this.braceStart + index + fullMatch.indexOf(name);
             const nameEnd = nameStart + name.length;
             const nameRange: IndexRange = {start: nameStart, end: nameEnd};
 
-            const amountStart = this.start + index + fullMatch.indexOf(amount);
+            const amountStart = this.braceStart + index + fullMatch.indexOf(amount);
             const amountEnd = amountStart + amount.length;
             const amountRange: IndexRange = {start: amountStart, end: amountEnd};
             
-            const valuesStart = this.start + index + fullMatch.indexOf(values);
+            const valuesStart = this.braceStart + index + fullMatch.indexOf(values);
             const valuesEnd = valuesStart + values.length;
             const valuesRange: IndexRange = {start: valuesStart, end: valuesEnd};
 
