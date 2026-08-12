@@ -3,7 +3,7 @@
   "patterns": [
     {
       "name": "entity.name.recipe.pz",
-      "match": "^\\s*(\\w+)\\s+(|[\\w !*.:\/]+)(?:\\s*{|)\\s*$",
+      "match": "^\\s*(\\w+)\\s+(|[\\w !*.:\/]+?)(?:\\s*{|)\\s*$",
       "captures": {
         "1": { "name": "keyword.control" },
         "2": { "name": "entity.name.class" }
@@ -32,7 +32,26 @@
     {
       "name": "comment.block.pz",
       "begin": "/\\*",
-      "end": "\\*/"
+      "end": "\\*/",
+      "patterns": [
+        {
+          "match": "(?<=(?:^|\\s*)\\*)(@[\\w-]+)(:)?",
+          "captures": {
+            "1": { "name": "variable.parameter" },
+            "2": { "name": "keyword.operator.assignment.pz" }
+          }
+        },
+        {
+          "match": "(?<=[:,]{1})[\\w]+(?=[,]\\s{0}|\\s*$|\\s*[\\S\\s]*\\*\\/)",
+          "name": "constant.numeric.pz"
+        },
+        {
+          "match": "(?<=\\w+)(,)(?=\\w+)",
+          "captures": {
+            "0": { "name": "keyword.operator.assignment.pz" }
+          }
+        }
+      ]
     },
     {
       "name": "invalid.illegal.comment.double-slash.pz",

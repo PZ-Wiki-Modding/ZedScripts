@@ -11,6 +11,7 @@ import { DefaultText } from '../models/DefaultText';
 import { ThemeColorScopes } from "../models/ThemeColorType";
 import { DiagnosticType } from "../models/DiagnosticType";
 import { scriptBlockRegex, parameterRegex } from '../models/regexPatterns';
+import { Annotations, AnnotationType, annotationPattern } from '../models/AnnotationType';
 
 import { diagnostic } from '../providers/diagnostic';
 import { registerActionTextReplace } from '../providers/actions';
@@ -48,13 +49,20 @@ export class ScriptsBlock {
     isTemplate: boolean = false;
     isValid: boolean = true; // whether this block passed the validation checks
     translation: TranslationLocation | undefined = undefined;
+    annotations: Annotations | null = null;
 
     // positions
+    /** Position of the opening curly brace */
     braceStart: number = 0;
+    /** Position of the closing curly brace */
     braceEnd: number = 0;
+    /** Position of the block type */
     blockStart: number = 0;
+    /** Position of the block ID */
     idStart: number = 0;
+    /** Line of the opening curly brace */
     lineStart: number = 0;
+    /** Line of the closing curly brace */
     lineEnd: number = 0;
 
     colorCode: ThemeColorScopes = ThemeColorScopes.SCRIPT_BLOCK;
@@ -81,7 +89,7 @@ export class ScriptsBlock {
         this.braceEnd = braceEnd;
         this.blockStart = blockStart;
         this.idStart = idStart;
-        this.lineStart = document.positionAt(this.braceStart).line;
+        this.lineStart = document.positionAt(this.blockStart).line;
         this.lineEnd = document.positionAt(this.braceEnd).line;
     }
 
@@ -123,6 +131,8 @@ export class ScriptsBlock {
         }
 
         // check if in any child block
+        // the reason we don't reuse isIndexOf of the children is that we
+        // don't need to check beyond the first level of children
         for (const child of this.children) {
             if (index >= child.braceStart && index < child.braceEnd) {
                 return false;
@@ -449,9 +459,7 @@ export class ScriptsBlock {
             }
 
             // create the child block
-            const blockEnd = i + 1; // position after the '}'
-            const startOffset = braceStart + 1;
-            const endOffset = blockEnd;
+            const braceEnd = i + 1; // position after the '}'
             const blockClass = assignedClasses.get(blockType) || ScriptsBlock;
             const childBlock = new blockClass(
                 document,
@@ -459,13 +467,13 @@ export class ScriptsBlock {
                 this,
                 blockType,
                 id || null,
-                startOffset,
-                endOffset,
+                braceStart,
+                braceEnd,
                 blockStart,
                 idStart
             );
             children.push(childBlock);
-            searchPos = endOffset;
+            searchPos = braceEnd;
         
             // stop if we reached the end of this block
             if (searchPos >= this.braceEnd) {
@@ -582,12 +590,126 @@ export class ScriptsBlock {
     }
 
 
-// DIAGNOSTICS CONFIGURATION
+// DIAGNOSTICS ANNOTATIONS
+
+    /**
+     * Checks if the user has marked this block to ignore a specific diagnostic type.
+     */
+    public shouldIgnoreDiagnostic(diagnosticType: DiagnosticType): boolean {
+        if (!this.annotations) {
+            return false;
+        }
+        return this.annotations.annotations.diagnosticsOff.includes(diagnosticType);
+    }
+
+    /**
+     * Whenever the user marked this block as a soft override, which is used to ignore
+     * specific diagnostics for this block.
+     */
+    public isSoftOverride(): boolean {
+        if (!this.annotations) {
+            return false;
+        }
+        return this.annotations.annotations.softOverride;
+    }
+
+    private getAnnotations(document: vscode.TextDocument, startPosition: number, endPosition: number, startLine: number, endLine: number): Annotations {
+        const text = document.getText(new vscode.Range(
+            document.positionAt(startPosition),
+            document.positionAt(endPosition)
+        ));
+    
+        // at each line, look for the annotations
+        const annotations = {
+            diagnosticsOff: [] as DiagnosticType[],
+            softOverride: false,
+        }
+        const matches = text.matchAll(annotationPattern);
+        for (const match of matches) {
+            const type = match.groups?.type;
+            const value = match.groups?.value;
+    
+            if (type === AnnotationType.DIAGNOSTIC_OFF && value) {
+                const splitted = value.split(',');
+                for (const val of splitted) {
+                    const diagnosticType = DiagnosticType[val as keyof typeof DiagnosticType];
+                    if (diagnosticType && !annotations.diagnosticsOff.includes(diagnosticType)) {
+                        annotations.diagnosticsOff.push(diagnosticType);
+                    }
+                }
+            } else if (type === AnnotationType.SOFT_OVERRIDE) {
+                annotations.softOverride = true;
+            }
+        }
+    
+        return {
+            sourceFile: this.document.fileName,
+            startIndex: startPosition,
+            endIndex: endPosition,
+            startLine: startLine,
+            endLine: endLine,
+            annotations: annotations
+        };
+    }
 
     protected loadAnnotations(): void {
-        // the line before the position of the scriptBlock is the annotation line
-        // uses format /*@annotation:value*/
-        const annotationLineNumber = this.document.positionAt(this.blockStart).line - 1;
+        this.annotations = null;
+
+        // the line before blockStart is the annotation line
+        const endLine = this.lineStart - 1;
+        
+        // we need to skip if the line is out of bounds
+        if (endLine < 0) {
+            return;
+        }
+
+        // searching for the comment block
+        // we start at the end of the line and find a pattern */
+        // if we find it, we look for the start /*
+        
+        // to do that we use a Regex to find the end of the comment block
+        const pattern = /\*\//g;
+        const endLineText = this.document.lineAt(endLine).text;
+        const match = pattern.exec(endLineText);
+        if (!match) {
+            // there's no comment block associated to this script block
+            // no annotations to load
+            return;
+        }
+
+        const lineStartIndex = this.document.offsetAt(new vscode.Position(endLine, 0));
+        const endPosition = lineStartIndex + match.index + match[0].length;
+        
+        // we found the end of a comment block the line before
+        // we go line by line upwards to find the start of the comment block
+        let startLine = endLine;
+        let foundStart = false;
+        while (startLine >= 0) {
+            const lineText = this.document.lineAt(startLine).text;
+            if (lineText.includes('/*')) {
+                foundStart = true;
+                break;
+            }
+            startLine--;
+        }
+
+        if (!foundStart) {
+            // we didn't find the start of the comment block
+            return;
+        }
+
+        // find start exact position via a regex
+        const startLineText = this.document.lineAt(startLine).text;
+        const startPattern = /\/\*/g;
+        const startMatch = startPattern.exec(startLineText);
+        if (!startMatch) {
+            return;
+        }
+
+        const startLineIndex = this.document.offsetAt(new vscode.Position(startLine, 0));
+        const startPosition = startLineIndex + startMatch.index;
+
+        this.annotations = this.getAnnotations(this.document, startPosition, endPosition, startLine, endLine);
     }
 
 
@@ -833,7 +955,8 @@ export class ScriptsBlock {
     }
 
     public validateRecursive(): void {
-        // load configurations
+        // load annotations
+        this.loadAnnotations();
 
         // skip validation if diagnostics are not enabled
         if (!this.shouldValidate()) { return; }
@@ -880,6 +1003,11 @@ export class ScriptsBlock {
         index_start: number,index_end?: number,
         severity: vscode.DiagnosticSeverity = vscode.DiagnosticSeverity.Error
     ): vscode.Diagnostic | false {
+        // if has annotations, then check if type should be ignored
+        if (this.shouldIgnoreDiagnostic(type)) {
+            return false;
+        }
+
         return diagnostic(
             this.document,
             this.diagnostics,

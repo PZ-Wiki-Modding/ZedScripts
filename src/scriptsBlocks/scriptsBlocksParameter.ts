@@ -21,6 +21,7 @@ import { getScriptBlockData, getMainVariant } from "./scriptsBlocksUtility";
 import { DefaultText } from '../models/DefaultText';
 import { ThemeColorScopes } from "../models/ThemeColorType";
 import { DiagnosticType } from "../models/DiagnosticType";
+import { Annotations, AnnotationType, annotationPattern } from '../models/AnnotationType';
 
 import { diagnostic } from '../providers/diagnostic';
 import { registerActionTextReplace } from '../providers/actions';
@@ -56,6 +57,7 @@ export class ScriptParameter {
     isDuplicate: boolean;
     ref: ReferenceData | undefined = undefined;
     translation: TranslationLocation | undefined = undefined;
+    annotations: Annotations | null = null;
 
     // positions
     parameterRange: IndexRange;
@@ -597,6 +599,101 @@ export class ScriptParameter {
     }
 
 
+// DIAGNOSTICS ANNOTATIONS
+
+    /**
+     * Checks if the user has marked this block to ignore a specific diagnostic type.
+     */
+    public shouldIgnoreDiagnostic(diagnosticType: DiagnosticType): boolean {
+        if (this.parent.shouldIgnoreDiagnostic(diagnosticType)) {
+            return true;
+        }
+        if (!this.annotations) {
+            return false;
+        }
+        return this.annotations.annotations.diagnosticsOff.includes(diagnosticType);
+    }
+
+    /**
+     * Whenever the user marked this block as a soft override, which is used to ignore
+     * specific diagnostics for this block.
+     */
+    public isSoftOverride(): boolean {
+        if (this.parent.isSoftOverride()) {
+            return true;
+        }
+        if (!this.annotations) {
+            return false;
+        }
+        return this.annotations.annotations.softOverride;
+    }
+    
+    private getAnnotations(document: vscode.TextDocument, startPosition: number, endPosition: number, startLine: number, endLine: number): Annotations {
+        const text = document.getText(new vscode.Range(
+            document.positionAt(startPosition),
+            document.positionAt(endPosition)
+        ));
+    
+        // at each line, look for the annotations
+        const annotations = {
+            diagnosticsOff: [] as DiagnosticType[],
+            softOverride: false,
+        }
+        const matches = text.matchAll(annotationPattern);
+        for (const match of matches) {
+            const type = match.groups?.type;
+            const value = match.groups?.value;
+    
+            if (type === AnnotationType.DIAGNOSTIC_OFF && value) {
+                const splitted = value.split(',');
+                for (const val of splitted) {
+                    const diagnosticType = DiagnosticType[val as keyof typeof DiagnosticType];
+                    if (diagnosticType && !annotations.diagnosticsOff.includes(diagnosticType)) {
+                        annotations.diagnosticsOff.push(diagnosticType);
+                    }
+                }
+            } else if (type === AnnotationType.SOFT_OVERRIDE) {
+                annotations.softOverride = true;
+            }
+        }
+    
+        return {
+            sourceFile: this.document.fileName,
+            startIndex: startPosition,
+            endIndex: endPosition,
+            startLine: startLine,
+            endLine: endLine,
+            annotations: annotations
+        };
+    }
+
+    protected loadAnnotations(): void {
+        this.annotations = null;
+
+        // check for a comment block after the comma
+        const pattern = /\/\*[\s\S]*?\*\//;
+        const commaEndPosition = this.valueRange.end + this.comma.length;
+        const afterCommaText = this.document.getText(new vscode.Range(
+            this.document.positionAt(commaEndPosition),
+            this.document.lineAt(this.document.positionAt(commaEndPosition).line).range.end
+        ));
+        const match = pattern.exec(afterCommaText);
+        if (!match) {
+            return;
+        }
+
+        // get the start and end positions of the comment block
+        const startPosition = commaEndPosition + match.index;
+        const endPosition = startPosition + match[0].length;
+
+        // get the start and end lines of the comment block
+        const startLine = this.document.positionAt(startPosition).line;
+        const endLine = this.document.positionAt(endPosition).line;
+
+        this.annotations = this.getAnnotations(this.document, startPosition, endPosition, startLine, endLine);
+        log(`Loaded annotations for parameter '${this.parameter}' in block '${this.parent.scriptBlock}' at lines ${startLine + 1}-${endLine + 1}`, "debug");
+    }
+
 
 // CHECKERS
 
@@ -606,6 +703,9 @@ export class ScriptParameter {
      */
     public validate(): boolean {
         if (this.diagnostics === undefined) { return true }
+
+        // load annotations
+        this.loadAnnotations();
 
         const name = this.parameter;
 
@@ -719,8 +819,7 @@ export class ScriptParameter {
                     ));
                     return false;
                 }
-            } 
-            if (this.comma !== ",") {
+            } else if (this.comma !== ",") {
                 const diagnosticOutput = this.diagnostic(
                     DiagnosticType.INVALID_COMMA,
                     {},
@@ -1052,7 +1151,12 @@ export class ScriptParameter {
         params: Record<string, string>,
         index_start: number,index_end?: number,
         severity: vscode.DiagnosticSeverity = vscode.DiagnosticSeverity.Error
-    ): vscode.Diagnostic | false {
+    ): vscode.Diagnostic | false {        
+        // if has annotations, then check if type should be ignored
+        if (this.shouldIgnoreDiagnostic(type)) {
+            return false;
+        }
+
         return diagnostic(
             this.document,
             this.diagnostics,
