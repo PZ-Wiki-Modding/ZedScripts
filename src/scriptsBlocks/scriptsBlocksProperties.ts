@@ -476,7 +476,7 @@ export class InputsItemParameter extends InputsParameter {
                 if (diagnostic(
                     this.document,
                     this.diagnostics,
-                    DiagnosticType.SPACES_IN_ITEM,
+                    DiagnosticType.SPACES_IN_ID,
                     { value: item },
                     itemStart,
                     itemEnd,
@@ -492,7 +492,7 @@ export class InputsItemParameter extends InputsParameter {
                 if (diagnostic(
                     this.document,
                     this.diagnostics,
-                    DiagnosticType.NO_DOTS_ITEM,
+                    DiagnosticType.NO_DOTS_ID,
                     { value: item },
                     itemStart,
                     itemEnd,

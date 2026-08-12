@@ -54,6 +54,40 @@ You can disable a specific diagnostic entirely by adding its ID to the `ZedScrip
 
 A full list of the available diagnostic types can be found in [DiagnosticTypesList](DiagnosticTypesList.md)
 
+### Annotations
+Thanks to the use of annotations, you can deactivate specific diagnostics for specific blocks and parameters. For blocks, annotations are in the following format:
+```java
+/*Disable as many diagnostics as you want for this block
+ *@diagnostic-off:MISSING_COMMA
+ *@diagnostic-off:NOT_VALID_BLOCK
+ *
+ * You can also disable multiple diagnostics in a single annotation
+ *@diagnostic-off:WRONG_VALUES,SPACES_IN_ITEM
+ *
+ *You can also mark a block as a soft override of an existing block
+ *@soft-override
+ */
+block ID
+{
+  ...
+}
+```
+
+For parameters, annotations are in the following format:
+```java
+block ID
+{
+  param1 = value1, /*@diagnostic-off:WRONG_VALUES*/
+  param2 = value2, /*@diagnostic-off:WRONG_VALUES,MISSING_COMMA*/
+}
+```
+
+| Annotation                                          | Description                                              | Blocks | Parameters |
+| --------------------------------------------------- | -------------------------------------------------------- | ------ | ---------- |
+| `@diagnostic-off:<DIAGNOSTIC_ID1>,<DIAGNOSTIC_ID2>` | Disables specific diagnostics for the block or parameter | ✅      | ✅          |
+| `@soft-override` (WIP)                              | Marks a block as a soft override of an existing block    | ✅      | ❌          |
+
+
 ### Data Sources
 > [!CAUTION]
 > This is an advanced feature which can affect the behavior of the extension.

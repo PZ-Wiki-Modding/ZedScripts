@@ -59,10 +59,10 @@ export enum DiagnosticType {
     DUPLICATE_PROPERTY = "DUPLICATE_PROPERTY",
     MISSING_ONEOF_PROPERTY = "MISSING_ONEOF_PROPERTY",
 
-    NO_DOTS_ITEM = "NO_DOTS_ITEM",
+    NO_DOTS_ID = "NO_DOTS_ID",
     MISSING_MODULE = "MISSING_MODULE",
     ALL_WITH_OTHERS = "ALL_WITH_OTHERS",
-    SPACES_IN_ITEM = "SPACES_IN_ITEM",
+    SPACES_IN_ID = "SPACES_IN_ID",
     INVALID_VALUE = "INVALID_VALUE",
 
     // translations diagnostics
@@ -128,10 +128,10 @@ export const DiagnosticMetadata: Record<DiagnosticType, { message: string, tags?
     [DiagnosticType.DUPLICATE_PROPERTY]:     { message: "'{property}' is provided multiple times." },
     [DiagnosticType.MISSING_ONEOF_PROPERTY]: { message: "'{type}' is missing at least one of the following properties: {properties}." },
 
-    [DiagnosticType.NO_DOTS_ITEM]:    { message: "An item type (ID) cannot have dots '.' in its name. ({value})" },
+    [DiagnosticType.NO_DOTS_ID]:    { message: "An item type (ID) cannot have dots '.' in its name. ({value})" },
     [DiagnosticType.MISSING_MODULE]:  { message: "The provided item type (ID) is missing its module part: 'module.type'. ({value})" },
     [DiagnosticType.ALL_WITH_OTHERS]: { message: "'*' was provided along with other item types. '*' must be used alone." },
-    [DiagnosticType.SPACES_IN_ITEM]:  { message: "An item full type (module and ID) cannot contain spaces. ({value})" },
+    [DiagnosticType.SPACES_IN_ID]:  { message: "An item full type (module and ID) cannot contain spaces. ({value})" },
     [DiagnosticType.INVALID_VALUE]:   { message: "'{value}' is not a valid value for '{property}'. Valid values are: {validValues}." },
 
     // translations diagnostics

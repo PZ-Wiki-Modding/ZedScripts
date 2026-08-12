@@ -140,13 +140,6 @@ function subscribeCallbacks(context: vscode.ExtensionContext) {
             reloadDocument(editor);
         }),
 
-        // this one triggers when we open a new document
-        // not needed since we already handle the active editor change above
-        // vscode.workspace.onDidOpenTextDocument((document) => {
-        //     diagnosticFile(document, DIAGNOSTIC_PROVIDER);
-        //     loadDecorations(document);
-        // }),
-
         // triggers when we type in the document
         vscode.workspace.onDidChangeTextDocument((event) => {
             // debounce to avoid too many diagnostics on fast typing
@@ -203,7 +196,7 @@ function subscribeCallbacks(context: vscode.ExtensionContext) {
             {provideDocumentFormattingEdits,}
         ),
         
-        // apparently used when ctrl + click something
+        // used when ctrl + click something
         vscode.languages.registerDefinitionProvider(LANG_ZEDSCRIPTS, {
             provideDefinition,
         }),
