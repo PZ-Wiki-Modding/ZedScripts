@@ -175,6 +175,11 @@ export class ScriptsBlock {
     }
 
     public getScriptsDocPage(): string {
+        const blockData = getScriptBlockData(this.scriptBlock);
+        if (blockData.isRoot) {
+            const id = this.scriptBlock.toLowerCase().replace('root-', '');
+            return DOCS_LINK + 'root_files/' + id + '.html';
+        }
         const tree = getVariantTree(this.scriptBlock);
         return (DOCS_LINK + (tree.join('/')).replace(' ', '-').toLowerCase()) + '.html';
     }

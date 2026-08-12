@@ -217,7 +217,7 @@ export class ScriptParameter {
 
     protected getScriptsDocPage(): string {
         return this.parent.getScriptsDocPage() 
-            + '#' 
+            + '#scripts-' 
             + this.parent.scriptBlock.toLowerCase().replace(' ', '-') + '-' 
             + this.parameter.toLowerCase().replace(' ', '-');
     }

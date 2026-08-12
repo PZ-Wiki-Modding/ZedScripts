@@ -1,13 +1,20 @@
 import * as vscode from "vscode";
 
-import { testForScriptRootFile } from "./scriptsBlocksData";
-import { DEFAULT_ROOT_FILE, ScriptBlockData, ScriptBlockParameter, SCRIPTS_TYPES_LOWER } from "./scriptsBlocksData";
-import { preparePath } from "../utils/paths";
 import { LANG_ZEDSCRIPTS } from "../project";
+
+import { testForScriptRootFile } from "./scriptsBlocksData";
+import { DEFAULT_ROOT_FILE, ScriptBlockData, ScriptBlockParameter, SCRIPTS_TYPES_LOWER, ROOT_FILES } from "./scriptsBlocksData";
+
+import { preparePath } from "../utils/paths";
+import { log } from "../utils/logger";
 
 
 export function isScriptBlock(word: string): boolean {
     return SCRIPTS_TYPES_LOWER.has(word.toLowerCase());
+}
+
+export function isRootBlock(word: string): boolean {
+    return ROOT_FILES.hasOwnProperty(word);
 }
 
 /**
@@ -16,11 +23,16 @@ export function isScriptBlock(word: string): boolean {
 * @returns ScriptBlockData | null
 */
 export function getScriptBlockData(blockType: string): ScriptBlockData {
-    if (!isScriptBlock(blockType)) {
-        throw new Error(`Block type ${blockType} is not a valid script block type. Ensure to check with isScriptBlock() before getting block data.`);
+    if (isScriptBlock(blockType)) {
+        const blockData = SCRIPTS_TYPES_LOWER.get(blockType.toLowerCase()) as ScriptBlockData;
+        return blockData;
     }
-    const blockData = SCRIPTS_TYPES_LOWER.get(blockType.toLowerCase()) as ScriptBlockData;
-    return blockData;
+    if (isRootBlock(blockType)) {
+        const blockData = ROOT_FILES[blockType];
+        return blockData;
+    }
+    log(`getScriptBlockData: Block type "${blockType}" not found in SCRIPTS_TYPES_LOWER or ROOT_FILES.`, "error");
+    throw new Error(`Block type "${blockType}" not found in SCRIPTS_TYPES_LOWER or ROOT_FILES. Make sure you verify the block type exists in the scripts data.`);
 }
 
 export function canHaveParent(blockType: string, parentType: string): boolean {
