@@ -349,7 +349,7 @@ export class ScriptsBlock {
         const blockHeader = `${indentation}${this.scriptBlock}${this.id ? " " + this.id : ""} {`;
         const currentHeaderRange = new vscode.Range(
             lineStart,
-            this.document.positionAt(this.braceStart)
+            this.document.positionAt(this.braceStart+1)
         );
         const headerEdit = vscode.TextEdit.replace(currentHeaderRange, blockHeader);
         edits.push(headerEdit);
