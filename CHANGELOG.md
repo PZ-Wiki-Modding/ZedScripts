@@ -1,4 +1,7 @@
 # Changelog
+1.15.1:
+- fixed block header formatter
+
 1.15.0:
 - added annotations
 - tweaked some highlights
