@@ -120,4 +120,4 @@ make build
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
 ## Changelog
-You can find a full list of changes in [[CHANGELOG]].
+You can find a full list of changes in [CHANGELOG](CHANGELOG.md).
