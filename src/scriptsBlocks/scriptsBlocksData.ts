@@ -86,11 +86,6 @@ export interface ObjectType {
     pairsSeparator: string; // the separator used to split different key-value pairs
 }
 
-export interface ScriptBlockType {
-    block: string;
-    fullType: boolean; // if true, this can use the module to reference the block
-}
-
 export interface ParameterType {
     main: ValueTypes;
     array?: ArrayType;
