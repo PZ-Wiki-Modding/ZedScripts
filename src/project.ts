@@ -4,8 +4,8 @@ export const EXTENSION_ID = "project-zomboid-scripts";
 export const LANG_ZEDSCRIPTS = "ZedScripts";
 export const DOCUMENT_IDENTIFIER = "_DOCUMENT";
 
-export const SCRIPTS_BLOCKS_DATA_LINK = "https://raw.githubusercontent.com/pz-wiki-modding/pz-scripts-data/refs/heads/main/out/scriptsBlocks.json";
-export const ROOTS_DATA_LINK = "https://raw.githubusercontent.com/pz-wiki-modding/pz-scripts-data/refs/heads/main/out/roots.json";
+export const SCRIPTS_BLOCKS_DATA_LINK = "https://raw.githubusercontent.com/PZ-Wiki-Modding/pz-scripts-data/refs/tags/pre-lsp/out/scriptsBlocks.json";
+export const ROOTS_DATA_LINK = "https://raw.githubusercontent.com/PZ-Wiki-Modding/pz-scripts-data/refs/tags/pre-lsp/out/roots.json";
 
 export const DEFAULT_DIR = path.normalize(
     "C:/Program Files (x86)/Steam/steamapps/common/ProjectZomboid/media/scripts/"

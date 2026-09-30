@@ -519,7 +519,7 @@ export class ScriptParameter {
             const values = this.value.split(separator).map(v => v.trim());
             return values;
 
-        // simple value case
+        // handle object case
         } else if (type === ValueTypes.OBJECT) {
             const objectTypeData = this.getObjectTypeData();
             if (!objectTypeData) {
@@ -528,6 +528,8 @@ export class ScriptParameter {
             const pairsSeparator = objectTypeData.pairsSeparator;
             const values = this.value.split(pairsSeparator).map(v => v.trim());
             return values;
+
+        // simple value case
         } else if (this.value !== "") {
             return [this.value];
         }

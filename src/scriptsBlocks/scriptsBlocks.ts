@@ -813,10 +813,6 @@ export class ScriptsBlock {
     }
 
     protected validateID(): boolean {
-        if (this.scriptBlock === DOCUMENT_IDENTIFIER) {
-            return true;
-        }
-
         const blockData = getScriptBlockData(this.scriptBlock) as ScriptBlockData;
 
         // retrieve ID info
