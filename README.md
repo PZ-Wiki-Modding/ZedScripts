@@ -2,6 +2,10 @@
 [![OpenVSX Registry](https://img.shields.io/open-vsx/dt/simkdt/project-zomboid-scripts?color=purple&label=OpenVSX%20Downloads&style=for-the-badge)](https://open-vsx.org/extension/SimKDT/project-zomboid-scripts)
 [![License](https://img.shields.io/github/license/PZ-Wiki-Modding/ZedScripts?style=for-the-badge)](https://github.com/PZ-Wiki-Modding/ZedScripts/blob/main/LICENSE)
 
+> [!WARNING]
+> This extension is deprecated and may not receive further updates.
+> Use the new [ZedScripts](https://marketplace.visualstudio.com/items?itemName=SimKDT.ZedScripts) extension instead which implements the features in the form of a LSP.
+
 # ZedScripts
 
 This VS Code extension provides comprehensive support for Project Zomboid's [scripts](https://pzwiki.net/wiki/Scripts), also known as ZedScripts, including syntax highlighting, auto-formatting, and diagnostics for items, recipes, and other script blocks. This extension is a fork of [pz-syntax-extension](https://github.com/cyberbobjr/pz-syntax-extension) with an almost complete rewrite and many added features, notably the usage of a common data repository.
@@ -38,7 +42,7 @@ If your file isn't recognized as a Project Zomboid script file, it means it does
 - Choose "ZedScripts".
 
 When anywhere in a script file, you press Ctrl + Space to show the auto-completion suggestions which will list all the possible script blocks and parameters within a specific block. 
-
+389
 You can hover different elements with your mouse to show additional information about them, including a link to the [ScriptsDocs](https://pzwiki.net/wiki/ScriptsDocs) page for that element.
 
 When an error or warning appears, you can right click on it and select "Quick Fix" to see if a quick fix is available for that specific diagnostic.
